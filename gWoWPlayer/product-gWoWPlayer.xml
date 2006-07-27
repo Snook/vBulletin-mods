@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gWoWPlayer, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gWoWPlayer, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gWoWPlayer.xml 1065 2008-11-06 22:26:11Z ghryphen $
+	// $Rev: 1065 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-11-06 14:26:11 -0800 (Thu, 06 Nov 2008) $
+-->
+
+<product productid="gwowplayer" active="1">
+	<title>gWoWPlayer</title>
+	<description>WoW Player Matrix</description>
+	<version>1.0.0</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=checkversion&t=139958]]></versioncheckurl>
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode><![CDATA[$vbulletin->db->query_write("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gwowplayer (
+		`userid` int(11) NOT NULL default '0',
+		`locale` char(2) NOT NULL default '',
+		`realm` varchar(50) NOT NULL default '',
+		`faction` varchar(10) NOT NULL default '',
+		`character` varchar(100) NOT NULL default '',
+		`timenow` int(11) NOT NULL default '0',
+		KEY `userid` (`userid`),
+		KEY `locale` (`locale`),
+		KEY `realm` (`realm`),
+		KEY `faction` (`faction`),
+		KEY `character` (`character`)
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gwowplayer;" );]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="gwowplayer_bit" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<tr align="center">
+	<td class="alt2" align="$stylevar[left]" nowrap="nowrap"><a href="gwowplayer.php?locale=$character[locale]">$character[locale]</a></td>
+	<td class="alt1" align="$stylevar[left]" nowrap="nowrap"><a href="gwowplayer.php?locale=$character[locale]&amp;realm=$character[realm]">$character[realm]</td>
+	<td class="alt2" align="$stylevar[left]" nowrap="nowrap"><a href="gwowplayer.php?locale=$character[locale]&amp;realm=$character[realm]&amp;faction=$character[faction]">$character[faction]</a></td>
+	<td class="alt1" align="$stylevar[left]" nowrap="nowrap"><a href="gwowplayer.php?userid=$character[userid]">$character[character]</a></td>
+	<td class="alt2" align="$stylevar[left]" nowrap="nowrap"><a href="member.php?u=$character[userid]">$character[username]</a></td>
+</tr>
+
+]]></template>
+		<template name="gwowplayer_main" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[gwowplayer_title]</title>
+</head>
+<body>
+
+$header
+$navbar
+
+<if condition="$pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:3px">
+<tr valign="bottom">
+		<td class="smallfont">&nbsp;</td>
+		<td align="$stylevar[right]">$pagenav</td>
+</tr>
+</table>
+</if>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+		<span class="smallfont" style="float:$stylevar[right]">
+			<phrase 1="$limitlower" 2="$limitupper" 3="$counts[usercount]">$vbphrase[showing_results_x_to_y_of_z]</phrase>
+		</span>
+		<a href="gwowplayer.php">$vbphrase[gwowplayer_title]</a><if condition="$bbuserinfo['userid']"> - <a href="gwowplayer.php?userid=$bbuserinfo[userid]">$bbuserinfo[username]</a></if>
+	</td>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr align="center">
+	<td class="thead" nowrap="nowrap" width="20%"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=l&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid">$vbphrase[gwowp_locale]</a> <if condition="$sortfield == l"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=l&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap" width="20%"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=r&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid">$vbphrase[gwowp_realm]</a> <if condition="$sortfield == r"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=r&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap" width="20%"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=f&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid">$vbphrase[gwowp_faction]</a> <if condition="$sortfield == f"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=f&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap" width="20%"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=c&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid">$vbphrase[gwowp_character]</a> <if condition="$sortfield == c"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=c&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap" width="20%"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=u&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid">$vbphrase[username]</a> <if condition="$sortfield == u"><a href="gwowplayer.php?page=$pagenumber&amp;sortfield=u&amp;sortorder=$oppositesort&amp;locale=$locale&amp;realm=$realm&amp;faction=$faction&amp;userid=$userid"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+</tr>
+
+<if condition="$gwowp_bits">
+$gwowp_bits
+<else />
+<tr>
+	<td class="alt2" align="center" nowrap="nowrap" colspan="5">$vbphrase[no] $vbphrase[gwowp_character]</td>
+</tr>
+</if>
+
+<tr>
+	<td class="tfoot" colspan="5">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;" id="gwowp_copyright">$vbphrase[gllc_x_copy_x]<script type="text/javascript"> vbmenu_register("gwowp_copyright", true); </script></div>
+		<div class="smallfont" style="width: 300px; float: right; text-align: right;">
+		<if condition="$pagenav">
+			<phrase 1="$limitlower" 2="$limitupper" 3="$counts[usercount]">$vbphrase[showing_results_x_to_y_of_z]</phrase>
+		</if>
+		</div>
+	</td>
+</tr>
+</table>
+
+<if condition="$pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:3px">
+<tr valign="bottom">
+	<td align="$stylevar[right]">$pagenav</td>
+</tr>
+</table>
+</if>
+
+<br />
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gwowplayer_vbnav_navbarlink" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<td class="vbmenu_control"><a href="gwowplayer.php$session[sessionurl_q]">$vbphrase[gwowplayer_vbnav]</a></td>]]></template>
+		<template name="gwowplayer_vbnav_quicklink" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<tr><td class="vbmenu_option"><a href="gwowplayer.php$session[sessionurl_q]">$vbphrase[gwowplayer_vbnav]</a></td></tr>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gWoWP: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gwowplayer_bit';
+$globaltemplates[] = 'gwowplayer_main';
+$globaltemplates[] = 'gwowplayer_vbnav_navbarlink';
+$globaltemplates[] = 'gwowplayer_vbnav_quicklink';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWoWP: Links</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[
+	if ($vbulletin->options['gwowp_quicklink_loc'])
+	{
+		switch ($vbulletin->options['gwowp_quicklink_loc'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_quick_links_menu_pos1]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_quick_links_menu_pos2]';
+				break;
+			case "3":
+				$s = '$template_hook[navbar_quick_links_menu_pos3]';
+			case "4":
+				$s = '$template_hook[navbar_quick_links_menu_pos4]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gwowplayer_vbnav_quicklink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+	if ($vbulletin->options['gwowp_navbarlink_loc'])
+	{
+		switch ($vbulletin->options['gwowp_navbarlink_loc'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_buttons_left]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_buttons_right]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gwowplayer_vbnav_navbarlink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWoWP: Phrases</title>
+			<hookname>init_startup</hookname>
+			<phpcode><![CDATA[$phrasegroups[] = 'gwowp';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWoWP: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gwowplayer.php')
+{
+	$userinfo['activity'] = 'gwowplayer';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWoWP: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gwowplayer')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gwowplayer_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gwowplayer_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWoWP: Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gwowplayer'] = 'gWoWPlayer';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gwowplayer_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gWoWPlayer]]></phrase>
+			<phrase name="gwowplayer_vbnav" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gWoWPlayer]]></phrase>
+		</phrasetype>
+		<phrasetype name="gWoWPlayer Phrases" fieldname="gwowp">
+			<phrase name="gwowp_character" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Character]]></phrase>
+			<phrase name="gwowp_faction" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Faction]]></phrase>
+			<phrase name="gwowp_locale" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Locale]]></phrase>
+			<phrase name="gwowp_realm" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Realm]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gwowp_navbarlink_loc_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Choose the template hook location in the navbar.]]></phrase>
+			<phrase name="setting_gwowp_navbarlink_loc_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Navbar insert location]]></phrase>
+			<phrase name="setting_gwowp_quicklink_loc_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Choose the template hook location in the quick link menu.]]></phrase>
+			<phrase name="setting_gwowp_quicklink_loc_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Quick Link insert location]]></phrase>
+			<phrase name="setting_gwowp_show_perpage_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Choose how many user names per page should be shown.]]></phrase>
+			<phrase name="setting_gwowp_show_perpage_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[User Names Per Page]]></phrase>
+			<phrase name="setting_gwowp_user_lastvisit_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[How recent in days must a user have been active to be displayed. Set to 0 to show all users.]]></phrase>
+			<phrase name="setting_gwowp_user_lastvisit_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[User Activity Timeout]]></phrase>
+			<phrase name="setting_gwowp_userfield_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Enter the profile field id which contains the users WoW character info. Example: field15 is <b>15</b>]]></phrase>
+			<phrase name="setting_gwowp_userfield_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[User Profile Field]]></phrase>
+			<phrase name="setting_gwowp_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_gwowp_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="settinggroup_gwowp_group" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gWoWPlayer]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gwowp_group" displayorder="61610">
+			<setting varname="gwowp_navbarlink_loc" displayorder="10">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_buttons_left]
+2|$template_hook[navbar_buttons_right]
+]]></optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowp_quicklink_loc" displayorder="20">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_quick_links_menu_pos1]
+2|$template_hook[navbar_quick_links_menu_pos2]
+3|$template_hook[navbar_quick_links_menu_pos3]
+4|$template_hook[navbar_quick_links_menu_pos4]
+]]></optioncode>
+				<defaultvalue>4</defaultvalue>
+			</setting>
+			<setting varname="gwowp_user_lastvisit" displayorder="30">
+				<datatype>number</datatype>
+				<defaultvalue>365</defaultvalue>
+			</setting>
+			<setting varname="gwowp_show_perpage" displayorder="40">
+				<datatype>number</datatype>
+				<defaultvalue>30</defaultvalue>
+			</setting>
+			<setting varname="gwowp_userfield" displayorder="50">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowp_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gWoWPlayer&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gMinecraft, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gMinecraft, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN INFO ###################################
+	// $Id: product-gMinecraft.xml 1221 2009-10-07 00:35:13Z ghryphen $
+	// $Rev: 1221 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2009-10-06 17:35:13 -0700 (Tue, 06 Oct 2009) $
+-->
+
+<product productid="gminecraft" active="1">
+	<title>gMinecraft</title>
+	<description>Minecraft server information</description>
+	<version>1.0.0</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gmc_main" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[$stylevar[htmldoctype]
+<html xmlns="http://www.w3.org/1999/xhtml" dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[gmc_title]</title>
+
+</head>
+<body>
+
+$header
+$navbar
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+		$vbphrase[gmc_title]
+	</td>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr align="center">
+    <td class="thead">&nbsp;</td>
+  </tr>
+	<tr>
+		<td class="alt1">
+
+<if condition="!$server[serverno]">
+
+<h1>ATF Minecraft servers</h1>
+<ul>
+	<if condition="!is_member_of($bbuserinfo, 1, 10)"><!--<li><a href="?server=s1Sgxerr">Private Unlisted Creative Multiplayer</a></li>--></if>
+	<li><a href="?server=smp1asyBiW">Whitelist Unlisted Survival Multiplayer</a> - Request access on forums.</li>
+	<!--<li><a href="?server=s2gGhhmQ">Public Listed Creative Multiplayer</a></li>-->
+	<!--<li><a href="?server=s3gaTy4s">Public Unlisted Creative Multiplayer</a></li>-->
+</ul>
+
+<h1>What is Minecraft?</h1>
+<center>
+<object width="853" height="505"><param name="movie" value="http://www.youtube.com/v/FaMTedT6P0I?fs=1&amp;hl=en_US&amp;hd=1"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/FaMTedT6P0I?fs=1&amp;hl=en_US&amp;hd=1" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="853" height="505"></embed></object>
+<br />
+<object width="853" height="505"><param name="movie" value="http://www.youtube.com/v/ANgI2o_Jinc?fs=1&amp;hl=en_US&amp;hd=1"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/ANgI2o_Jinc?fs=1&amp;hl=en_US&amp;hd=1" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="853" height="505"></embed></object>
+</center>
+
+<else />
+
+<if condition="(($server[serverno] == s3gaTy4s || $server[serverno] == s2gGhhmQ) || ($server[serverno] == smp1asyBiW || $server[serverno] == s1Sgxerr) && !is_member_of($bbuserinfo, 1, 10))">
+
+<h1><a href="gminecraft.php">&lt; Home</a></h1>
+
+<if condition="$server[serverno] == smp1asyBiW">
+<div id="serverimg"><iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://www.alliedtribalforces.com:8123"></iframe><br /><small><a href="http://www.alliedtribalforces.com:8123" target="_blank">View Larger Map</a></small></div>
+<else />
+<div id="serverimg"><a href="gminecraft_iso.php?img=$server[serverno]" rel="Lightbox" target="_blank"><img src="gminecraft_iso.php?img=$server[serverno]&amp;thumb=1" border="0" alt="Isocraft"/></a></div>
+</if>
+
+<if condition="$server[serverno] == Xsmp1asyBiW">
+<center>
+<applet code="net.minecraft.Launcher" archive="http://www.minecraft.net/download/Minecraft.jar" width="854" height="480">
+    <param name="separate_jvm" value="true">
+    <param name="java_arguments" value="-Dsun.java2d.noddraw=true -Dsun.awt.noerasebackground=true -Dsun.java2d.d3d=false -Dsun.java2d.opengl=false -Dsun.java2d.pmoffscreen=false -Xms512M -Xmx512M">
+    <param name="userName" value="Player">
+</applet>
+</center>
+</if>
+
+<h1>Properties</h1>
+<pre>$server[properties]</pre>
+
+<h1>URL</h1>
+<if condition="$server[serverno] == smp1asyBiW">
+Go to <a href="http://www.minecraft.net/game/" target_"blank">http://www.minecraft.net/game/</a><br />
+Click Mutliplayer and enter: alliedtribalforces.com
+<else />
+<pre>$server[externalurl]</pre>
+</if>
+<hr />
+
+<if condition="$server[serverno] == smp1asyBiW">
+<h1>Stats</h1>
+<div id="serverimg"><iframe width="100%" height="600" frameborder="0" scrolling="yes" marginheight="0" marginwidth="0" src="http://www.alliedtribalforces.com/minecraft/netstats/"></iframe><br /><small><a href="http://www.alliedtribalforces.com/minecraft/netstats/" target="_blank">View Larger Stats</a></small></div>
+<hr />
+</if>
+
+
+
+<if condition="$server[players]">
+<h1>Players Online</h1>
+<div style="width:920px; height: 200px; overflow: auto;">
+<pre>$server[players]</pre>
+</div>
+<hr />
+</if>
+
+<!--
+<h1>Players</h1>
+<div style="width:920px; height: 300px; overflow: auto;">
+<if condition="$server[serverno] == smp1asyBiW"><table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr align="center">
+	<td class="thead" nowrap="nowrap">Name</td>
+	<td class="thead" nowrap="nowrap">Time Played</td>
+	<td class="thead" nowrap="nowrap">Last Seen</td>
+	<td class="thead" nowrap="nowrap">First Seen</td>
+</tr>
+</if>
+$server[userlog]
+<if condition="$server[serverno] == smp1asyBiW"></table></if>
+</div>
+<hr />
+-->
+
+<h1>Whitelist</h1>
+<div style="width:920px; height: 200px; overflow: auto;">
+<pre>$server[whitelist]</pre>
+</div>
+<hr />
+
+<h1>Banned</h1>
+<div style="width:920px; height: 200px; overflow: auto;">
+<pre>$server[banned]</pre>
+</div>
+<hr />
+
+<h1>Admins</h1>
+<div style="width:920px; height: 200px; overflow: auto;">
+<pre>$server[admins]</pre>
+</div>
+<hr />
+
+<h1>Chat Log</h1>
+<div id="chatLog" style="background:#ffffff;color:#000000;width:920px; height: 600px; overflow: auto;">
+<pre>$server[chatlog]</pre>
+</div>
+<script type="text/javascript">
+var objDiv = document.getElementById("chatLog");
+objDiv.scrollTop = objDiv.scrollHeight;
+</script>
+<hr />
+
+<h1>Login / Logout</h1>
+<div style="width:920px; height: 300px; overflow: auto;">
+<pre>$server[loginout]</pre>
+</div>
+<hr />
+
+<h1>Admin Actions</h1>
+<div style="width:920px; height: 300px; overflow: auto;">
+<pre>$server[adminlog]</pre>
+</div>
+<hr />
+
+<h1>Raw Log</h1>
+<div style="width:920px; height: 300px; overflow: auto;">
+<pre>$server[rawlog]</pre>
+</div>
+
+<else />
+
+<h1>You do not have permission to access this server</h1>
+
+</if>
+
+</if>
+
+		</td>
+	</tr>
+<tr>
+	<td class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>
+
+<br />
+
+<!-- lightbox scripts -->
+	<script type="text/javascript" src="clientscript/vbulletin_lightbox.js?v=380"></script>
+	<script type="text/javascript">
+	<!--
+	vBulletin.register_control("vB_Lightbox_Container", "serverimgx", $vboptions[lightboxenabled]);
+	//-->
+	</script>
+<!-- / lightbox scripts -->
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gmc_bit" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gMinecraft: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gminecraft'] = 'gMinecraft';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gmc_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gMinecraft]]></phrase>
+			<phrase name="gmc_vbnav" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gMinecraft]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gmc_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_gmc_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="settinggroup_gmc_group1" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gMinecraft]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gmc_group1" displayorder="60400">
+			<setting varname="gmc_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gIRChat&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

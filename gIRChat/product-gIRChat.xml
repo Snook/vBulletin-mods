@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gIRChat, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gIRChat, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN INFO ###################################
+	// $Id: product-gIRChat.xml 1221 2009-10-07 00:35:13Z ghryphen $
+	// $Rev: 1221 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2009-10-06 17:35:13 -0700 (Tue, 06 Oct 2009) $
+-->
+
+<product productid="girchat" active="1">
+	<title>gIRChat</title>
+	<description>Internet Relay Chat</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode><![CDATA[$vbulletin->db->query("
+	CREATE TABLE " . TABLE_PREFIX . "girchat (
+		`channel` varchar(255) NOT NULL default '',
+		`server` varchar(255) NOT NULL default '',
+		`topic` text NOT NULL,
+		`current` int(11) NOT NULL default '0',
+		`highest` int(11) NOT NULL default '0',
+		`op` text NOT NULL,
+		`hop` text NOT NULL,
+		`voice` text NOT NULL,
+		`normal` text NOT NULL,
+		`date` int(11) NOT NULL default '0',
+		PRIMARY KEY  (`channel`)
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "girchat;" );]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="GIRCHAT" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[girc_title]</title>
+
+<if condition="$irc['ischatting'] && $irc['promptme']">
+<script language="JavaScript">
+  window.onbeforeunload = confirmIRCExit;
+  function confirmIRCExit()
+  {
+    return "Leaving this page will log you out of chat.";
+  }
+</script>
+</if>
+
+</head>
+<body>
+
+$header
+$navbar
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+		$vbphrase[girc_title]
+	</td>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr align="center">
+    <td class="thead">&nbsp;</td>
+  </tr>
+	<tr>
+		<td class="alt1">
+
+	$girchat
+
+		</td>
+	</tr>
+<tr>
+	<td class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>
+
+<br />
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="girchat_java_loggedin" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+  <tr>
+    <td class="alt1" align="center" colspan="2">
+
+<applet codebase="girchat/" code=IRCApplet.class archive="irc.jar,pixx.jar" width="100%" height="500">
+<param name="CABINETS" value="irc.cab,securedirc.cab,pixx.cab">
+
+<param name="nick" value="$irc[username]">
+<param name="alternatenick" value="Guest???">
+<param name="name" value="$vboptions[bbtitle]">
+<param name="host" value="$irc[server]">
+<param name="port" value="$irc[port]">
+$irc[channel]
+<param name="gui" value="pixx">
+
+<param name="quitmessage" value="$vboptions[bbtitle] - $vboptions[homeurl]">
+<param name="asl" value="false">
+<param name="useinfo" value="false">
+<param name="pixx:showabout" value="false">
+<param name="pixx:showhelp" value="false">
+
+<param name="style:bitmapsmileys" value="true">
+<param name="style:smiley1" value=":) img/sourire.gif">
+<param name="style:smiley2" value=":-) img/sourire.gif">
+<param name="style:smiley3" value=":-D img/content.gif">
+<param name="style:smiley4" value=":d img/content.gif">
+<param name="style:smiley5" value=":-O img/OH-2.gif">
+<param name="style:smiley6" value=":o img/OH-1.gif">
+<param name="style:smiley7" value=":-P img/langue.gif">
+<param name="style:smiley8" value=":p img/langue.gif">
+<param name="style:smiley9" value=";-) img/clin-oeuil.gif">
+<param name="style:smiley10" value=";) img/clin-oeuil.gif">
+<param name="style:smiley11" value=":-( img/triste.gif">
+<param name="style:smiley12" value=":( img/triste.gif">
+<param name="style:smiley13" value=":-| img/OH-3.gif">
+<param name="style:smiley14" value=":| img/OH-3.gif">
+<param name="style:smiley15" value=":'( img/pleure.gif">
+<param name="style:smiley16" value=":$ img/rouge.gif">
+<param name="style:smiley17" value=":-$ img/rouge.gif">
+<param name="style:smiley18" value="(H) img/cool.gif">
+<param name="style:smiley19" value="(h) img/cool.gif">
+<param name="style:smiley20" value=":-@ img/enerve1.gif">
+<param name="style:smiley21" value=":@ img/enerve2.gif">
+<param name="style:smiley22" value=":-S img/roll-eyes.gif">
+<param name="style:smiley23" value=":s img/roll-eyes.gif">
+<param name="style:backgroundimage" value="false">
+<param name="style:backgroundimage1" value="all all 0 background.gif">
+<param name="style:sourcefontrule1" value="all all Fixdsys 12">
+<param name="style:floatingasl" value="true">
+
+<param name="pixx:timestamp" value="true">
+<param name="pixx:highlight" value="true">
+<param name="pixx:highlightnick" value="true">
+<param name="pixx:nickfield" value="true">
+<param name="pixx:styleselector" value="true">
+<param name="pixx:setfontonstyle" value="true">
+
+</applet>
+
+    </td>
+  </tr>
+</table>
+<br />]]></template>
+		<template name="girchat_javascript_loggedin" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+  <tr>
+    <td class="alt1" align="center" colspan="2">
+		<iframe width="100%" height="500" scrolling="no" style="border:0" src="http://widget.mibbit.com/?settings=$vboptions[girchat_mibbit_settings]&amp;autoConnect=true&amp;server=$irc[server]&amp;channel=$irc[channel]&amp;nick=$irc[username]"></iframe>
+	</td>
+  </tr>
+</table>
+<br />]]></template>
+		<template name="girchat_login" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="500" align="center">
+<tbody>
+<form name="girchat" method="post">
+<input type="hidden" name="do" value="loggin">
+  <tr>
+    <td class="tcat" colspan="2">Login</td>
+  </tr>
+  <tr>
+    <td class="alt1" align="$stylevar[right]"><b>Username:</b><br /><div class="smallfont"></div></td>
+    <td class="alt1" align="$stylevar[left]"><input class="bginput" type="text" name="username" value="$irc[username]" size="40" maxlength="26"></td>
+  </tr>
+</tbody>
+
+<tr>
+	<td class="thead" colspan="2">
+		<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('ircoptions')"><img id="collapseimg_ircoptions" src="$stylevar[imgdir_button]/collapse_thead$vbcollapse[collapseimg_ircoptions].gif" alt="" border="0" /></a>
+		Additional Options
+	</td>
+</tr>
+<tbody id="collapseobj_ircoptions" style="$vbcollapse[collapseobj_ircoptions]">
+<tr>
+    <td class="alt2" align="$stylevar[right]"><b>Server:</b><br /><div class="smallfont"></div></td>
+    <td class="alt2" align="$stylevar[left]"><input class="bginput" type="text" name="server" value="$irc[server]" size="40"></td>
+</tr>
+<tr>
+    <td class="alt1" align="$stylevar[right]"><b>Channel:</b><br /><div class="smallfont"></div></td>
+    <td class="alt1" align="$stylevar[left]">$irc[channel]</td>
+</tr>
+<tr>
+    <td class="alt2" align="$stylevar[right]"><b>Prompt on exit:</b><br /><div class="smallfont"></div></td>
+    <td class="alt2" align="$stylevar[left]"><input type="checkbox" name="promptme" value="true" checked> Prevent accidental chat closure</td>
+</tr>
+<if condition="$vboptions['girchat_mibbit']">
+<tr>
+    <td class="alt1" align="$stylevar[right]"><b>Interface:</b><br /><div class="smallfont"></div></td>
+    <td class="alt1" align="$stylevar[left]"><input type="radio" name="interface" value="java" <if condition="!$vboptions['girchat_mibbit_default']">checked</if>> Java <input type="radio" name="interface" value="javascript" <if condition="$vboptions['girchat_mibbit_default']">checked</if>>Javascript</td>
+</tr>
+</if>
+</tbody>
+<tbody>
+	<tr>
+		<td class="alt2" align="center" colspan="2">
+			<input type="submit" value="Login" class="button">
+			<input type="reset" name="Reset" class="button">
+		</td>
+	</tr>
+<if condition="$show[userconfig] && $show[member]">
+	<tr>
+		<td class="alt1" align="center" colspan="2">
+			<a href="profile.php?do=editoptions">Edit your options</a> to change the default chat settings.
+		</td>
+	</tr>
+</if>
+</form>
+</tbody>
+</table>
+<br />]]></template>
+		<template name="girchat_vbnav_navbarlink" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<td class="vbmenu_control"><a href="girchat.php$session[sessionurl_q]">$vbphrase[girchat_vbnav]</a></td>]]></template>
+		<template name="girchat_vbnav_quicklink" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<tr><td class="vbmenu_option"><a href="girchat.php$session[sessionurl_q]">$vbphrase[girchat_vbnav]</a></td></tr>]]></template>
+		<template name="girchat_whoisonline" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<!-- gIRChat -->
+<tbody>
+	<tr>
+		<td class="thead" colspan="2">
+			<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('forumhome_girchat_activeusers')"><img id="collapseimg_forumhome_girchat_activeusers" src="$stylevar[imgdir_button]/collapse_thead$vbcollapse[collapseimg_forumhome_girchat_activeusers].gif" alt="" border="0" /></a>
+			<a href="girchat.php$session[sessionurl_q]" rel="nofollow">$vbphrase[girc_title] topic</a>: $girchat[topic]
+		</td>
+	</tr>
+</tbody>
+<tbody id="collapseobj_forumhome_girchat_activeusers" style="$vbcollapse[collapseobj_forumhome_girchat_activeusers]">
+	<tr>
+		<td class="alt2"><a href="girchat.php$session[sessionurl_q]" rel="nofollow"><img src="$stylevar[imgdir_misc]/whos_online.gif" border="0" /></a></td>
+		<td class="alt1" width="100%">
+			<div class="smallfont">
+				<div>$girchat_activeusers</div>
+			</div>
+		</td>
+	</tr>
+</tbody>
+<!-- end girchat -->]]></template>
+		<template name="girchat_whoisonline_op" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<span class="girchatop">@$girchatuser</span>, ]]></template>
+		<template name="girchat_whoisonline_hop" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<span class="girchathop">$girchatuser</span>, ]]></template>
+		<template name="girchat_whoisonline_voice" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<span class="girchatvoice">+$girchatuser</span>, ]]></template>
+		<template name="girchat_whoisonline_normal" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<span class="girchatnormal">$girchatuser</span>, ]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gIRC: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'girchat_vbnav_quicklink';
+$globaltemplates[] = 'girchat_vbnav_navbarlink';
+$globaltemplates[] = 'girchat_whoisonline';
+$globaltemplates[] = 'girchat_whoisonline_op';
+$globaltemplates[] = 'girchat_whoisonline_hop';
+$globaltemplates[] = 'girchat_whoisonline_voice';
+$globaltemplates[] = 'girchat_whoisonline_normal';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[gIRC: Who's Online]]></title>
+			<hookname>girchat_whos_online</hookname>
+			<phpcode><![CDATA[require_once('./includes/functions_girchat.php');
+		
+$res = $vbulletin->db->query("SELECT * FROM " . TABLE_PREFIX . "girchat");
+$data = $vbulletin->db->fetch_array($res);
+		
+if($data['date'] <= (TIMENOW - 28800))
+{
+	$girchat_whoisonline_disabled = 1;
+}
+
+$girchat['topic'] = "<span>".mircize($data['topic']);
+
+$girchat['opers'] = explode(",", $data[op]);
+$girchat['hopers'] = explode(",", $data[hop]);
+$girchat['voicers'] = explode(",", $data[voice]);
+$girchat['normalers'] = explode(",", $data[normal]);
+
+foreach ($girchat['opers'] AS $girchatuser)
+{
+	if($girchatuser != '')
+	eval('$girchat_activeusers .= "' . fetch_template('girchat_whoisonline_op') . '";');
+}
+
+foreach ($girchat['hopers'] AS $girchatuser)
+{
+	if($girchatuser != '')
+	eval('$girchat_activeusers .= "' . fetch_template('girchat_whoisonline_hop') . '";');
+}
+
+foreach ($girchat['voicers'] AS $girchatuser)
+{
+	if($girchatuser != '')
+	eval('$girchat_activeusers .= "' . fetch_template('girchat_whoisonline_voice') . '";');
+}
+
+foreach ($girchat['normalers'] AS $girchatuser)
+{
+	if($girchatuser != '')
+	eval('$girchat_activeusers .= "' . fetch_template('girchat_whoisonline_normal') . '";');
+}
+
+$girchat_activeusers = substr(trim($girchat_activeusers), 0, -1);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[gIRC: Who's Online - Forumhome]]></title>
+			<hookname>forumhome_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['girchat_display_online_forumhome'])
+{
+	($hook = vBulletinHook::fetch_hook('girchat_whos_online')) ? eval($hook) : false;
+	
+	if(!$girchat_whoisonline_disabled)
+	{
+		$s = '<!-- end logged-in users -->';
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["girchat_whoisonline"], $vbulletin->templatecache["FORUMHOME"] );
+		$vbulletin->templatecache["FORUMHOME"] = $t;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gIRC: Links</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['girchat_vbnav_quick'])
+{
+	$s = '$template_hook[navbar_quick_links_menu_pos3]';
+
+	$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["girchat_vbnav_quicklink"], $vbulletin->templatecache["navbar"] );
+	$vbulletin->templatecache["navbar"] = $t;
+}
+if ($vbulletin->options['girchat_vbnav_navbar'])
+{
+	$s = '$template_hook[navbar_buttons_left]';
+
+	$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["girchat_vbnav_navbarlink"], $vbulletin->templatecache["navbar"] );
+	$vbulletin->templatecache["navbar"] = $t;
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gIRC: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'girchat.php')
+{
+	$userinfo['activity'] = 'girchat';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gIRC: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'girchat')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['girc_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['girc_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gIRC: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['girchat'] = 'gIRChat';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="girchat_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gIRChat]]></phrase>
+			<phrase name="girchat_vbnav" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gIRChat]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_girchat_join_all_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Select Yes if you want the user to join all channels listed. Select No if you want them to pick a single channel.]]></phrase>
+			<phrase name="setting_girchat_join_all_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Join All Channels]]></phrase>
+			<phrase name="setting_girchat_mibbit_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Allows users to the choice to use Mibbit.com's javascript interface.]]></phrase>
+			<phrase name="setting_girchat_mibbit_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Use Mibbit.com]]></phrase>
+			<phrase name="setting_girchat_mibbit_default_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Make Mibbit.com the default choice over Java.]]></phrase>
+			<phrase name="setting_girchat_mibbit_default_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Use Mibbit.com as default]]></phrase>
+			<phrase name="setting_girchat_mibbit_settings_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Enter the settings ID for the Mibbit.com widget.]]></phrase>
+			<phrase name="setting_girchat_mibbit_settings_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Mibbit.com settings ID]]></phrase>
+			<phrase name="setting_girchat_server_chan_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Enter the IRC server, port and channel names.<br /><br />Format:<br />server:port;channel1,channel2<br /><br />Example:<br />irc.vbulletin.org:6667;vborg,help]]></phrase>
+			<phrase name="setting_girchat_server_chan_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[IRC Channels]]></phrase>
+			<phrase name="setting_girchat_userfield_username_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Enter the profile field id which contains the users custom IRC Username. Example: field15]]></phrase>
+			<phrase name="setting_girchat_userfield_username_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Custom Username Profile Field]]></phrase>
+			<phrase name="setting_girchat_vbnav_navbar_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add gIRChat link to the Navbar.]]></phrase>
+			<phrase name="setting_girchat_vbnav_navbar_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add Navbar Link]]></phrase>
+			<phrase name="setting_girchat_vbnav_quick_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add gIRChat link to the Quick Nav menu.]]></phrase>
+			<phrase name="setting_girchat_vbnav_quick_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add Quick Link]]></phrase>
+			<phrase name="setting_girchat_display_online_forumhome_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Show who is online on forumhome.]]></phrase>
+			<phrase name="setting_girchat_display_online_forumhome_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Show who is online]]></phrase>
+			<phrase name="setting_girchat_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_girchat_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="settinggroup_girchat_group1" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gIRChat]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="girchat_group1" displayorder="60400">
+			<setting varname="girchat_vbnav_quick" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="girchat_vbnav_navbar" displayorder="20">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="girchat_server_chan" displayorder="30">
+				<datatype>free</datatype>
+				<optioncode>textarea</optioncode>
+				<defaultvalue>irc.vbulletin.org:6667;vborg,help</defaultvalue>
+			</setting>
+			<setting varname="girchat_join_all" displayorder="40">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="girchat_userfield_username" displayorder="50">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="girchat_mibbit" displayorder="60">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="girchat_mibbit_default" displayorder="65">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="girchat_mibbit_settings" displayorder="66">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="girchat_display_online_forumhome" displayorder="70">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="girchat_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gIRChat&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

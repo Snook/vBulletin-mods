@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gEditorial, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gEditorial, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gEditorial.xml 907 2008-01-29 23:48:43Z ghryphen $
+	// $Rev: 907 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-29 15:48:43 -0800 (Tue, 29 Jan 2008) $
+-->
+
+<product productid="geditorial" active="1">
+	<title>gEditorial</title>
+	<description>gEditorial</description>
+	<version>1.0.0</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="ged_list" templatetype="template" date="0" username="" version=""><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr>
+	<td class="tcat" colspan="6">Editorials</td>
+</tr>
+<tr>
+	<td class="thead">Title</td>
+	<td class="thead">Views</td>
+	<td class="thead">Replies</td>
+	<td class="thead">Author</td>
+	<td class="thead"><if condition="$vboptions[ged_addthis]">AddThis<else />digg</if></td>
+</tr>
+$editorial_list
+<tr>
+	<td class="tfoot" colspan="6">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>
+<br />
+<center><a href="showthread.php?t=2060">Write your own editorial</a></center>
+<br />]]></template>
+		<template name="ged_list_bit" templatetype="template" date="0" username="" version=""><![CDATA[<tr>
+	<td class="alt2">$editorial[prefix_rich] <a href="geditorial.php?p=$editorial[postid]">$editorial[title]</a></td>
+	<td align="center" class="alt1">$editorial[views]</td>
+	<td align="center" class="alt2">$editorial[replycount]</td>
+	<td align="center" class="alt1"><a href="member.php?u=$editorial[userid]">$editorial[postusername]</a><br /><span class="smallfont" style="white-space:nowrap">$editorial[date] <span class="time">$editorial[time]</span></span></td>
+	<td align="center" class="alt1"><if condition="$vboptions[ged_addthis]"><script type="text/javascript">
+  addthis_url = '$vboptions[bburl]/showthread.php?t=$editorial[threadid]';
+  addthis_title = '$editorial[title]';
+  addthis_pub = '$vboptions[ged_addthis]';
+</script><script type="text/javascript" src="http://s7.addthis.com/js/addthis_widget.php?v=12" ></script><else /><script type="text/javascript">
+digg_url = '$vboptions[bburl]/showthread.php?t=$editorial[threadid]';
+digg_title = '$editorial[title]';
+digg_skin = 'compact';
+</script>
+<script src="http://digg.com/tools/diggthis.js" type="text/javascript"></script></if>
+</td>
+</tr>]]></template>
+		<template name="ged_main" templatetype="template" date="0" username="" version=""><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - <if condition="$postid">$post[title]<else />$vbphrase[ged_title]</if></title>
+</head>
+<body>
+
+$header
+$navbar
+
+<br />
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" align="center">
+<tr>
+<td valign="top">
+  <div style="width: 680px; float: left;">
+
+$content
+
+	</div>
+	<div style="width: 250px; float: right;">
+
+$gsite_nav
+
+<br />
+
+<if condition="$threadinfo[threadid]"><center>
+
+<if condition="$vboptions[ged_addthis]"><script type="text/javascript">
+  addthis_url = '$vboptions[bburl]/showthread.php?t=$threadinfo[threadid]';
+  addthis_title = '$post[title]';
+  addthis_pub = '$vboptions[ged_addthis]';
+</script><script type="text/javascript" src="http://s7.addthis.com/js/addthis_widget.php?v=12" ></script>
+
+<br /><br /></if>
+
+<script type="text/javascript">
+digg_url = '$vboptions[bburl]/showthread.php?t=$threadinfo[threadid]';
+digg_title = '$post[title]';
+digg_bgcolor = '$vboptions[ged_diggbgcolor]';
+</script>
+<script src="http://digg.com/tools/diggthis.js" type="text/javascript"></script></center></if>
+
+	</div>
+
+</td>
+</tr>
+</table>
+
+<br />
+
+<if condition="$show['lightbox']">
+<!-- lightbox scripts -->
+	<script type="text/javascript" src="clientscript/vbulletin_lightbox.js?v=$vboptions[simpleversion]"></script>
+	<script type="text/javascript">
+	<!--
+	vBulletin.register_control("vB_Lightbox_Container", "td_post_$post[postid]", $vboptions[lightboxenabled]);
+	//-->
+	</script>
+<!-- / lightbox scripts -->
+</if>
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="ged_postbit" templatetype="template" date="0" username="" version=""><![CDATA[<table class="tborder" id="post$post[postid]" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr>
+	<td class="tcat" colspan="5">$post[title]</td>
+</tr>
+<tr>
+	<td class="alt2" style="padding:0px">
+		<!-- user info -->
+		<table cellpadding="0" cellspacing="$stylevar[cellpadding]" border="0" width="100%">
+		<tr>
+			<if condition="$show['avatar']"><td class="alt2"><a href="member.php?$session[sessionurl]u=$post[userid]"><img src="$post[avatarurl]" $post[avwidth] $post[avheight] alt="<phrase 1="$post[username]">$vbphrase[xs_avatar]</phrase>" border="0" /></a></td></if>
+			<td nowrap="nowrap">
+
+				<div id="postmenu_$post[postid]">
+					<if condition="$show['profile']">
+					<a class="bigusername" href="member.php?$session[sessionurl]u=$post[userid]">$post[musername]</a>
+					$post[onlinestatus]
+					<script type="text/javascript"> vbmenu_register("postmenu_$post[postid]", true); </script>
+					<else />
+					$post[musername]
+					</if>
+				</div>
+
+				<if condition="$post['usertitle']"><div class="smallfont">$post[usertitle]</div></if>
+				<if condition="$post['rank']"><div class="smallfont">$post[rank]</div></if>
+
+			</td>
+			<td width="100%">&nbsp;</td>
+			<td valign="top" nowrap="nowrap">
+
+				<div class="smallfont">
+					<if condition="$post['joindate']"><div>$vbphrase[join_date]: $post[joindate]</div></if>
+					<if condition="$post['field2']"><div>$vbphrase[location_perm]: $post[field2]</div></if>
+					<if condition="$post['age']"><div>$vbphrase[age]: $post[age]</div></if>
+					<div>
+						$vbphrase[posts]: $post[posts]
+					</div>
+					<if condition="$show['infraction']"><div>$vbphrase[infractions]: $post[warnings]/$post[infractions] ($post[ipoints])</div></if>
+					<if condition="$show['reputation']"><if condition="$show['reppower']">$vbphrase[reppower]: <span id="reppower_$post[postid]_$post[userid]">$post[reppower]</span> </if><div><span id="repdisplay_$post[postid]_$post[userid]">$post[reputationdisplay]</span></div></if>
+					<div>$post[icqicon] $post[aimicon] $post[msnicon] $post[yahooicon] $post[skypeicon]</div>
+				</div>
+
+			</td>
+		</tr>
+		</table>
+		<!-- / user info -->
+	</td>
+</tr>
+
+<tr>
+	<td class="alt1" id="td_post_$post[postid]">
+	<!-- message, attachments, sig -->
+		<div style="text-align:center;"><h2>$post[title]</h2></div>
+		<!-- message -->
+		<div id="post_message_$post[postid]">$post[message]</div>
+		<!-- / message -->
+
+		<if condition="$show['attachments']">
+		<!-- attachments -->
+			<div style="padding:$stylevar[cellpadding]px">
+
+			<if condition="$show['thumbnailattachment']">
+				<fieldset class="fieldset">
+					<legend>$vbphrase[attached_thumbnails]</legend>
+					<div style="padding:$stylevar[formspacer]px">
+					$post[thumbnailattachments]
+					</div>
+				</fieldset>
+			</if>
+
+			<if condition="$show['imageattachment']">
+				<fieldset class="fieldset">
+					<legend>$vbphrase[attached_images]</legend>
+					<div style="padding:$stylevar[formspacer]px">
+					$post[imageattachments]
+					</div>
+				</fieldset>
+			</if>
+
+			<if condition="$show['imageattachmentlink']">
+				<fieldset class="fieldset">
+					<legend>$vbphrase[attached_images]</legend>
+					<table cellpadding="0" cellspacing="$stylevar[formspacer]" border="0">
+					$post[imageattachmentlinks]
+					</table>
+					</fieldset>
+			</if>
+
+			<if condition="$show['otherattachment']">
+				<fieldset class="fieldset">
+					<legend>$vbphrase[attached_files]</legend>
+					<table cellpadding="0" cellspacing="$stylevar[formspacer]" border="0">
+					$post[otherattachments]
+					</table>
+				</fieldset>
+			</if>
+
+			<if condition="$show['moderatedattachment']">
+				<fieldset class="fieldset">
+					<legend>$vbphrase[attachments_pending_approval]</legend>
+					<table cellpadding="0" cellspacing="$stylevar[formspacer]" border="0">
+					$post[moderatedattachments]
+					</table>
+				</fieldset>
+			</if>
+
+			</div>
+		<!-- / attachments -->
+		</if>
+
+		<if condition="$show['postedited']">
+		<!-- edit note -->
+			<div class="smallfont">
+				<hr size="1" style="color:$stylevar[tborder_bgcolor]" />
+				<em>
+					<if condition="$post['editlink'] AND $show['postedithistory']">
+						<phrase 1="$post[edit_username]" 2="$post[edit_date]" 3="$post[edit_time]" 4="posthistory.php?$session[sessionurl]p=$post[postid]">$vbphrase[last_edited_link_by_x_on_y_at_z_postid]</phrase>.
+					<else />
+						<phrase 1="$post[edit_username]" 2="$post[edit_date]" 3="$post[edit_time]">$vbphrase[last_edited_by_x_on_y_at_z]</phrase>.
+					</if>
+					<if condition="$post['edit_reason']">
+						$vbphrase[reason]: $post[edit_reason]
+					</if>
+				</em>
+			</div>
+		<!-- / edit note -->
+		</if>
+
+	<!-- message, attachments, sig -->
+
+	</td>
+</tr>
+</table>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:3px">
+<tr valign="bottom">
+	<td class="smallfont"><a href="newreply.php?$session[sessionurl]do=newreply&amp;noquote=1&amp;p=$post[postid]" rel="nofollow"><img src="$stylevar[imgdir_button]/reply.gif" alt="$vbphrase[reply]" border="0" /></a></td>
+</tr>
+</table>
+
+
+<!-- post $post[postid] popup menu -->
+<div class="vbmenu_popup" id="postmenu_$post[postid]_menu" style="display:none;">
+	<table cellpadding="4" cellspacing="1" border="0">
+	<tr>
+		<td class="thead">$post[username]</td>
+	</tr>
+	<if condition="$show['profile']">
+		<tr><td class="vbmenu_option"><a href="member.php?$session[sessionurl]u=$post[userid]">$vbphrase[view_public_profile]</a></td></tr>
+	</if>
+	<if condition="$show['pmlink']">
+		<tr><td class="vbmenu_option"><a href="private.php?$session[sessionurl]do=newpm&amp;u=$post[userid]" rel="nofollow"><phrase 1="$post[username]">$vbphrase[send_private_message_to_x]</phrase></a></td></tr>
+	</if>
+	<if condition="$show['emaillink']">
+		<tr><td class="vbmenu_option"><a href="sendmessage.php?$session[sessionurl]do=mailmember&amp;u=$post[userid]" rel="nofollow"><phrase 1="$post[username]">$vbphrase[send_email_to_x]</phrase></a></td></tr>
+	</if>
+	<if condition="$show['homepage']">
+		<tr><td class="vbmenu_option"><a href="$post[homepage]"><phrase 1="$post[username]">$vbphrase[visit_xs_homepage]</phrase></a></td></tr>
+	</if>
+	<if condition="$show['search']">
+		<tr><td class="vbmenu_option"><a href="search.php?$session[sessionurl]do=finduser&amp;u=$post[userid]" rel="nofollow"><phrase 1="$post[username]">$vbphrase[find_all_posts_by_x]</phrase></a></td></tr>
+	</if>
+	<if condition="$post['userid'] AND $show['member']">
+	<tr><td class="vbmenu_option"><a href="profile.php?$session[sessionurl]do=addlist&amp;userlist=buddy&amp;u=$post[userid]"><phrase 1="$post[username]">$vbphrase[add_x_to_contacts]</phrase></a></td></tr>
+	</if>
+	</table>
+</div>
+<!-- / post $post[postid] popup menu -->]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gEditorial: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'geditorial.php')
+{
+	$userinfo['activity'] = 'geditorial';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gEditorial: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'geditorial')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['ged_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['ged_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gEditorial: Postbit</title>
+			<hookname>postbit_factory</hookname>
+			<phpcode><![CDATA[switch ($postbit_type)
+			{
+				case 'geditorial':
+					$out =& new vB_Postbit_Post();
+					$out->templatename = 'ged_postbit';
+					$handled_type = true;
+					break;
+			}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gEditorial: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['ged_'] = 'gEditorial';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="ged_title" date="0" username="" version=""><![CDATA[gEditorial]]></phrase>
+			<phrase name="ged_vbnav" date="0" username="" version=""><![CDATA[gEditorial]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_ged_addthis_desc" date="0" username="" version=""><![CDATA[Enter your <a href="http://www.addthis.com" target="_blank">addthis.com</a> account name.]]></phrase>
+			<phrase name="setting_ged_addthis_title" date="0" username="" version=""><![CDATA[AddThis.com account]]></phrase>
+			<phrase name="setting_ged_diggbgcolor_desc" date="0" username="" version=""><![CDATA[Enter the color you wish to use for the digg background.]]></phrase>
+			<phrase name="setting_ged_diggbgcolor_title" date="0" username="" version=""><![CDATA[Digg background color]]></phrase>
+			<phrase name="setting_ged_prefixid_desc" date="0" username="" version=""><![CDATA[Comma separated list of thread prefix id.]]></phrase>
+			<phrase name="setting_ged_prefixid_title" date="0" username="" version=""><![CDATA[Thread Prefix ID]]></phrase>
+			<phrase name="settinggroup_ged_group1" date="0" username="" version=""><![CDATA[gEditorial]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="ged_group1" displayorder="60600">
+			<setting varname="ged_prefixid" displayorder="10">
+				<datatype>Free</datatype>
+				<defaultvalue>Review,Editorial</defaultvalue>
+			</setting>
+			<setting varname="ged_diggbgcolor" displayorder="20">
+				<datatype>free</datatype>
+				<defaultvalue>#400000</defaultvalue>
+			</setting>
+			<setting varname="ged_addthis" displayorder="30">
+				<datatype>free</datatype>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

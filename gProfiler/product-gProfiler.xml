@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gProfiler, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gProfiler, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gProfiler.xml 923 2008-02-12 00:30:02Z ghryphen $
+	// $Rev: 923 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-02-11 16:30:02 -0800 (Mon, 11 Feb 2008) $
+-->
+
+<product productid="gprofiler" active="1">
+	<title>gProfiler</title>
+	<description>gProfiler</description>
+	<version>1.0.0</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>Xfire/Xbox/GGE/Webcam/Locale: Member Custom Field</title>
+			<hookname>member_customfields</hookname>
+			<phpcode><![CDATA[// Xfire
+if ($profilefield['profilefieldid'] == '64')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<center><a href="http://profile.xfire.com/' . $profilefield['value'] . '" rel="me" target="_blank"><img style="width:277px; height:63px; border:0px;" src="http://miniprofile.xfire.com/bg/sh/type/1/' . $profilefield['value'] . '.png" /></a></center>';
+	}
+}
+
+// MySpace
+if ($profilefield['profilefieldid'] == '135')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<a href="http://www.myspace.com/' . $profilefield['value'] . '" rel="me" target="_blank">' . $profilefield['value'] . '</a>';
+	}
+}
+
+// Facebook
+if ($profilefield['profilefieldid'] == '136')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<a href="http://www.facebook.com/profile.php?id=' . $profilefield['value'] . '" rel="me" target="_blank">' . $profilefield['value'] . '</a>';
+	}
+}
+
+// digg
+if ($profilefield['profilefieldid'] == '137')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<a href="http://digg.com/users/' . $profilefield['value'] . '" rel="me" target="_blank">' . $profilefield['value'] . '</a>';
+	}
+}
+
+// twitter
+if ($profilefield['profilefieldid'] == '138')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<center><div style="width:176px;text-align:center"><embed src="http://twitter.com/flash/twitter_badge.swf"  flashvars="color1=6684672&type=user&id=10778322"  quality="high" width="176" height="176" name="twitter_badge" align="middle" allowScriptAccess="always" wmode="transparent" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" /><br><a style="font-size: 10px; color: #660000; text-decoration: none" href="http://twitter.com/' . $profilefield['value'] . '">follow ' . $profilefield['value'] . ' at http://twitter.com</a></div></center>';
+	}
+}
+
+// profilactic
+if ($profilefield['profilefieldid'] == '133')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<a href="http://www.profilactic.com/mashup/' . $profilefield['value'] . '" rel="me" target="_blank">' . $profilefield['value'] . '</a>';
+	}
+}
+
+//GGE
+if ($profilefield['profilefieldid'] == '116')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<center><a href="http://www.greatgamesexperiment.com/user/' . $profilefield['value'] . '/?utm_source=gge&utm_medium=badge_user" rel="me" target="_blank"><img border="0" alt="Great Games Experiment" title="Great Games Experiment" src="http://static.greatgamesexperiment.com/badge/user/' . strtolower($profilefield['value']) . '/gge300x140.png"/></a></center>';
+	}
+}
+
+//Webcam
+if ($profilefield['profilefieldid'] == '120')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<center><img id="usercam" src="' . $profilefield['value'] . '" style="cursor: pointer; cursor: hand;" onclick="javascript:cam_refresh();" title="Refresh Now!" /></center>
+<script language="Javascript" type="text/javascript">//<![CDATA[
+		function cam_refresh()
+		{
+			document.getElementById("usercam").src = "' . $profilefield['value'] . '?" + Math.random();
+		}
+
+		function cam_start()
+		{
+			cam_refresh();
+			setTimeout("cam_start()", 10*1000)
+		}
+
+		cam_start();
+//]]>
+</script>';
+	}
+}
+
+//RSS Feed
+if ($profilefield['profilefieldid'] == '68')
+{
+	if($profilefield['value'])
+	{
+		$feeds = explode("\n", $profilefield['value']);
+
+		foreach ($feeds AS $feed)
+		{
+			list($item['title'], $item['url']) = explode("|", $feed);
+
+			if (trim(strip_tags($item['title'])) && trim(strip_tags($item['url'])))
+			{
+				$feedlist .= 'feedControl.addFeed("' . trim(strip_tags($item['url'])) . '", "' . trim(strip_tags($item['title'])) . '");' . "\n";
+			}
+		}
+
+		$profilefield['value'] = '<script type="text/javascript" src="http://www.google.com/jsapi?key=' . $vbulletin->options['gprof_apikey'] . '"></script>
+<script language="Javascript" type="text/javascript">//<![CDATA[
+	google.load("feeds", "1");
+	function OnLoad() {
+		var feedControl = new google.feeds.FeedControl();
+		' . $feedlist . '
+		feedControl.draw(
+			document.getElementById("feedControl"),
+			{
+				drawMode : google.feeds.FeedControl.DRAW_MODE_TABBED
+			});
+	}
+	google.setOnLoadCallback(OnLoad);
+//]]>
+</script>
+<style type="text/css">
+#feedControl {
+	width: 100%;
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+	}
+.gfc-resultsHeader {
+  width: 100%;
+  border-bottom: 1px solid ' . $stylevar['alt1_fgcolor'] . ';
+  margin-bottom : 4px;
+  }
+.gfc-tabHeader.gfc-tabhActive {
+  border-left: 1px solid ' . $stylevar['alt1_fgcolor'] . ';
+  border-right: 1px solid ' . $stylevar['alt1_fgcolor'] . ';
+  border-top: 1px solid ' . $stylevar['alt1_fgcolor'] . ';
+  border-bottom: 1px solid ' . $stylevar['alt1_bgcolor'] . ';
+	background: ' . $stylevar['alt1_bgcolor'] . ';
+	color: ' . $stylevar['alt1_fgcolor'] . ';
+	}
+.gfc-tabHeader.gfc-tabhInactive {
+  border-left: 1px solid #808080;
+  border-right: 1px solid #808080;
+  border-top: 1px solid #808080;
+	background: ' . $stylevar['alt1_bgcolor'] . ';
+  color: #c0c0c0;
+  }
+.gf-result .gf-relativePublishedDate {
+  color: ' . $stylevar['time_fgcolor'] . ';
+  }
+</style>
+<div id="feedControl"><img class="inlineimg" style="border:0; width:16px; height:16px;" src="' . $stylevar['imgdir_misc'] . '/progress.gif" /> Loading</div>';
+	}
+}
+
+// EVE Online
+if ($profilefield['profilefieldid'] == '124')
+{
+	if($profilefield['value'])
+	{
+		$chars = explode("\n", $profilefield['value']);
+		$count = 1;
+
+		$profilefield['value'] = '<ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+
+		foreach ($chars AS $item)
+		{
+			list($char['server'], $char['character']) = explode("|", $item);
+
+			$profilefield['value'] .= '<li class="smallfont"><img class="inlineimg" style="width:16px; height:16px; border:0px;" src="images/eve.gif" alt="EVE Online" /> ' .$char['server']. ': ' .$char['character']. '</li>';
+
+			if ($count++ == ceil(count($chars) / 2))
+			{
+				$profilefield['value'] .= '</ul><ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+			}
+		}
+
+		$profilefield['value'] .= '</ul><div style="clear:both;"></div>';
+
+		if ($count == 1)
+		{
+		  $profilefield['value'] = '';
+		}
+	}
+}
+
+// Star Wars Galaxies
+if ($profilefield['profilefieldid'] == '62')
+{
+	if($profilefield['value'])
+	{
+		$chars = explode("\n", $profilefield['value']);
+		$count = 1;
+
+		$profilefield['value'] = '<ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+
+		foreach ($chars AS $item)
+		{
+			list($char['server'], $char['character']) = explode("|", $item);
+
+			$profilefield['value'] .= '<li class="smallfont"><img class="inlineimg" style="width:16px; height:16px; border:0px;" src="images/swgaed.gif" alt="Star Wars Galaxies: An Empire Divided" /> ' .$char['server']. ': ' .$char['character']. '</li>';
+
+			if ($count++ == ceil(count($chars) / 2))
+			{
+				$profilefield['value'] .= '</ul><ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+			}
+		}
+
+		$profilefield['value'] .= '</ul><div style="clear:both;"></div>';
+
+		if ($count == 1)
+		{
+		  $profilefield['value'] = '';
+		}
+	}
+}
+
+// Hellgate: London
+if ($profilefield['profilefieldid'] == '134')
+{
+	if($profilefield['value'])
+	{
+		$chars = explode("\n", $profilefield['value']);
+		$count = 1;
+
+		$profilefield['value'] = '<ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+
+		foreach ($chars AS $item)
+		{
+			list($char['locale'], $char['server'], $char['character']) = explode("|", $item);
+
+			$profilefield['value'] .= '<li class="smallfont"><img class="inlineimg" style="width:16px; height:16px; border:0px;" src="images/hgl.gif" alt="Hellgate: London" /> ' .$char['locale']. ': ' .$char['server']. ': ' .$char['character']. '</li>';
+
+			if ($count++ == ceil(count($chars) / 2))
+			{
+				$profilefield['value'] .= '</ul><ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+			}
+		}
+
+		$profilefield['value'] .= '</ul><div style="clear:both;"></div>';
+
+		if ($count == 1)
+		{
+		  $profilefield['value'] = '';
+		}
+	}
+}
+
+// LOTRO
+if ($profilefield['profilefieldid'] == '122')
+{
+	if($profilefield['value'])
+	{
+		$chars = explode("\n", $profilefield['value']);
+		$count = 1;
+
+		$profilefield['value'] = '<ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+
+		foreach ($chars AS $item)
+		{
+			list($char['server'], $char['character']) = explode("|", $item);
+
+			$profilefield['value'] .= '<li class="smallfont"><img class="inlineimg" style="width:16px; height:16px; border:0px;" src="images/lotro.gif" alt="The Lord of the Rings Online" /> ' .$char['server']. ': ' .$char['character']. '</li>';
+
+			if ($count++ == ceil(count($chars) / 2))
+			{
+				$profilefield['value'] .= '</ul><ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+			}
+		}
+
+		$profilefield['value'] .= '</ul><div style="clear:both;"></div>';
+
+		if ($count == 1)
+		{
+		  $profilefield['value'] = '';
+		}
+	}
+}
+
+//Last.fm
+if ($profilefield['profilefieldid'] == '130')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<style type="text/css">
+table.lfmWidget20070605170738
+td {
+margin:0 !important;
+padding:0 !important;
+border:0 !important;
+}
+
+table.lfmWidget20070605170738
+tr.lfmHead a:hover
+{
+background:url(http://panther1.last.fm/widgets/images/en/header/chart/recenttracks_regular_red.gif) no-repeat 0 0 !important;
+}
+
+table.lfmWidget20070605170738
+tr.lfmEmbed object
+{
+float:left;
+}
+
+table.lfmWidget20070605170738 tr.lfmFoot
+td.lfmConfig a:hover
+{
+background:url(http://panther1.last.fm/widgets/images/en/footer/red.gif) no-repeat 0 0 !important;
+}
+
+table.lfmWidget20070605170738
+tr.lfmFoot td.lfmView a:hover
+{
+background:url(http://panther1.last.fm/widgets/images/en/footer/red.gif) no-repeat -85px 0 !important;
+}
+
+table.lfmWidget20070605170738
+tr.lfmFoot
+td.lfmPopup
+a:hover
+{
+background:url(http://panther1.last.fm/widgets/images/en/footer/red.gif) no-repeat -159px 0 !important;
+}
+</style>
+<center>
+<table class="lfmWidget20070605170738" cellpadding="0" cellspacing="0" border="0" style="width:184px;">
+	<tr class="lfmHead">
+		<td>
+		<a title="' . $profilefield['value'] . ': Recently Listened Tracks" href="http://www.last.fm/user/' . $profilefield['value'] . '/" target="_blank" style="display:block;overflow:hidden;height:20px;width:184px;background:url(http://panther1.last.fm/widgets/images/en/header/chart/recenttracks_regular_red.gif) no-repeat 0 -20px;text-decoration:none;"></a>
+		</td>
+	</tr>
+	<tr class="lfmEmbed">
+		<td>
+		<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="184" height="179" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab%23version=7,0,0,0" style="float:left;">
+			<param name="bgcolor" value="d01f3c" />
+			<param name="movie" value="http://panther1.last.fm/widgets/chart/3.swf" />
+			<param name="quality" value="high" />
+			<param name="allowScriptAccess" value="sameDomain" />
+			<param name="FlashVars" value="type=recenttracks&amp;user=' . urlencode($profilefield['value']) . '&amp;theme=red&amp;lang=en" />
+				<embed src="http://panther1.last.fm/widgets/chart/3.swf" type="application/x-shockwave-flash" name="widgetPlayer" bgcolor="d01f3c" width="184" height="179" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer"  FlashVars="type=recenttracks&amp;user=' . urlencode($profilefield['value']) . '&amp;theme=red&amp;lang=en" allowScriptAccess="sameDomain">
+				</embed>
+		</object>
+		</td>
+	</tr>
+	<tr class="lfmFoot">
+		<td style="background:url(http://panther1.last.fm/widgets/images/footer_bg/red.gif) repeat-x 0 0;text-align:right;">
+			<table cellspacing="0" cellpadding="0" border="0" style="width:184px;">
+				<tr>
+					<td class="lfmConfig">
+					<a href="http://www.last.fm/widgets/?widget=chart&amp;colour=red&amp;chartType=recenttracks&amp;user=' . urlencode($profilefield['value']) . '&amp;from=widget" title="Get your own" target="_blank" style="display:block;overflow:hidden;width:85px;height:20px;float:right;background:url(http://panther1.last.fm/widgets/images/en/footer/red.gif) no-repeat 0 -20px;text-decoration:none;"></a>
+					</td>
+				<td class="lfmView" style="width:74px;">
+				<a href="http://www.last.fm/user/' . $profilefield['value'] . '/" title="View ' . $profilefield['value'] . '\'s profile" target="_blank" style="display:block;overflow:hidden;width:74px;height:20px;background:url(http://panther1.last.fm/widgets/images/en/footer/red.gif) no-repeat -85px -20px;text-decoration:none;"></a>
+				</td>
+					<td class="lfmPopup"style="width:25px;">
+					<a href="http://www.last.fm/widgets/popup/?widget=chart&amp;colour=red&amp;chartType=recenttracks&amp;user=' . urlencode($profilefield['value']) . '&amp;from=widget&amp;resize=1" title="Load this chart in a pop up" target="_blank" style="display:block;overflow:hidden;width:25px;height:20px;background:url(http://panther1.last.fm/widgets/images/en/footer/red.gif) no-repeat -159px -20px;text-decoration:none;" onclick="window.open(this.href + \'&amp;resize=0\',\'lfm_popup\',\'height=279,width=234,resizable=yes,scrollbars=yes\'); return false;"></a>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+</center>';
+	}
+}
+
+// Yahoo! Live
+if ($profilefield['profilefieldid'] == '139')
+{
+	if($profilefield['value'])
+	{
+		$profilefield['value'] = '<center><object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="412" height="383" codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab"><param name="movie" value="http://live.yahoo.com/swf/player/' . $profilefield['value'] . '" /><embed src="http://live.yahoo.com/swf/player/' . $profilefield['value'] . '" width="412" height="363" type="application/x-shockwave-flash" pluginspage="http://www.adobe.com/go/getflashplayer"></embed></object></center>';
+	}
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gprof_apikey_desc" date="0" username="" version="1.00"><![CDATA[Enter your <a href="http://code.google.com/apis/ajaxsearch/signup.html" target="_blank">API key</a> for Google.]]></phrase>
+			<phrase name="setting_gprof_apikey_title" date="0" username="" version="1.00"><![CDATA[Google API Key]]></phrase>
+			<phrase name="settinggroup_gprof_group1" date="0" username="" version="1.00"><![CDATA[gProfiler]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gprof_group1" displayorder="60600">
+			<setting varname="gprof_apikey" displayorder="10">
+				<datatype>free</datatype>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

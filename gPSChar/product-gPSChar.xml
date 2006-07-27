@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gPSChar, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gPSChar, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gPSChar.xml 907 2008-01-29 23:48:43Z ghryphen $
+	// $Rev: 907 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-29 15:48:43 -0800 (Tue, 29 Jan 2008) $
+-->
+
+<product productid="gpschar" active="1">
+	<title>gPSChar</title>
+	<description>Display multiple PlanetSide characters in postbit.</description>
+	<version>1.0.2</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies />
+	<codes>
+	</codes>
+	<templates>
+		<template name="gps_char_bit" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<tr><td class="vbmenu_option"><img class="inlineimg" style="width:16px; height:16px; border:0px;" src="$stylevar[imgdir_misc]/gpschar/icon-$char[icon].gif" alt="$char[empire]" /> <a href="$char[url]" target="_blank"> $char[realm]: $char[character]</a></td></tr>]]></template>
+		<template name="gps_char_menu" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<if condition="$show['pschar']">
+	<div class="smallfont">
+		<div id="pschar_$post[postid]">
+			<a href="member.php?$session[sessionurl]u=$post[userid]">$vbphrase[gps_chars] <img src="$stylevar[imgdir_misc]/menu_open.gif" border="0"></a>
+			<script type="text/javascript"> vbmenu_register("pschar_$post[postid]", true); </script>
+		</div>
+	</div>
+</if>]]></template>
+		<template name="gps_char_popup" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<if condition="$show['pschar']">
+<!-- post $post[postid] character menu -->
+<div class="vbmenu_popup" id="pschar_$post[postid]_menu" style="display:none">
+    <table cellpadding="4" cellspacing="1" border="0">
+    <tr>
+        <td class="thead"><a href="https://github.com/ghryphen" taget="_blank" title="$vbphrase[gllc_x_copy_x]" style="text-decoration: none;">gPSChar</a></td>
+    </tr>
+$pschar_bits
+    </table>
+</div>
+<!-- / post $post[postid] character menu -->
+</if>]]></template>
+		<template name="gps_char_profile_bit" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<div class="smallfont"><img class="inlineimg" style="width:16px; height:16px; border:0px;" src="$stylevar[imgdir_misc]/gpschar/icon-$char[icon].gif" alt="$char[faction]" /> <a href="$char[url]" target="_blank"> $char[realm]: $char[character]</a></div>]]></template>
+		<template name="gps_char_url" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[http://myplanetside.station.sony.com/character.jsp?worldId=$char[worldid]&charId=$char[charid]]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gPS: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gps_char_bit';
+$globaltemplates[] = 'gps_char_menu';
+$globaltemplates[] = 'gps_char_popup';
+$globaltemplates[] = 'gps_char_profile_bit';
+$globaltemplates[] = 'gps_char_url';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gPS: Template Mod</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['gps_insert_postbit'])
+{
+	$s = '$template_hook[postbit_userinfo_left]';
+	$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gps_char_menu"], $vbulletin->templatecache["postbit_legacy"] );
+	$vbulletin->templatecache["postbit_legacy"] = $t;
+}
+
+$vbulletin->templatecache["postbit_legacy"] = $vbulletin->templatecache["postbit_legacy"] . '\n' . $vbulletin->templatecache["gps_char_popup"];
+$vbulletin->templatecache["postbit"] = $vbulletin->templatecache["postbit"] . '\n' . $vbulletin->templatecache["gps_char_popup"];]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gPS: Member Custom Field</title>
+			<hookname>member_customfields</hookname>
+			<phpcode><![CDATA[global $stylevar;
+global $vbphrase;
+global $vbulletin;
+
+if (is_numeric($vbulletin->options['gps_user_field']) && $vbulletin->options['gps_user_field'] != '0')
+{
+	$gps_fieldid = "field" . $vbulletin->options['gps_user_field'];
+}
+else
+{
+	$gps_fieldid = $vbulletin->options['gps_user_field'];
+}
+
+$vbphrase['gllc_x_copy_x'] = construct_phrase('%s, Copyright &copy; 2006 - %s, Ghryphen', 'gPSChar', date("Y"));
+
+$profilefieldname = "field$profilefield[profilefieldid]";
+
+if ($profilefieldname == $gps_fieldid)
+{
+	$profilefield['title'] = $profilefield['title'] . ' <a href="https://github.com/ghryphen" taget="_blank" title="' . $vbphrase[gllc_x_copy_x] . '" style="text-decoration: none;">&copy;</a>';
+
+	$chars = explode("\n", $profilefield['value']);
+	$count = 1;
+
+	$profilefield['value'] = '<ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+
+	foreach ($chars AS $item)
+	{
+		list($char['worldid'], $char['charid'], $char['character'], $char['empire']) = explode("|", $item);
+
+		$char['worldid'] = trim($char['worldid']);
+		$char['charid'] = trim($char['charid']);
+		$char['character'] = trim($char['character']);
+		$char['empire'] = strtoupper(trim($char['empire']));
+
+		if($char['worldid'] && $char['charid'] && $char['character'])
+		{
+
+			switch ($char['worldid']) {
+				case 3:
+					$char['realm'] = 'Markov';
+					break;
+				case 15:
+					$char['realm'] = 'Emerald';
+					break;
+				case 21:
+					$char['realm'] = 'Werner';
+					break;
+			}
+
+			$show['pschar'] = 1;
+
+			if($char['empire'])
+			{
+				$char['icon'] = strtolower(strip_tags($char['empire']));
+			}
+			else
+			{
+				$char['icon'] = 'ps';
+			}
+
+			eval('$char[url] = "' . fetch_template('gps_char_url') . '\n";');
+
+			eval('$profilefield[value] .= "<li>' . fetch_template('gps_char_profile_bit') . '\n";');
+
+			if ($count++ == ceil(count($chars) / 2))
+			{
+				$profilefield[value] .= '</ul><ul style="list-style-type:none; margin:0px; padding:0px; width:50%; float:left">';
+			}
+
+		}
+
+		unset ($char);
+	}
+
+	$profilefield[value] .= '</ul><div style="clear:both;"></div>';
+
+	if ($count == 1)
+	{
+	  $profilefield[value] = '';
+	}
+
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gPS: PS Characters</title>
+			<hookname>postbit_display_start</hookname>
+			<phpcode><![CDATA[$show['pschar'] = 0;
+
+if (is_numeric($this->registry->options['gps_user_field']) && $this->registry->options['gps_user_field'] != '0')
+{
+	$gps_fieldid = "field" . $this->registry->options['gps_user_field'];
+}
+else
+{
+	$gps_fieldid = $this->registry->options['gps_user_field'];
+}
+
+$vbphrase['gllc_x_copy_x'] = construct_phrase('%s, Copyright &copy; 2006 - %s, Ghryphen', 'gPSChar', date("Y"));
+
+if(trim($post[$gps_fieldid]) != '')
+{
+
+	$chars = explode("\n", $post[$gps_fieldid]);
+
+	foreach ($chars AS $item)
+	{
+		list($char['worldid'], $char['charid'], $char['character'], $char['empire']) = explode("|", $item);
+
+		$char['worldid'] = trim($char['worldid']);
+		$char['charid'] = trim($char['charid']);
+		$char['character'] = trim($char['character']);
+		$char['empire'] = strtoupper(trim($char['empire']));
+
+		if($char['worldid'] && $char['charid'] && $char['character'])
+		{
+
+			switch ($char['worldid']) {
+				case 3:
+					$char['realm'] = 'Markov';
+					break;
+				case 15:
+					$char['realm'] = 'Emerald';
+					break;
+				case 21:
+					$char['realm'] = 'Werner';
+					break;
+			}
+
+			$show['pschar'] = 1;
+
+			if($char['empire'])
+			{
+				$char['icon'] = strtolower($char['empire']);
+			}
+			else
+			{
+				$char['icon'] = 'ps';
+			}
+
+			eval('$char[url] = "' . fetch_template('gps_char_url') . '\n";');
+
+			eval('$pschar_bits .= "' . fetch_template('gps_char_bit') . '\n";');
+
+		}
+
+		unset ($char);
+	}
+
+	if ($show['pschar'] && !$this->registry->options['gps_insert_postbit'])
+	{
+		eval('$pschar_menu = "' . fetch_template('gps_char_menu') . '";');
+	}
+
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gPS: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gps_'] = 'gPSChar';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Postbit" fieldname="postbit">
+			<phrase name="gps_chars" date="0" username="Ghryphen" version="1.00"><![CDATA[PlanetSide Characters]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gps_insert_postbit_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Yes: Automatically insert the menu into postbit.<br />No: Use $pschar_menu in your postbit.]]></phrase>
+			<phrase name="setting_gps_insert_postbit_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Automatically Insert]]></phrase>
+			<phrase name="setting_gps_user_field_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter the profile field id for the users PS Characters. Example: field15]]></phrase>
+			<phrase name="setting_gps_user_field_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Userfield ID]]></phrase>
+			<phrase name="settinggroup_gps_group1" date="0" username="Ghryphen" version="1.00"><![CDATA[gPSChar]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gps_group1" displayorder="60600">
+			<setting varname="gps_user_field" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gps_insert_postbit" displayorder="20">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

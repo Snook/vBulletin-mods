@@ -1,0 +1,740 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTeamSpeak, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gTeamSpeak, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gTeamSpeak.xml 1062 2008-10-30 18:08:47Z ghryphen $
+	// $Rev: 1062 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-10-30 11:08:47 -0700 (Thu, 30 Oct 2008) $
+-->
+
+<product productid="gteamspeak" active="1">
+	<title>gTeamSpeak</title>
+	<description>Allow forum users to register for a TeamSpeak 2 server.</description>
+	<version>3.31</version>
+	<url>http://www.vbulletin.org/forum/showthread.php?t=122221</url>
+	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=checkversion&t=122221]]></versioncheckurl>
+	<dependencies>
+		<dependency dependencytype="vbulletin" minversion="3.6.7" maxversion="" />
+	</dependencies>
+	<codes>
+		<code version="1.00">
+			<installcode><![CDATA[$vbulletin->db->query("
+	CREATE TABLE " . TABLE_PREFIX . "gteamspeak_plugin (
+		`title` varchar(255) NOT NULL default '',
+		`description` text NOT NULL,
+		`version` varchar(255) NOT NULL default '',
+		`order` int(11) NOT NULL default '0',
+		`reqsa` int(11) NOT NULL default '0',
+		`enabled` int(11) NOT NULL default '0',
+		`menu` text NOT NULL,
+		`code` text NOT NULL,
+		`function` text NOT NULL,
+		PRIMARY KEY  (`title`)
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gteamspeak_plugin;" );]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="gts_usercp" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[gts_title]</title>
+</head>
+<body>
+
+$header
+$navbar
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+		$vbphrase[gts_title]
+	</td>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr align="center">
+    <td class="thead">&nbsp;</td>
+  </tr>
+	<tr>
+		<td class="alt1">
+
+	$gts_bit
+
+		</td>
+	</tr>
+<tr>
+	<td class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;" id="gts_copyright">$vbphrase[gllc_x_copy_x]<script type="text/javascript"> vbmenu_register("gts_copyright", true); </script></div>
+	</td>
+</tr>
+</table>
+
+<br />
+
+<if condition="$show['gts_whos_on']">
+<br />
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr>
+		<td class="tcat" colspan="2">$vbphrase[whats_going_on]</td>
+	</tr>
+</thead>
+
+$gts_whos_online
+
+</table>
+<br />
+</if>
+
+<!-- gts_copyright menu -->
+<div class="vbmenu_popup" id="gts_copyright_menu" style="display:none">
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_xclick" />
+<input type="hidden" name="business" value="ghryphen@gmail.com" />
+<input type="hidden" name="page_style" value="PayPal" />
+<input type="hidden" name="no_shipping" value="1" />
+<input type="hidden" name="shipping" value="0.00" />
+<input type="hidden" name="no_note" value="1" />
+<input type="hidden" name="return" value="https://github.com/ghryphen/" />
+<input type="hidden" name="cancel_return" value="$vboptions[bburl]/gteamspeak.php" />
+<input type="hidden" name="tax" value="0" />
+<input type="hidden" name="item_name" value="gTeamSpeak - TeamSpeak User Management" />
+<input type="hidden" name="on0" value="From" />
+<input type="hidden" name="os0" value="$bbuserinfo[username] / $vboptions[bburl]" />
+<input type="hidden" name="on1" value="Message" />
+	<table cellpadding="4" cellspacing="1" border="0">
+	<tr>
+		<td class="thead">Author Message:</td>
+	<tr>
+		<td class="vbmenu_option" title="nohilite" align="left">I hope you enjoy using gTeamSpeak<if condition="$bbuserinfo['userid']"> $bbuserinfo[username]</if>.<br />Donations can be made below if<br/>you would like to support gTeamSpeak.<br /><br />Thank you,<br /><a href="https://github.com/ghryphen" target="_blank">Ghryphen</a></td>
+	</tr>
+	<tr>
+		<td class="thead">Donate Via PayPal</td>
+	</tr>
+	<tr>
+		<td class="vbmenu_option" title="nohilite">Amount:  
+			<input id="amount" size="10" maxlength="16" name="amount" value="0.00" type="text" title="Amount" style="width:40px" class="button" /><select name="currency_code" title="Select a Default Currency">
+			<option value="USD" selected="selected">U.S. Dollars</option>
+		</td>
+	</tr>
+	<tr>
+		<td class="vbmenu_option" title="nohilite" align="left">Enter Short Message:<br /><textarea class="button" name="os1" maxlength="200" rows="2" cols="15" style="width: 98%; overflow: auto" title="Enter Short Message"></textarea>
+			<div align="center"><input class="button" name="submit" value="Donate Now!" type="submit" /></div>
+		</td>
+	</tr>
+	</table>
+</form>
+</div>
+<!-- / gts_copyright menu -->
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gts_usercp_addressbook" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+			<td class="tcat" nowrap="nowrap">
+				<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('ts2addressbook')"><img id="collapseimg_ts2addressbook" src="$stylevar[imgdir_button]/collapse_tcat$vbcollapse[collapseimg_ts2addressbook].gif" alt="" border="0" /></a>
+				$phrase[gts_addbook]
+			</td>
+		</tr>
+		<tbody id="collapseobj_ts2addressbook" style="$vbcollapse[collapseobj_ts2addressbook]">
+		<tr>
+			<td class="alt1">
+					<div style="float:right; margin: 0px; padding: 0px; width: 378px; height: 590px; background-image: url('$stylevar[imgdir_misc]/gteamspeak/teamspeak_help.gif');">
+						<div style="padding-top: 73px; padding-left: 50px;"><span style="font: 11px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif; color: #000000;">$ts2info[serverlabel]</span></div>
+						<div style="padding-top: 0px; padding-left: 177px;"><span style="font: 11px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif; color: #000000;">$ts2info[serverlabel]</span></div>
+						<div style="padding-top: 34px; padding-left: 177px;"><span style="font: 11px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif; color: #000000;">$ts2info[serveraddress]</span></div>
+						<div style="padding-top: 35px; padding-left: 177px;"><span style="font: 11px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif; color: #000000;">$bbuserinfo[username]</span></div>
+						<div style="padding-top: 83px; padding-left: 177px;"><span style="font: 11px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif; color: #000000;">$ts2info[username]</span></div>
+						<div style="padding-top: 36px; padding-left: 177px;"><span style="font: 11px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif; color: #000000;">$ts2info[password]</span></div>
+						<div style="padding-top: 214px; padding-left: 176px;"><input style="font: 11px verdana; width: 86px; height: 18px; border-width: 0px; margin: 0px; padding: 0px; cursor: pointer; cursor: hand;" type="submit" value="Connect" onClick="location.href='teamspeak://$ts2info[serveraddress]/nickname=$bbuserinfo[username]?loginname=$ts2info[username]?password=$ts2info[password]'"></div>
+					</div>
+			</td>
+		</tr>
+		</tbody>
+		</table>]]></template>
+		<template name="gts_usercp_loggedin" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<table width="100%">
+<tr>
+	<td width="100%" colspan="2" valign="top">
+
+		$gts_welcome
+
+	</td>
+</tr>
+<tr>
+	<td width="100%" valign="top">
+
+		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+			<td class="tcat">$vbphrase[gts_download]</td>
+		</tr>
+		<tr>
+			<td class="alt1">$vbphrase[gts_download_links]</td>
+		</tr>
+		<tr>
+			<td class="tcat" width="100%">$vbphrase[gts_quick_connect]</td>
+		</tr>
+		<tr>
+			<td class="alt1"><a href="teamspeak://$ts2info[serveraddress]/nickname=$bbuserinfo[username]?loginname=$ts2info[username]?password=$ts2info[password]">$vbphrase[gts_click_tojoin]</a></td>
+		</tr>
+		<tr>
+			<td class="tcat" width="100%">$vbphrase[gts_save_toaddressbook]</td>
+		</tr>
+		<tr>
+			<td class="alt1">
+				<ol>
+					<li>$vbphrase[gts_addbook_connetmenu]</li>
+					<li>$vbphrase[gts_addbook_rightclick]</li>
+					<li>$vbphrase[gts_addbook_label]: $ts2info[serverlabel]</li>
+					<li>$vbphrase[gts_addbook_serveraddy]: $ts2info[serveraddress]</li>
+					<li>$vbphrase[gts_addbook_nickname]: $bbuserinfo[username]</li>
+					<li>$vbphrase[gts_addbook_registered]</li>
+					<li>$vbphrase[gts_addbook_login]: $ts2info[username]</li>
+					<li>$vbphrase[gts_addbook_password]: $ts2info[password]</li>
+					<li>$vbphrase[gts_addbook_reconnect]</li>
+					<li><a href="teamspeak://$ts2info[serveraddress]/nickname=$bbuserinfo[username]?loginname=$ts2info[username]?password=$ts2info[password]">$vbphrase[gts_press_connect]</a></li>
+				</ol>
+				<phrase 1="$vboptions[bbtitle]">$vbphrase[gts_connect_saved]</phrase>
+			</td>
+		</tr>
+		</table>
+
+	</td>
+	<td valign="top">
+
+	$gts_addressbook
+
+	</td>
+</tr>
+</table>]]></template>
+		<template name="gts_usercp_login" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[$gts_welcome]]></template>
+		<template name="gts_usercp_welcome" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+			<td class="tcat" colspan="2" width="100%">$vbphrase[gts_welcome]</td>
+		</tr>
+		<tr>
+			<td class="alt1" valign="top"><phrase 1="$vboptions[bbtitle]">$vbphrase[gts_welcome_message]</phrase></td>
+			<td class="alt2" nowrap="nowrap" style="padding:0px" valign="top">
+
+			<!-- login form -->
+			<form method="post">
+
+			<table cellpadding="0" cellspacing="$stylevar[formspacer]" border="0">
+			<tr>
+				<td class="smallfont" nowrap="nowrap">$vbphrase[username]:</td>
+				<td class="smallfont"><strong>$ts2info[username]</strong></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="smallfont" nowrap="nowrap">$vbphrase[password]:</td>
+				<td><input type="text" class="bginput" style="font-size: 11px" name="ts2pass" size="10" value="$ts2info[password]" maxlength="12" /></td>
+				<td><input type="submit" class="button" value="$vbphrase[go]" /></td>
+			</tr>
+			<tr>
+				<td class="smallfont" colspan="3">$vbphrase[gts_encryption_warning]</td>
+			</tr>
+			</table>
+			<input type="hidden" name="do" value="updatepass">
+			</form>
+			<!-- / login form -->
+
+			</td>
+		</tr>
+		</table>]]></template>
+		<template name="gts_vbnav_navbarlink" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<td class="vbmenu_control"><a href="gteamspeak.php$session[sessionurl_q]">$vbphrase[gts_vbnav]</a></td>]]></template>
+		<template name="gts_vbnav_quicklink" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<tr><td class="vbmenu_option"><a href="gteamspeak.php$session[sessionurl_q]">$vbphrase[gts_vbnav]</a></td></tr>]]></template>
+		<template name="gts_whos_online" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<!-- logged-in gTeamSpeak users -->
+<tbody>
+	<tr>
+		<td class="thead" colspan="2">
+			<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('forumhome_gteamspeak_activeusers')"><img id="collapseimg_forumhome_gteamspeak_activeusers" src="$stylevar[imgdir_button]/collapse_thead$vbcollapse[collapseimg_forumhome_gteamspeak_activeusers].gif" alt="" border="0" /></a>
+			<a href="gteamspeak.php$session[sessionurl_q]" rel="nofollow">$vbphrase[currently_active_gteamspeak_users]</a>: $gteamspeak_total_online (<phrase 1="$gteamspeak_total_active" 2="$gteamspeak_total_inactive">$vbphrase[currently_x_active_x_inactive_users]</phrase>)
+		</td>
+	</tr>
+</tbody>
+<tbody id="collapseobj_forumhome_gteamspeak_activeusers" style="$vbcollapse[collapseobj_forumhome_gteamspeak_activeusers]">
+	<tr>
+		<td class="alt2"><a href="gteamspeak.php$session[sessionurl_q]" rel="nofollow"><img src="$stylevar[imgdir_misc]/gteamspeak/whos_gts.gif" border="0" /></a></td>
+		<td class="alt1" width="100%">
+			<div class="smallfont">
+				<div>$gteamspeak_activeusers</div>
+			</div>
+		</td>
+	</tr>
+</tbody>
+<!-- end logged-in gTeamSpeak users -->]]></template>
+		<template name="gts_whos_online_bit" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<span title="Last Active: $gtsuser[lastactivedate] $gtsuser[lastactivetime]
+Logged in: $gtsuser[loggedindate] $gtsuser[loggedintime]
+Ping: $gtsuser[ping]"><a href="member.php?$session[sessionurl]u=$gtsuser[userid]" rel="nofollow" style="$gtsuser[style]">$gtsuser[nick]</a></span>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gTS: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gts_vbnav_quicklink';
+$globaltemplates[] = 'gts_vbnav_navbarlink';
+$globaltemplates[] = 'gts_whos_online';
+$globaltemplates[] = 'gts_whos_online_bit';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[gTS: Who's Online - Forumhome]]></title>
+			<hookname>forumhome_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['gts_display_online_forumhome'] && $vbulletin->options['gts_sa_enable'] && (is_member_of($vbulletin->userinfo, explode(',',$vbulletin->options['gts_whos_online_usergroup'])) OR $vbulletin->options['gts_whos_online_usergroup'] == '0'))
+{
+	($hook = vBulletinHook::fetch_hook('gts_whos_online')) ? eval($hook) : false;
+
+	if ($vbulletin->options['gts_whos_online_hide_empty'] == '0')
+	{
+		$s = '<!-- end logged-in users -->';
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gts_whos_online"], $vbulletin->templatecache["FORUMHOME"] );
+		$vbulletin->templatecache["FORUMHOME"] = $t;
+	}
+	elseif (trim($gteamspeak_activeusers) != '')
+	{
+		$s = '<!-- end logged-in users -->';
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gts_whos_online"], $vbulletin->templatecache["FORUMHOME"] );
+		$vbulletin->templatecache["FORUMHOME"] = $t;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTS: Links</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['gts_usergroup'] == '0' || is_member_of($vbulletin->userinfo, explode(',',$vbulletin->options['gts_usergroup'])))
+{
+	if ($vbulletin->options['gts_nav_quicklink'])
+	{
+		$s = '$template_hook[navbar_quick_links_menu_pos3]';
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gts_vbnav_quicklink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+	if ($vbulletin->options['gts_nav_navbar'])
+	{
+		$s = '$template_hook[navbar_buttons_left]';
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gts_vbnav_navbarlink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[gTS: Who's Online]]></title>
+			<hookname>gts_whos_online</hookname>
+			<phpcode><![CDATA[if(file_exists(DIR . '/includes/functions_gteamspeak.php'))
+{
+	require_once(DIR . '/includes/functions_gteamspeak.php');
+}
+
+$pl = $cyts->info_playerList();
+
+$gteamspeak_total_online = count($pl);
+$gteamspeak_total_active = 0;
+
+if ($pl && $gteamspeak_total_online > '0')
+{
+
+	foreach ($pl AS $gtsuser)
+	{
+		$gtsuser['style'] = "";
+
+		list($gtsuser['gtsname'], $gtsuser['userid']) = explode(".", $gtsuser['loginname']);
+
+		$gtsuser['nick'] = htmlentities($gtsuser['nick']);
+
+		$gtsuser['lastactivedate'] = vbdate($vbulletin->options['dateformat'], (TIMENOW - $gtsuser['idletime']), 1);
+		$gtsuser['lastactivetime'] = vbdate($vbulletin->options['timeformat'], (TIMENOW - $gtsuser['idletime']));
+
+		$gtsuser['loggedindate'] = vbdate($vbulletin->options['dateformat'], (TIMENOW - $gtsuser['logintime']), 1);
+		$gtsuser['loggedintime'] = vbdate($vbulletin->options['timeformat'], (TIMENOW - $gtsuser['logintime']));
+
+		$p_flags = $cyts->info_translateFlag($gtsuser['pflags'], 3);
+		$p_privs = $cyts->info_translateFlag($gtsuser['pprivs'], 2);
+
+		if ($p_flags["AW"])
+		{
+			$gtsuser['style'] .= $vbulletin->options['gts_whos_online_flag_aw'];
+		}
+
+		if ($p_privs["CA"] || $p_privs["SA"])
+		{
+			$gtsuser['style'] .= $vbulletin->options['gts_whos_online_flag_sa_ca'];
+		}
+
+		if ($p_privs["SA"])
+		{
+			$gtsuser['style'] .= $vbulletin->options['gts_whos_online_flag_sa'];
+		}
+
+		if ($vbulletin->options['gts_whos_online_display_idle'] == '1')
+		{
+			eval('$gteamspeak_activeusers .= ", ' . fetch_template('gts_whos_online_bit') . '";');
+		}
+		elseif ($gtsuser['idletime'] < ($vbulletin->options['gts_whos_online_timeout'] * 60))
+		{
+			eval('$gteamspeak_activeusers .= ", ' . fetch_template('gts_whos_online_bit') . '";');
+		}
+
+		if ($gtsuser['idletime'] < ($vbulletin->options['gts_whos_online_timeout'] * 60) && !$p_flags["AW"])
+		{
+			$gteamspeak_total_active++;
+		}
+	}
+
+	$gteamspeak_total_inactive = $gteamspeak_total_online - $gteamspeak_total_active;
+
+	$gteamspeak_activeusers = substr($gteamspeak_activeusers, 2);
+
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTS: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gteamspeak.php')
+{
+	$userinfo['activity'] = 'gts_usercp';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTS: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gts_usercp')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gts_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gts_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTS: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gts_'] = 'gTeamSpeak';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTS: User Deleted</title>
+			<hookname>userdata_delete</hookname>
+			<phpcode><![CDATA[if(file_exists(DIR . '/includes/functions_gteamspeak.php'))
+{
+	require_once(DIR . '/includes/functions_gteamspeak.php');
+}
+
+$ts2db = func_gts_dbinfo();
+
+$res = func_gts_query("SELECT * FROM " . $ts2db['name'] . "ts2_clients WHERE ts2_clients.s_client_name LIKE '%." . $this->existing['userid'] . "'");
+$tsinfo = $this->dbobject->fetch_array($res);
+
+func_gts_delete_user($tsinfo['i_client_id']);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTS: Change Username</title>
+			<hookname>userdata_update_username</hookname>
+			<phpcode><![CDATA[if(file_exists(DIR . '/includes/functions_gteamspeak.php'))
+{
+	require_once(DIR . '/includes/functions_gteamspeak.php');
+}
+
+$ts2info = func_gts_info();
+$ts2db = func_gts_dbinfo();
+
+$result = func_gts_query("SELECT * FROM " . $ts2db['name'] . "ts2_clients WHERE ts2_clients.s_client_name LIKE '%." . $userid . "'");
+
+if ($this->dbobject->num_rows($result) != '0')
+{
+	$ts2username = func_gts_loginname($username, $userid);
+
+	func_gts_query("UPDATE " . $ts2db['name'] . "ts2_clients SET s_client_name = '" . $ts2username . "' WHERE s_client_name LIKE '%." . $userid . "'");
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Control Panel Global" fieldname="cpglobal">
+			<phrase name="gts_permissions" date="0" username="Ghryphen" version="1.00"><![CDATA[gTeamSpeak Permissions]]></phrase>
+		</phrasetype>
+		<phrasetype name="Permissions" fieldname="cppermission">
+			<phrase name="can_admin_gteamspeak" date="0" username="Ghryphen" version="1.00"><![CDATA[Can Admin gTeamSpeak]]></phrase>
+		</phrasetype>
+		<phrasetype name="Scheduled Tasks" fieldname="cron">
+			<phrase name="task_gteamspeak_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Checks for users banned by vBulletin and removes their TeamSpeak account if they have one.]]></phrase>
+			<phrase name="task_gteamspeak_log" date="0" username="Ghryphen" version="1.00"><![CDATA[{1}]]></phrase>
+			<phrase name="task_gteamspeak_title" date="0" username="Ghryphen" version="1.00"><![CDATA[gTeamSpeak Banned User Check]]></phrase>
+		</phrasetype>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="currently_active_gteamspeak_users" date="0" username="Ghryphen" version="1.00"><![CDATA[Current gTeamSpeak Users]]></phrase>
+			<phrase name="currently_x_active_x_inactive_users" date="0" username="Ghryphen" version="1.00"><![CDATA[{1} active and {2} inactive]]></phrase>
+			<phrase name="gts_title" date="0" username="Ghryphen" version="1.00"><![CDATA[gTeamSpeak]]></phrase>
+			<phrase name="gts_vbnav" date="0" username="Ghryphen" version="1.00"><![CDATA[gTeamSpeak]]></phrase>
+		</phrasetype>
+		<phrasetype name="gTeamSpeak Phrases" fieldname="gts">
+			<phrase name="gts_addbook" date="0" username="Ghryphen" version="1.00"><![CDATA[Addressbook]]></phrase>
+			<phrase name="gts_addbook_connetmenu" date="0" username="Ghryphen" version="1.00"><![CDATA[Go to Connection > Connect]]></phrase>
+			<phrase name="gts_addbook_label" date="0" username="Ghryphen" version="1.00"><![CDATA[Label]]></phrase>
+			<phrase name="gts_addbook_login" date="0" username="Ghryphen" version="1.00"><![CDATA[Login Name]]></phrase>
+			<phrase name="gts_addbook_nickname" date="0" username="Ghryphen" version="1.00"><![CDATA[Nickname]]></phrase>
+			<phrase name="gts_addbook_password" date="0" username="Ghryphen" version="1.00"><![CDATA[User Password]]></phrase>
+			<phrase name="gts_addbook_reconnect" date="0" username="Ghryphen" version="1.00"><![CDATA[Check Auto-Reconect]]></phrase>
+			<phrase name="gts_addbook_registered" date="0" username="Ghryphen" version="1.00"><![CDATA[Click 'Registered' radio button]]></phrase>
+			<phrase name="gts_addbook_rightclick" date="0" username="Ghryphen" version="1.00"><![CDATA[Right Click left pane, choose Add Server]]></phrase>
+			<phrase name="gts_addbook_serveraddy" date="0" username="Ghryphen" version="1.00"><![CDATA[Server Address]]></phrase>
+			<phrase name="gts_click_tojoin" date="0" username="Ghryphen" version="1.00"><![CDATA[Click to Join]]></phrase>
+			<phrase name="gts_connect_saved" date="0" username="Ghryphen" version="1.00"><![CDATA[Connection information for {1} TeamSpeak is now saved in your Addressbook.]]></phrase>
+			<phrase name="gts_download" date="0" username="Ghryphen" version="1.00"><![CDATA[Download]]></phrase>
+			<phrase name="gts_download_links" date="0" username="Ghryphen" version="1.00"><![CDATA[Windows / Linux / Mac OS X <a href="http://www.teamspeak.com/?page=downloads" target="_blank">TeamSpeak Client</a>]]></phrase>
+			<phrase name="gts_encryption_warning" date="0" username="Ghryphen" version="1.00"><![CDATA[Not encrypted, do not use your forum password.]]></phrase>
+			<phrase name="gts_error_password_length" date="0" username="Ghryphen" version="1.00"><![CDATA[Please enter a password at least 6 characters or more.]]></phrase>
+			<phrase name="gts_error_password_match" date="0" username="Ghryphen" version="1.00"><![CDATA[Your password can not be the same as your login name.]]></phrase>
+			<phrase name="gts_press_connect" date="0" username="Ghryphen" version="1.00"><![CDATA[Press Connect]]></phrase>
+			<phrase name="gts_quick_connect" date="0" username="Ghryphen" version="1.00"><![CDATA[Quick Connect]]></phrase>
+			<phrase name="gts_save_toaddressbook" date="0" username="Ghryphen" version="1.00"><![CDATA[Saving to Addressbook]]></phrase>
+			<phrase name="gts_welcome" date="0" username="Ghryphen" version="1.00"><![CDATA[Welcome]]></phrase>
+			<phrase name="gts_welcome_message" date="0" username="Ghryphen" version="1.00"><![CDATA[Welcome to the {1} TeamSpeak server. Please do not disrupt any channels or harass any users or you will be removed from the server.]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gts_client_name_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[This will be automatically entered if Super Admin Features is enabled.]]></phrase>
+			<phrase name="setting_gts_client_name_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Super Admin Username]]></phrase>
+			<phrase name="setting_gts_client_password_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[This will be automatically entered if Super Admin Features is enabled.]]></phrase>
+			<phrase name="setting_gts_client_password_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Super Admin Password]]></phrase>
+			<phrase name="setting_gts_db_db_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the name of the database.]]></phrase>
+			<phrase name="setting_gts_db_db_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Remote: Database Name]]></phrase>
+			<phrase name="setting_gts_db_host_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the hostname.]]></phrase>
+			<phrase name="setting_gts_db_host_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Remote: Database Host]]></phrase>
+			<phrase name="setting_gts_db_password_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the password.]]></phrase>
+			<phrase name="setting_gts_db_password_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Remote: Database Password]]></phrase>
+			<phrase name="setting_gts_db_remote_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[If TeamSpeak not hosted on your vBulletin database, enter in the credentials for accessing it's database. Often, this requires special permissions on the remote database to allow you to connect remotely.<br /><br />This section assumes that you have intimate knowledge of your TeamSpeak and vBulletin setup and that you can troubleshoot any issues on your own.]]></phrase>
+			<phrase name="setting_gts_db_remote_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Remote: Use Remote Database]]></phrase>
+			<phrase name="setting_gts_db_username_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the username.]]></phrase>
+			<phrase name="setting_gts_db_username_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Remote: Database Username]]></phrase>
+			<phrase name="setting_gts_display_online_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Displays who is online on TeamSpeak Signup page. Requires Super Admin Features Enabled.]]></phrase>
+			<phrase name="setting_gts_display_online_forumhome_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Displays who is online on Forumhome. Requires Super Admin Features Enabled.]]></phrase>
+			<phrase name="setting_gts_display_online_forumhome_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Enable Who's Online Display on Forumhome]]></phrase>
+			<phrase name="setting_gts_display_online_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Enable Who's Online Display on TeamSpeak Signup]]></phrase>
+			<phrase name="setting_gts_nav_navbar_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Add gTeamSpeak link to the Navbar.]]></phrase>
+			<phrase name="setting_gts_nav_navbar_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Add Navbar Link]]></phrase>
+			<phrase name="setting_gts_nav_quicklink_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Add gTeamSpeak link to the Quick Nav menu.]]></phrase>
+			<phrase name="setting_gts_nav_quicklink_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Add Quick Link]]></phrase>
+			<phrase name="setting_gts_sa_debug_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enable debug information, useful for developing plugins.]]></phrase>
+			<phrase name="setting_gts_sa_debug_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Advanced: Enable Super Admin debug]]></phrase>
+			<phrase name="setting_gts_sa_enable_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enabling Super Admin Features includes features which utilize the TCP Query port; such things as sending a broadcast message to the server or player, kick idlers or restart the server. Why would this be disabled you ask? You need to have ports opened for these features, primarily 51234 (TCP Query Port).]]></phrase>
+			<phrase name="setting_gts_sa_enable_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Enable Super Admin Features]]></phrase>
+			<phrase name="setting_gts_sausergroup_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Comma separated list of Usergroup ID's which are granted SA by default.]]></phrase>
+			<phrase name="setting_gts_sausergroup_title" date="0" username="Ghryphen" version="1.00"><![CDATA[SA Usergroup ID]]></phrase>
+			<phrase name="setting_gts_serveraddress_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the server address, domain or IP.]]></phrase>
+			<phrase name="setting_gts_serveraddress_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Server Address]]></phrase>
+			<phrase name="setting_gts_serverid_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the server ID assigned to the server. This can be found in the TeamSpeak database.]]></phrase>
+			<phrase name="setting_gts_serverid_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Server ID]]></phrase>
+			<phrase name="setting_gts_serverip_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the server IP.]]></phrase>
+			<phrase name="setting_gts_serverip_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Server IP]]></phrase>
+			<phrase name="setting_gts_serverlabel_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Shorthand Server Label for use in the Address Book]]></phrase>
+			<phrase name="setting_gts_serverlabel_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Server Label]]></phrase>
+			<phrase name="setting_gts_serverport_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the server port.]]></phrase>
+			<phrase name="setting_gts_serverport_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Server Port]]></phrase>
+			<phrase name="setting_gts_serverqueryport_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the server TCP query port.]]></phrase>
+			<phrase name="setting_gts_serverqueryport_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Server TCP Query Port]]></phrase>
+			<phrase name="setting_gts_serverwebport_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter in the server HTTP port.]]></phrase>
+			<phrase name="setting_gts_serverwebport_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Server HTTP Port]]></phrase>
+			<phrase name="setting_gts_userdays_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[How many days must a user be registered before they can access the signup.]]></phrase>
+			<phrase name="setting_gts_userdays_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Days Registered]]></phrase>
+			<phrase name="setting_gts_userfiedid_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Enter the profile field id which controls TeamSpeak access. Example: field15]]></phrase>
+			<phrase name="setting_gts_userfiedid_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Userfield ID]]></phrase>
+			<phrase name="setting_gts_usergroup_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Comma separated list of Usergroup ID's which can access the product.]]></phrase>
+			<phrase name="setting_gts_usergroup_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Usergroup ID]]></phrase>
+			<phrase name="setting_gts_userposts_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[How many posts must a user have in order to access the signup.]]></phrase>
+			<phrase name="setting_gts_userposts_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Posts Required]]></phrase>
+			<phrase name="setting_gts_whos_online_display_idle_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Select 'No' to hide inactive users in the list.]]></phrase>
+			<phrase name="setting_gts_whos_online_display_idle_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Display Inactive Users]]></phrase>
+			<phrase name="setting_gts_whos_online_flag_aw_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Set the style for away users.]]></phrase>
+			<phrase name="setting_gts_whos_online_flag_aw_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Style Away]]></phrase>
+			<phrase name="setting_gts_whos_online_flag_sa_ca_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Set the style for SA and CA users.]]></phrase>
+			<phrase name="setting_gts_whos_online_flag_sa_ca_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Style CA/SA]]></phrase>
+			<phrase name="setting_gts_whos_online_flag_sa_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Set the style for SA users.]]></phrase>
+			<phrase name="setting_gts_whos_online_flag_sa_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Style SA]]></phrase>
+			<phrase name="setting_gts_whos_online_hide_empty_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Set this to Yes if you want to hide the display when no active users are on even if there are only inactive users.]]></phrase>
+			<phrase name="setting_gts_whos_online_hide_empty_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Hide When Empty of Users]]></phrase>
+			<phrase name="setting_gts_whos_online_timeout_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Set how many minutes users must be idle to be considered inactive.]]></phrase>
+			<phrase name="setting_gts_whos_online_timeout_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Who's Online Active Timeout]]></phrase>
+			<phrase name="setting_gts_whos_online_usergroup_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Comma separated list of Usergroup ID's which can see whos online on forum home. Set to '0' for all usergroups.]]></phrase>
+			<phrase name="setting_gts_whos_online_usergroup_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Who's Online Display Usergroup ID]]></phrase>
+			<phrase name="setting_gts_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_gts_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="settinggroup_gts_group1" date="0" username="Ghryphen" version="1.00"><![CDATA[gTeamSpeak]]></phrase>
+			<phrase name="settinggroup_gts_group2" date="0" username="Ghryphen" version="1.00"><![CDATA[gTeamSpeak Who's Online]]></phrase>
+			<phrase name="settinggroup_gts_group3" date="0" username="Ghryphen" version="1.00"><![CDATA[gTeamSpeak Advanced Options]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gts_group1" displayorder="60800">
+			<setting varname="gts_serverip" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>123.123.1.23</defaultvalue>
+			</setting>
+			<setting varname="gts_serverport" displayorder="20">
+				<datatype>free</datatype>
+				<defaultvalue>8767</defaultvalue>
+			</setting>
+			<setting varname="gts_serverqueryport" displayorder="30">
+				<datatype>free</datatype>
+				<defaultvalue>51234</defaultvalue>
+			</setting>
+			<setting varname="gts_serverwebport" displayorder="40">
+				<datatype>free</datatype>
+				<defaultvalue>14534</defaultvalue>
+			</setting>
+			<setting varname="gts_serverid" displayorder="50">
+				<datatype>free</datatype>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gts_serveraddress" displayorder="100">
+				<datatype>free</datatype>
+				<defaultvalue>yoursite.com</defaultvalue>
+			</setting>
+			<setting varname="gts_serverlabel" displayorder="110">
+				<datatype>free</datatype>
+				<defaultvalue>Your Server</defaultvalue>
+			</setting>
+			<setting varname="gts_sausergroup" displayorder="200">
+				<datatype>free</datatype>
+				<defaultvalue>6</defaultvalue>
+			</setting>
+			<setting varname="gts_usergroup" displayorder="210">
+				<datatype>free</datatype>
+				<defaultvalue>5,6,7</defaultvalue>
+			</setting>
+			<setting varname="gts_userposts" displayorder="211">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_userdays" displayorder="212">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_userfiedid" displayorder="220">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_nav_quicklink" displayorder="300">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gts_nav_navbar" displayorder="310">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gTeamSpeak&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+		<settinggroup name="gts_group2" displayorder="60801">
+			<setting varname="gts_sa_enable" displayorder="400">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_client_name" displayorder="405">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_client_password" displayorder="406">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_display_online" displayorder="410">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gts_display_online_forumhome" displayorder="420">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gts_whos_online_usergroup" displayorder="430">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_whos_online_timeout" displayorder="440">
+				<datatype>free</datatype>
+				<defaultvalue>15</defaultvalue>
+			</setting>
+			<setting varname="gts_whos_online_display_idle" displayorder="450">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gts_whos_online_hide_empty" displayorder="460">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gts_whos_online_flag_aw" displayorder="470">
+				<datatype>free</datatype>
+				<defaultvalue>text-decoration: line-through;</defaultvalue>
+			</setting>
+			<setting varname="gts_whos_online_flag_sa_ca" displayorder="480">
+				<datatype>free</datatype>
+				<defaultvalue>font-weight: bold;</defaultvalue>
+			</setting>
+			<setting varname="gts_whos_online_flag_sa" displayorder="490">
+				<datatype>free</datatype>
+				<defaultvalue>color: #33CC00;</defaultvalue>
+			</setting>
+		</settinggroup>
+		<settinggroup name="gts_group3" displayorder="60802">
+			<setting varname="gts_db_remote" displayorder="500">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gts_db_host" displayorder="510">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gts_db_username" displayorder="520">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gts_db_password" displayorder="530">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gts_db_db" displayorder="540">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gts_sa_debug" displayorder="1000">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+		<cron varname="gteamspeak" active="1" loglevel="1">
+			<filename>./includes/cron/cron.gteamspeak.php</filename>
+			<scheduling weekday="-1" day="-1" hour="-1" minute="5,15,25,35,45,55" />
+		</cron>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

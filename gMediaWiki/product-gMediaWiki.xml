@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gMediaWiki, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gMediaWiki, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gMediaWiki.xml 1032 2008-09-17 23:35:14Z ghryphen $
+	// $Rev: 1032 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-09-17 16:35:14 -0700 (Wed, 17 Sep 2008) $
+-->
+
+<product productid="gwiki" active="1">
+	<title>gMediaWiki</title>
+	<description>Integration with MediaWiki.</description>
+	<version>1.0.0</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gmediawiki_block_recentchanges" templatetype="template" date="0" username="" version=""><![CDATA[<if condition="$userinfo['wikiuserid']">
+<div class="alt1 smallfont block_row">
+	<ol class="list_no_decoration last_visitors_list">
+		$block_data[gwiki_rc]
+	</ol>
+</div>
+</if>]]></template>
+		<template name="gmediawiki_recentchangesbit" templatetype="template" date="0" username="" version=""><![CDATA[<li class="smallfont"><a href="http://wiki.planetside-universe.com/index.php?title=$wikiinfo[rc_title]&diff=$wikiinfo[rc_this_oldid]&oldid=$wikiinfo[rc_last_oldid]">$wikiinfo[rc_title]</a></li> ]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gMW: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gmediawiki_block_recentchanges';
+$globaltemplates[] = 'gmediawiki_recentchangesbit';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gMW: fetch username and id</title>
+			<hookname>fetch_userinfo</hookname>
+			<phpcode><![CDATA[if (!function_exists('vb_get_wiki_username'))
+{
+	function vb_get_wiki_username( $vbUsername, $vbUserId )
+	{
+		$g_vbWiki_Use_Enhanced_Usernames = true;
+
+		if ($g_vbWiki_Use_Enhanced_Usernames)
+		{
+			//$replacement_count = 0;
+			$invalid_chars = "/[^a-zA-Z0-9]+/";
+			$wikiUsername = preg_replace( $invalid_chars, "", $vbUsername /*, -1, $replacement_count*/ );
+		
+			if ($wikiUsername != $vbUsername)
+			{
+				// if ($replacement_count > 0)
+				$wikiUsername .= "-$vbUserId";
+			}
+		}
+		else
+		{
+			$wikiUsername = $vbUsername;		// no transformation
+		}
+
+		return ucfirst( $wikiUsername );
+	}
+}
+
+$user['wikiusername'] = vb_get_wiki_username( $user['username'], $user['userid'] );
+
+$wikiuser = $vbulletin->db->query_first("SELECT user_id, user_name FROM `wiki_user` WHERE user_name = '" . $user['wikiusername'] . "'"); 
+
+$user['wikiuserid'] = $wikiuser['user_id'];]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gMW: member info recent changes block</title>
+			<hookname>member_build_blocks_start</hookname>
+			<phpcode><![CDATA[$blocklist = array_merge($blocklist, array(
+	'gwiki_rc' => array(
+		'class' => 'gMediaWiki',
+		'title' => 'PS Wiki Recent Changes',
+		'hook_location' => 'profile_right_mini'
+	)
+));
+
+class vB_ProfileBlock_gMediaWiki extends vB_ProfileBlock
+{
+	var $template_name = 'gmediawiki_block_recentchanges';
+
+	function confirm_empty_wrap()
+	{
+		return false;
+	}
+
+	function confirm_display()
+	{
+		return ($this->block_data['gwiki_rc'] != '');
+	}
+
+	function prepare_output($id = '', $options = array())
+	{
+		$wikiinfo_sql = $this->registry->db->query_read("SELECT * FROM `wiki_recentchanges` WHERE `rc_user` = '" . $this->profile->userinfo['wikiuserid'] . "' ORDER BY `rc_id` DESC LIMIT 0 , 30");
+
+		while ($wikiinfo = $this->registry->db->fetch_array($wikiinfo_sql))
+		{
+            if ($wikiinfo['rc_cur_id'] != 0)
+            {
+                eval('$recentchanges .= "' . fetch_template('gmediawiki_recentchangesbit') . '";');
+            }
+		}
+		
+		$this->block_data['gwiki_rc'] = $recentchanges;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gMW: Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gmediawiki'] = 'gMediaWiki';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+	</phrases>
+	<options>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

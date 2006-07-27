@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTeamSpeak, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// ########################### SVN info ###################################
+	// $Id: messageUser.xml 469 2007-03-01 18:45:34Z ghryphen $
+	// $Rev: 469 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2007-03-01 10:45:34 -0800 (Thu, 01 Mar 2007) $
+-->
+
+<gTeamSpeak>
+	<title>messageUser</title>
+	<description>Allows you to send a message to a single user.</description>
+	<version>1.00</version>
+	<order>1</order>
+	<reqsa>1</reqsa>
+	<enabled>1</enabled>
+	<menuoption><![CDATA[
+			print_form_header($this_script, 'sadmin_messageUser', 0, 1, 'resetForm');
+			print_table_header('Send Message to User');
+			print_select_row('User', 'userid', func_gts_sa_messageuser());
+			print_textarea_row('Message', 'message');
+			print_submit_row('Send Message', 0);
+	]]></menuoption>
+	<phpcode><![CDATA[if ($_REQUEST['do'] == 'sadmin_messageUser')
+{
+
+	print_form_header('', '', 0, 1, 'gtspruneusers');
+	print_table_header('Message to User');
+
+	if ( empty($_REQUEST['message']) ) {
+		print_description_row('Please enter Message.','','','','center');
+	} else {
+
+		$array = explode("\n", $_REQUEST["message"]);
+		foreach ($array as $line) {
+		   $cyts->sadmin_messageUser($_REQUEST["userid"], $line, 'true');
+		}
+
+		print_description_row(nl2br(htmlspecialchars($_REQUEST["message"])));
+	}
+
+	print_table_footer(2, construct_button_code($vbphrase['go_back'], 'javascript:history.back(1)'));
+}]]></phpcode>
+	<functions><![CDATA[function func_gts_sa_messageuser()
+{
+	global $vbulletin;
+	global $cyts;
+
+	$pl = $cyts->info_playerList();
+
+	$plarray = array();
+
+	foreach ($pl AS $user)
+	{
+		$chan = $cyts->info_channelInfo($user['c_id']);
+
+		$plarray[$user['p_id']] = $user['nick'];
+	}
+
+	asort($plarray);
+
+	return $plarray;
+}]]></functions>
+</gTeamSpeak>

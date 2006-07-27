@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gVIPTracker, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gVIPTracker, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN INFO ###################################
+	// $Id: product-gVIPTracker.xml 1222 2009-10-12 03:48:23Z ghryphen $
+	// $Rev: 1222 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2009-10-11 20:48:23 -0700 (Sun, 11 Oct 2009) $
+-->
+
+<product productid="gviptracker" active="1">
+	<title>gVIPTracker</title>
+	<description>Very Important Person Tracker</description>
+	<version>1.0.2</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gvipt_index" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[gvipt_title]</title>
+</head>
+<body>
+
+$header
+$navbar
+
+<if condition="$pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:3px">
+<tr valign="bottom">
+		<td class="smallfont">&nbsp;</td>
+		<td align="$stylevar[right]">$pagenav</td>
+</tr>
+</table>
+</if>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+	<if condition="$pagenav">
+		<span class="smallfont" style="float:$stylevar[right]">
+			<phrase 1="$limitlower" 2="$limitupper" 3="$threadcount[threadcount]">$vbphrase[showing_results_x_to_y_of_z]</phrase>
+		</span>
+	</if>
+	<if condition="$show['gvipt_rss']">
+		<a href="gviptracker.php?vipid=$select_vipid&amp;vipfid=$select_vipfid&amp;feed=rss2"><img class="inlineimg" src="$stylevar[imgdir_misc]/gviptracker/feed_icon.png" border="0" alt="RSS Feed" align="left"></a>&nbsp;
+	</if>
+		$vbphrase[gvipt_title]
+		<if condition="$show['gvipt_start'] || $show['gvipt_end']">
+			<div class="smallfont"><phrase 1="$vbphrase[gvipt_start]" 2="$vbphrase[gvipt_end]">$vbphrase[gvipt_limited_from_x_to_y]</phrase>
+			</div>
+		</if>
+	</td>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr align="center">
+    <td class="thead">&nbsp;</td>
+    <td class="thead">&nbsp;</td>
+    <td class="thead">$vbphrase[thread]</td>
+    <td class="thead" align="center" nowrap>$vbphrase[posted_by]</td>
+    <td class="thead" align="center" nowrap>$vbphrase[title]</td>
+    <td class="thead">$vbphrase[forum]</td>
+  </tr>
+</thead>
+
+	$gvipt_threadbit
+
+<tr>
+	<td class="tfoot" colspan="6">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+		<div class="smallfont" style="width: 300px; float: right; text-align: right;">
+		<if condition="$pagenav">
+			<phrase 1="$limitlower" 2="$limitupper" 3="$threadcount[threadcount]">$vbphrase[showing_results_x_to_y_of_z]</phrase>
+		</if>
+		</div>
+	</td>
+</tr>
+</table>
+
+<if condition="$show['gvipt_vipselect'] || $show['gvipt_fidselect'] || $pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:3px">
+<tr valign="top">
+<if condition="$show['gvipt_vipselect']">
+	<td width="10" align="$stylevar[left]" nowrap="nowrap">
+	<div class="smallfont" style="text-align:$stylevar[left]; white-space:nowrap">
+	<form action="gviptracker.php" method="get">
+	<select name="vipid" onchange="this.form.submit();">
+		<option value="0">$vbphrase[gvipt_choose_vip]</option>
+		$vip_select
+	</select>$gobutton
+	<input type="hidden" name="vipfid" value="$select_vipfid">
+	</form>
+	</div>
+	</td>
+</if>
+<if condition="$show['gvipt_fidselect']">
+	<td align="$stylevar[left]" nowrap="nowrap"<if condition="$show['gvipt_vipselect']"> style="padding-left: 10px;"</if>>
+	<form action="gviptracker.php" method="get">
+	<input type="hidden" name="vipid" value="$select_vipid">
+	<select name="vipfid" onchange="this.form.submit();">
+		<option value="0">$vbphrase[gvipt_choose_fid]</option>
+		$vfip_select
+	</select>$gobutton
+	</form>
+	</td>
+</if>
+<if condition="$pagenav">
+	<td align="$stylevar[right]" nowrap="nowrap">$pagenav</td>
+</tr>
+</if>
+</table>
+</if>
+
+<br />
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gvipt_threadbit" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<tr>
+  <td class="alt1" nowrap="nowrap">
+    <a href="showthread.php?$session[sessionurl]goto=newpost&amp;t=$thread[threadid]"><img class="inlineimg" src="$stylevar[imgdir_button]/firstnew.gif" alt="Go to first new post" border="0" /></a>
+    <a href="showthread.php?$session[sessionurl]goto=lastupost&amp;t=$thread[threadid]"><img class="inlineimg" src="$stylevar[imgdir_button]/lastpost.gif" alt="Go to your last post" border="0" /></a>
+  </td>
+  <td class="alt2">
+  	<img class="inlineimg" src="$stylevar[imgdir_statusicon]/thread$thread[statusicon].gif" />
+  </td>
+  <td class="alt1" title="$thread[preview]" width="100%">
+    <a href="showthread.php?$session[sessionurl]postid=$thread[postid]#post$thread[postid]">$thread[title]</a>
+  </td>
+  <td class="alt2" nowrap="nowrap">
+		<div class="smallfont" align="$stylevar[right]">
+			<div class="smallfont" align="$stylevar[right]">$thread[date] <span class="time">$thread[time]</span></div>
+			<phrase 1="member.php?$session[sessionurl]u=$thread[userid]" 2="$thread[username]">$vbphrase[by_x]</phrase><br />
+		</div>
+	</td>
+  <td class="alt1" nowrap="nowrap">
+		$thread[usertitle]
+	</td>
+  <td class="alt2" nowrap="nowrap">
+    <a href="forumdisplay.php?$session[sessionurl]f=$thread[forumid]">$thread[ftitle]</a>
+  </td>
+</tr>]]></template>
+		<template name="gvipt_threadbit_none" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<tr>
+  <td class="alt1" colspan="6" nowrap="nowrap" style="padding: 40px" align="center">$vbphrase[gvipt_noresults]</td>
+</tr>]]></template>
+		<template name="gvipt_vbnav_navbarlink" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[<td class="vbmenu_control"><a href="gviptracker.php$session[sessionurl_q]">$vbphrase[gvipt_vbnav]</a></td>]]></template>
+		<template name="gvipt_vbnav_quicklink" templatetype="template" date="1140000000" username="Ghryphen" version="1.0.0"><![CDATA[<tr><td class="vbmenu_option"><a href="gviptracker.php$session[sessionurl_q]">$vbphrase[gvipt_vbnav]</a></td></tr>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gVIPT: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gvipt_vbnav_quicklink';
+$globaltemplates[] = 'gvipt_vbnav_navbarlink';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gVIPT: Links</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['gvipt_usergroup_access'] == '0' || is_member_of($vbulletin->userinfo, explode(',',$vbulletin->options['gvipt_usergroup_access'])))
+{
+
+	if ($vbulletin->options['gvipt_vbnav_quick'])
+	{
+		switch ($vbulletin->options['gvipt_vbnav_quick'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_quick_links_menu_pos1]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_quick_links_menu_pos2]';
+				break;
+			case "3":
+				$s = '$template_hook[navbar_quick_links_menu_pos3]';
+			case "4":
+				$s = '$template_hook[navbar_quick_links_menu_pos4]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gvipt_vbnav_quicklink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+	if ($vbulletin->options['gvipt_vbnav_navbar'])
+	{
+		switch ($vbulletin->options['gvipt_vbnav_navbar'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_buttons_left]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_buttons_right]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gvipt_vbnav_navbarlink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gVIPT: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gviptracker.php')
+{
+	$userinfo['activity'] = 'gviptracker';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gVIPT: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gviptracker')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gvipt_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gvipt_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gVIPT: Color VIP Posts</title>
+			<hookname>postbit_display_complete</hookname>
+			<phpcode><![CDATA[if(is_member_of($this->post, explode(',', $this->registry->options['gvipt_usergroups'])) && $this->registry->options['gvipt_post_color'] != '0')
+{
+	$post[message] = '<font color="' . $this->registry->options['gvipt_post_color'] . '">' . $post[message] . '</font>';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gVIPT: Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gvipt_'] = 'gVIPTracker';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gvipt_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gVIPTracker]]></phrase>
+			<phrase name="gvipt_vbnav" date="0" username="Ghryphen" version="1.0.0"><![CDATA[gVIPTracker]]></phrase>
+		</phrasetype>
+		<phrasetype name="gVIPTracker Phrases" fieldname="gvipt">
+			<phrase name="gvipt_choose_fid" date="0" username="Ghryphen" version="1.0.0"><![CDATA[- Choose Forum -]]></phrase>
+			<phrase name="gvipt_choose_vip" date="0" username="Ghryphen" version="1.0.0"><![CDATA[- Choose VIP -]]></phrase>
+			<phrase name="gvipt_limited_from_x_to_y" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Tracker limited to posts from {1} until {2}.]]></phrase>
+			<phrase name="gvipt_noresults" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Sorry - no matches. Please try some different terms.]]></phrase>
+			<phrase name="gvipt_now" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Now]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gvipt_date_end_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Set the end date for the tracker. Set to 0 to show the latest posts.<br />Format by GNU <a href="http://www.gnu.org/software/tar/manual/html_node/tar_109.html" target="_blank">Date Input Formats</a>. Example Format: YYYY-MM-DD]]></phrase>
+			<phrase name="setting_gvipt_date_end_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[End Date]]></phrase>
+			<phrase name="setting_gvipt_date_start_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Set the start date for the tracker. Set to 0 to show from the begginning.<br />Format by GNU <a href="http://www.gnu.org/software/tar/manual/html_node/tar_109.html" target="_blank">Date Input Formats</a>. Example Format: YYYY-MM-DD]]></phrase>
+			<phrase name="setting_gvipt_date_start_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Start Date]]></phrase>
+			<phrase name="setting_gvipt_enable_rss_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Allow users to access the tracker by RSS.]]></phrase>
+			<phrase name="setting_gvipt_enable_rss_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Enable RSS Feed]]></phrase>
+			<phrase name="setting_gvipt_forum_exlude_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Comma serparated list of forums to exlude from forums selected in Limit Forums. Set to 0 to show entire Limit.]]></phrase>
+			<phrase name="setting_gvipt_forum_exlude_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Exlude Forums]]></phrase>
+			<phrase name="setting_gvipt_forum_limit_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Comma serparated list of forums to limit search to. Set to 0 to show all forums.]]></phrase>
+			<phrase name="setting_gvipt_forum_limit_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Limit Forums]]></phrase>
+			<phrase name="setting_gvipt_per_page_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Enter how many threads should be displayed per page.]]></phrase>
+			<phrase name="setting_gvipt_per_page_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Threads Per Page]]></phrase>
+			<phrase name="setting_gvipt_post_color_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Choose a font color you want your VIP users to have. Set to 0 to disable.]]></phrase>
+			<phrase name="setting_gvipt_post_color_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[VIP Font Color]]></phrase>
+			<phrase name="setting_gvipt_show_fidselect_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Show a Forum selection menu at the bottom of the display.]]></phrase>
+			<phrase name="setting_gvipt_show_fidselect_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Display Forum Menu]]></phrase>
+			<phrase name="setting_gvipt_show_vipselect_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Show a VIP selection menu at the bottom of the display.]]></phrase>
+			<phrase name="setting_gvipt_show_vipselect_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Display VIP Menu]]></phrase>
+			<phrase name="setting_gvipt_usergroup_access_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Comma separated list of usergroups which can access the page. Set to 0 to allow all access.]]></phrase>
+			<phrase name="setting_gvipt_usergroup_access_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Usergroup Access]]></phrase>
+			<phrase name="setting_gvipt_usergroups_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Comma serparated list of usergroups to track.]]></phrase>
+			<phrase name="setting_gvipt_usergroups_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Very Important Person UserGroups]]></phrase>
+			<phrase name="setting_gvipt_vbnav_navbar_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add gVIPTracker link to the Navbar.]]></phrase>
+			<phrase name="setting_gvipt_vbnav_navbar_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add Navbar Link]]></phrase>
+			<phrase name="setting_gvipt_vbnav_quick_desc" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add gVIPTracker link to the Quick Nav menu.]]></phrase>
+			<phrase name="setting_gvipt_vbnav_quick_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[Add Quick Link]]></phrase>
+			<phrase name="settinggroup_gvipt_group" date="0" username="" version=""><![CDATA[gVIPTracker]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gvipt_group" displayorder="61000">
+			<setting varname="gvipt_vbnav_quick" displayorder="10">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_quick_links_menu_pos1]
+2|$template_hook[navbar_quick_links_menu_pos2]
+3|$template_hook[navbar_quick_links_menu_pos3]
+4|$template_hook[navbar_quick_links_menu_pos4]
+]]></optioncode>
+				<defaultvalue>4</defaultvalue>
+			</setting>
+			<setting varname="gvipt_vbnav_navbar" displayorder="20">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_buttons_left]
+2|$template_hook[navbar_buttons_right]
+]]></optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gvipt_usergroups" displayorder="30">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gvipt_usergroup_access" displayorder="40">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gvipt_forum_limit" displayorder="50">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gvipt_forum_exlude" displayorder="60">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gvipt_date_start" displayorder="70">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gvipt_date_end" displayorder="80">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gvipt_show_vipselect" displayorder="90">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gvipt_show_fidselect" displayorder="100">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gvipt_per_page" displayorder="110">
+				<datatype>number</datatype>
+				<defaultvalue>25</defaultvalue>
+			</setting>
+			<setting varname="gvipt_post_color" displayorder="120">
+				<datatype>free</datatype>
+				<defaultvalue>#00C0FF</defaultvalue>
+			</setting>
+			<setting varname="gvipt_enable_rss" displayorder="130">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gWoWDB, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gWoWDB, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gWoWDB.xml 956 2008-02-28 18:57:44Z ghryphen $
+	// $Rev: 956 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-02-28 10:57:44 -0800 (Thu, 28 Feb 2008) $
+-->
+
+<product productid="gwowchar" active="1">
+	<title>gWoWDB</title>
+	<description>Search World of Warcraft databases.</description>
+	<version>1.0.0</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gwowdb_search_bit" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[		<tr>
+			<td class="thead"><a href="http://www.google.com/ig/directory?url=ghryphen.googlepages.com/wowdb.xml" target="_blank">$vbphrase[gwowdb_search]</a></td>
+		</tr>
+		<tr>
+			<td class="vbmenu_option" title="nohilite">
+				<script src="http://gmodules.com/ig/ifr?url=http://ghryphen.googlepages.com/wowdb.xml&amp;up_target=$vboptions[gwowdb_target]&amp;up_showsubmit=$vboptions[gwowdb_showsubmit]&amp;up_poweredby=$vboptions[gwowdb_poweredby]&amp;up_showabout=1&amp;up_disablenotice=1&amp;up_tabdisplay=$vboptions[gwowdb_tabdisplay]&amp;up_armorylocale=$vboptions[gwowdb_armorylocale]&amp;up_armorydefault=$vboptions[gwowdb_armorydefault]&amp;up_s_0=$vboptions[gwowdb_s_0]&amp;up_s_1=$vboptions[gwowdb_s_1]&amp;up_s_2=$vboptions[gwowdb_s_2]&amp;up_s_3=$vboptions[gwowdb_s_3]&amp;up_s_4=$vboptions[gwowdb_s_4]&amp;up_s_5=$vboptions[gwowdb_s_5]&amp;up_s_6=$vboptions[gwowdb_s_6]&amp;up_s_7=$vboptions[gwowdb_s_7]&amp;up_s_8=$vboptions[gwowdb_s_8]&amp;up_s_9=$vboptions[gwowdb_s_9]&amp;up_s_10=$vboptions[gwowdb_s_10]&amp;up_s_11=$vboptions[gwowdb_s_11]&amp;up_s_12=$vboptions[gwowdb_s_12]&amp;up_s_13=$vboptions[gwowdb_s_13]&amp;up_s_14=$vboptions[gwowdb_s_14]&amp;up_showmsg=1&amp;up_msgversion=0&amp;up_selectedTab=&amp;up_selectedWowDB=&amp;synd=open&amp;w=$vboptions[gwowdb_width]&amp;h=$vboptions[gwowdb_width]&amp;title=&amp;border=%23ffffff%7C3px%2C1px+solid+%23999999&amp;output=js"></script>
+		</tr>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gWDB: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gwowdb_search_bit';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWDB: Template Mod</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[$s = '$template_hook[navbar_search_menu]';
+
+$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gwowdb_search_bit"], $vbulletin->templatecache["navbar"] );
+$vbulletin->templatecache["navbar"] = $t;]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWDB: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gwowdb_'] = 'gWoWDB';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gwowdb_search" date="0" username="" version=""><![CDATA[WoW Database Search]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gwowdb_armorydefault_desc" date="0" username="" version=""><![CDATA[Choose which tab is selected by default for Armory searches]]></phrase>
+			<phrase name="setting_gwowdb_armorydefault_title" date="0" username="" version=""><![CDATA[Armory default tab]]></phrase>
+			<phrase name="setting_gwowdb_armorylocale_desc" date="0" username="" version=""><![CDATA[Choose which locale Armory searches are made in]]></phrase>
+			<phrase name="setting_gwowdb_armorylocale_title" date="0" username="" version=""><![CDATA[Armory locale]]></phrase>
+			<phrase name="setting_gwowdb_border_desc" date="0" username="" version=""><![CDATA[Choose border]]></phrase>
+			<phrase name="setting_gwowdb_border_title" date="0" username="" version=""><![CDATA[Border]]></phrase>
+			<phrase name="setting_gwowdb_height_desc" date="0" username="" version=""><![CDATA[Set height]]></phrase>
+			<phrase name="setting_gwowdb_height_title" date="0" username="" version=""><![CDATA[Height]]></phrase>
+			<phrase name="setting_gwowdb_poweredby_desc" date="0" username="" version=""><![CDATA[Show powered by tag]]></phrase>
+			<phrase name="setting_gwowdb_poweredby_title" date="0" username="" version=""><![CDATA[Powered by]]></phrase>
+			<phrase name="setting_gwowdb_s_0_desc" date="0" username="" version=""><![CDATA[Show Thottbot search]]></phrase>
+			<phrase name="setting_gwowdb_s_0_title" date="0" username="" version=""><![CDATA[Thottbot]]></phrase>
+			<phrase name="setting_gwowdb_s_10_desc" date="0" username="" version=""><![CDATA[Show Lootables search]]></phrase>
+			<phrase name="setting_gwowdb_s_10_title" date="0" username="" version=""><![CDATA[Lootables]]></phrase>
+			<phrase name="setting_gwowdb_s_11_desc" date="0" username="" version=""><![CDATA[Show AmpWow search]]></phrase>
+			<phrase name="setting_gwowdb_s_11_title" date="0" username="" version=""><![CDATA[AmpWow]]></phrase>
+			<phrase name="setting_gwowdb_s_12_desc" date="0" username="" version=""><![CDATA[Show Google search]]></phrase>
+			<phrase name="setting_gwowdb_s_12_title" date="0" username="" version=""><![CDATA[Google]]></phrase>
+			<phrase name="setting_gwowdb_s_13_desc" date="0" username="" version=""><![CDATA[Show Armory search]]></phrase>
+			<phrase name="setting_gwowdb_s_13_title" date="0" username="" version=""><![CDATA[Armory]]></phrase>
+			<phrase name="setting_gwowdb_s_14_desc" date="0" username="" version=""><![CDATA[Show Buffed.de search]]></phrase>
+			<phrase name="setting_gwowdb_s_14_title" date="0" username="" version=""><![CDATA[Buffed.de]]></phrase>
+			<phrase name="setting_gwowdb_s_1_desc" date="0" username="" version=""><![CDATA[Show Wowhead search]]></phrase>
+			<phrase name="setting_gwowdb_s_1_title" date="0" username="" version=""><![CDATA[Wowhead]]></phrase>
+			<phrase name="setting_gwowdb_s_2_desc" date="0" username="" version=""><![CDATA[Show Allakhazam search]]></phrase>
+			<phrase name="setting_gwowdb_s_2_title" date="0" username="" version=""><![CDATA[Allakhazam]]></phrase>
+			<phrase name="setting_gwowdb_s_3_desc" date="0" username="" version=""><![CDATA[Show WoWWiki search]]></phrase>
+			<phrase name="setting_gwowdb_s_3_title" date="0" username="" version=""><![CDATA[WoWWiki]]></phrase>
+			<phrase name="setting_gwowdb_s_4_desc" date="0" username="" version=""><![CDATA[Show Goblin Workshop search]]></phrase>
+			<phrase name="setting_gwowdb_s_4_title" date="0" username="" version=""><![CDATA[Goblin Workshop]]></phrase>
+			<phrase name="setting_gwowdb_s_5_desc" date="0" username="" version=""><![CDATA[Show WoW Guru search]]></phrase>
+			<phrase name="setting_gwowdb_s_5_title" date="0" username="" version=""><![CDATA[WoW Guru]]></phrase>
+			<phrase name="setting_gwowdb_s_6_desc" date="0" username="" version=""><![CDATA[Show WoW WarCry search]]></phrase>
+			<phrase name="setting_gwowdb_s_6_title" date="0" username="" version=""><![CDATA[WoW WarCry]]></phrase>
+			<phrase name="setting_gwowdb_s_7_desc" date="0" username="" version=""><![CDATA[Show WOWDB search]]></phrase>
+			<phrase name="setting_gwowdb_s_7_title" date="0" username="" version=""><![CDATA[WOWDB]]></phrase>
+			<phrase name="setting_gwowdb_s_8_desc" date="0" username="" version=""><![CDATA[Show WoWDigger search]]></phrase>
+			<phrase name="setting_gwowdb_s_8_title" date="0" username="" version=""><![CDATA[WoWDigger]]></phrase>
+			<phrase name="setting_gwowdb_s_9_desc" date="0" username="" version=""><![CDATA[Show WoWLib search]]></phrase>
+			<phrase name="setting_gwowdb_s_9_title" date="0" username="" version=""><![CDATA[WoWLib]]></phrase>
+			<phrase name="setting_gwowdb_showsubmit_desc" date="0" username="" version=""><![CDATA[Show submit button]]></phrase>
+			<phrase name="setting_gwowdb_showsubmit_title" date="0" username="" version=""><![CDATA[Submit button]]></phrase>
+			<phrase name="setting_gwowdb_tabdisplay_desc" date="0" username="" version=""><![CDATA[Choose how the tabs should appear]]></phrase>
+			<phrase name="setting_gwowdb_tabdisplay_title" date="0" username="" version=""><![CDATA[Tab display]]></phrase>
+			<phrase name="setting_gwowdb_target_desc" date="0" username="" version=""><![CDATA[Choose target window search results will open in]]></phrase>
+			<phrase name="setting_gwowdb_target_title" date="0" username="" version=""><![CDATA[Target window]]></phrase>
+			<phrase name="setting_gwowdb_width_desc" date="0" username="" version=""><![CDATA[Set width]]></phrase>
+			<phrase name="setting_gwowdb_width_title" date="0" username="" version=""><![CDATA[Width]]></phrase>
+			<phrase name="settinggroup_gwowdb_group1" date="0" username="" version=""><![CDATA[gWoWDB]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gwowdb_group1" displayorder="61300">
+			<setting varname="gwowdb_width" displayorder="10">
+				<datatype>number</datatype>
+				<defaultvalue>200</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_height" displayorder="20">
+				<datatype>number</datatype>
+				<defaultvalue>60</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_target" displayorder="40">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+0|Current Window
+1|New Window</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_showsubmit" displayorder="50">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_poweredby" displayorder="60">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_tabdisplay" displayorder="70">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+text|Text Only
+iconstext|Icons and Text
+icons|Icons Only</optioncode>
+				<defaultvalue>icons</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_armorylocale" displayorder="80">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+us|US Armory
+eu|EU Armory
+tw|TW Armory
+kr|KR Armory</optioncode>
+				<defaultvalue>us</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_armorydefault" displayorder="90">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+default|Default
+characters|Characters
+arenateams|Arena Teams
+items|Items
+guilds|Guilds</optioncode>
+				<defaultvalue>default</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_0" displayorder="100">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_1" displayorder="110">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_2" displayorder="120">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_3" displayorder="130">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_4" displayorder="140">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_5" displayorder="150">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_6" displayorder="160">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_7" displayorder="170">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_8" displayorder="180">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_9" displayorder="190">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_10" displayorder="200">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_11" displayorder="210">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_12" displayorder="220">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_13" displayorder="230">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwowdb_s_14" displayorder="240">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

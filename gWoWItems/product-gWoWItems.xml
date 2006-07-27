@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gWoWItems, Copyright � 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gWoWItems, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN INFO ###################################
+	// $Id: $
+	// $Rev: $
+	// $LastChangedBy: $
+	// $Date: $
+-->
+
+<product productid="gwowitems" active="1">
+	<title>gWoWItems</title>
+	<description><![CDATA[[item]ItemName[/item] displays World of Warcraft item data.]]></description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gwowitems_headinclude" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<style type="text/css">
+.q  { color: #ffd100 !important }
+.q0, .q0 a { color: #9d9d9d !important }
+.q1, .q1 a { color: #ffffff !important }
+.q2, .q2 a { color: #1eff00 !important }
+.q3, .q3 a { color: #0070dd !important }
+.q4, .q4 a { color: #a335ee !important }
+.q5, .q5 a { color: #ff8000 !important }
+.q6, .q6 a { color: #e5cc80 !important }
+.q7, .q7 a { color: #ff0000 !important }
+.q8, .q8 a { color: #ffff98 !important }
+</style>
+<script src="http://www.wowhead.com/widgets/power.js"></script>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gWI: Parse Text</title>
+			<hookname>bbcode_create</hookname>
+			<phpcode><![CDATA[$this->tag_list['no_option']['item'] = array ();
+$this->tag_list['no_option']['item']['callback'] = 'handle_external';
+$this->tag_list['no_option']['item']['external_callback'] = 'handle_bbcode_gwowitems';
+
+if (!function_exists ('handle_bbcode_gwowitems'))
+{
+    function handle_bbcode_gwowitems (&$theobj, &$value, &$option)
+	{
+		global $vbulletin;
+		require_once(DIR . '/includes/class_rss_poster.php');
+		
+		if($option)
+		{
+			$xml = fetch_file_via_socket("http://" . $vbulletin->options['gwowitems_lang'] . ".wowhead.com/?item=" . urlencode(trim($option)) . "&xml");
+		}
+		else
+		{
+			$xml = fetch_file_via_socket("http://" . $vbulletin->options['gwowitems_lang'] . ".wowhead.com/?item=" . urlencode(trim($value)) . "&xml");
+		}
+
+		require_once(DIR . '/includes/class_xml.php');
+
+		$xmlobj = new vB_XML_Parser( $xml['body'] );
+
+		$wowheadxml = $xmlobj->parse();
+		
+		if ( $xml != false && !$wowheadxml['error'] )
+		{		
+			return '<a class="q' . $wowheadxml['item']['quality']['id'] . '" href="http://' . $vbulletin->options['gwowitems_lang'] . '.wowhead.com/?item=' . $wowheadxml['item']['id'] . '" target="_blank">' . $wowheadxml['item']['name'] . '</a>';
+		}
+		else
+		{
+			return '<a href="http://' . $vbulletin->options['gwowitems_lang'] . '.wowhead.com/?search=' . $value . '" target="_blank">' . $value . '</a>';
+		}
+    }
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWI: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gwowitems_headinclude';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWI: Itemstats</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[$vbulletin->templatecache["headinclude"] = $vbulletin->templatecache["headinclude"] . '\n' . $vbulletin->templatecache["gwowitems_headinclude"];]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWI: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gwowitems_'] = 'gWoWItems';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gwowitems_lang_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Choose preferred language]]></phrase>
+			<phrase name="setting_gwowitems_lang_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Tooltip language]]></phrase>
+			<phrase name="setting_gwowitems_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_gwowitems_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="settinggroup_gwowitems_group1" date="0" username="Ghryphen" version="1.00"><![CDATA[gWoWItems]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gwowitems_group1" displayorder="60500">
+			<setting varname="gwowitems_lang" displayorder="10">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+de|Deutsch
+www|English
+es|Español
+fr|Français
+</optioncode>
+				<defaultvalue>www</defaultvalue>
+			</setting>
+			<setting varname="gwowitems_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gWoWItems&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

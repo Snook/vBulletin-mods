@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gThreeWordStory, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gThreeWordStory, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN INFO ###################################
+	// $Id: product-gThreewordstory.xml 892 2008-01-26 01:17:00Z ghryphen $
+	// $Rev: 892 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-25 17:17:00 -0800 (Fri, 25 Jan 2008) $
+-->
+
+<product productid="gthreewordstory" active="1">
+	<title>gThreeWordStory</title>
+	<description>Story</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode />
+			<uninstallcode />
+		</code>
+	</codes>
+	<templates>
+		<template name="GTWS" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[gtws_title]</title>
+</head>
+<body>
+
+$header
+$navbar
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+		$vbphrase[gtws_title]
+	</td>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr align="center">
+    <td class="thead">&nbsp;</td>
+  </tr>
+	<tr>
+		<td class="alt1">
+			<blockquote>$gtws</blockquote>
+
+			Contribute to this story <a href="newreply.php?do=newreply&noquote=1&p=43367">here</a>.
+		</td>
+</tr>
+<tr>
+	<td class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>
+
+<br />
+
+$footer
+
+</body>
+</html>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gTWS: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gtreewordstory.php')
+{
+	$userinfo['activity'] = 'gthreewordstory';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTWS: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gthreewordstory')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gtws_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gtws_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTWS: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gtws'] = 'gThreeWordStory';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gtws_title" date="0" username="" version="1.0.0"><![CDATA[gThreeWordStory]]></phrase>
+			<phrase name="gtws_vbnav" date="0" username="Ghryphen" version="1.00"><![CDATA[gThreeWordStory]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gtws_nav_navbar_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Add gThreeWordStory link to the Navbar.]]></phrase>
+			<phrase name="setting_gtws_nav_navbar_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Add Navbar Link]]></phrase>
+			<phrase name="setting_gtws_nav_quicklink_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Add gThreeWordStory link to the Quick Nav menu.]]></phrase>
+			<phrase name="setting_gtws_nav_quicklink_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Add Quick Link]]></phrase>
+			<phrase name="setting_gtws_usergroup_desc" date="0" username="" version="1.0.0"><![CDATA[Comma separated list of usergroup ids which can access the page.]]></phrase>
+			<phrase name="setting_gtws_usergroup_title" date="0" username="" version="1.0.0"><![CDATA[Usergroup IDs]]></phrase>
+			<phrase name="settinggroup_gtws_group1" date="0" username="" version="1.0.0"><![CDATA[gThreeWordStory]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gtws_group1" displayorder="60900">
+			<setting varname="gtws_usergroup" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>5,6,7</defaultvalue>
+			</setting>
+			<setting varname="gtws_nav_quicklink" displayorder="300">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gtws_nav_navbar" displayorder="310">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

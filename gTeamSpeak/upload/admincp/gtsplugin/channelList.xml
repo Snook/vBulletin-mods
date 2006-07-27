@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTeamSpeak, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// ########################### SVN info ###################################
+	// $Id: channelList.xml 519 2007-03-08 03:21:07Z ghryphen $
+	// $Rev: 519 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2007-03-07 19:21:07 -0800 (Wed, 07 Mar 2007) $
+-->
+
+<gTeamSpeak>
+	<title>channelList</title>
+	<description>[Plugin not completed] Display a list of channels.</description>
+	<version>1.00</version>
+	<order>1</order>
+	<reqsa>1</reqsa>
+	<enabled>0</enabled>
+	<menuoption><![CDATA[
+			print_form_header($this_script, 'channelList', 0, 1, 'resetForm');
+			print_table_header('Show Channel List');
+			print_description_row('Test Plugin');
+			print_submit_row('Show Channels', 0);
+	]]></menuoption>
+	<phpcode><![CDATA[if ( $_REQUEST['do'] == 'channelList' )
+{
+
+	print_form_header('', '', 0, 1, 'gtschannellist');
+	print_table_header('Channel List');
+
+	$cl = $cyts->info_channelList();
+	$pl = $cyts->info_playerList();
+
+	$cl = asortbyindex($cl,'order');
+
+	foreach ($cl as $row)
+	{
+		if ($row['parent'] == '-1' && $row['name'])
+	  {
+			if (!is_array($chanlist))
+			{
+				$chanlist = array();
+			}
+
+			$chanlist[$row['id']] = array();
+			$chanlist[$row['id']]['name'] = $row['name'];
+		}
+	}
+
+	foreach ($cl as $row)
+	{
+		if ($row['parent'] != '-1')
+	  {
+			if (!is_array($chanlist[$row['parent']]['subs']))
+			{
+				$chanlist[$row['parent']]['subs'] = array();
+			}
+
+			$chanlist[$row['parent']]['subs'][$row['id']] = array();
+			$chanlist[$row['parent']]['subs'][$row['id']]['name'] = $row['name'];
+		}
+	}
+
+	echo '<pre>';
+	print_r($chanlist);
+	echo '</pre>';
+
+	echo '<pre>';
+	print_r($cl);
+	echo '</pre>';
+
+	echo '<pre>';
+	print_r($pl);
+	echo '</pre>';
+
+	print_table_footer(2, construct_button_code($vbphrase['go_back'], 'javascript:history.back(1)'));
+}]]></phpcode>
+	<functions><![CDATA[/**
+ ** comesafter ($s1, $s2)
+ **
+ ** Returns 1 if $s1 comes after $s2 alphabetically, 0 if not.
+ **/
+
+function comesafter ($s1, $s2) {
+       /**
+         ** We don't want to overstep the bounds of one of the strings and segfault,
+         ** so let's see which one is shorter.
+         **/
+
+       $order = 1;
+
+       if (strlen ($s1) > strlen ($s2)) {
+               $temp = $s1;
+               $s1 = $s2;
+               $s2 = $temp;
+               $order = 0;
+       }
+
+       for ($index = 0; $index < strlen ($s1); $index++) {
+               /**
+                 ** $s1 comes after $s2
+                 **/
+
+               if ($s1[$index] > $s2[$index]) return ($order);
+
+               /**
+                 ** $s1 comes before $s2
+                 **/
+
+               if ($s1[$index] < $s2[$index]) return (1 - $order);
+       }
+
+       /**
+         ** Special case in which $s1 is a substring of $s2
+         **/
+
+       return ($order);
+}
+
+/**
+ ** asortbyindex ($sortarray, $index)
+ **
+ ** Sort a multi-dimensional array by a second-degree index. For instance, the 0th index
+ ** of the Ith member of both the group and user arrays is a string identifier. In the
+ ** case of a user array this is the username; with the group array it is the group name.
+ ** asortby
+ **/
+
+function asortbyindex ($sortarray, $index) {
+       $lastindex = count ($sortarray) - 1;
+       for ($subindex = 0; $subindex < $lastindex; $subindex++) {
+               $lastiteration = $lastindex - $subindex;
+               for ($iteration = 0; $iteration < $lastiteration; $iteration++) {
+                       $nextchar = 0;
+                       if (comesafter ($sortarray[$iteration][$index], $sortarray[$iteration + 1][$index])) {
+                               $temp = $sortarray[$iteration];
+                               $sortarray[$iteration] = $sortarray[$iteration + 1];
+                               $sortarray[$iteration + 1] = $temp;
+                       }
+               }
+       }
+       return ($sortarray);
+}]]></functions>
+</gTeamSpeak>

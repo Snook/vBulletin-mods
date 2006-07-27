@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gArticle, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gArticle, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gArticle.xml 907 2008-01-29 23:48:43Z ghryphen $
+	// $Rev: 907 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-29 15:48:43 -0800 (Tue, 29 Jan 2008) $
+-->
+
+<product productid="garticle" active="1">
+	<title>gArticle</title>
+	<description>Integrated vBulletin article.</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode><![CDATA[$vbulletin->db->query("
+	CREATE TABLE `vb3_garticle` (
+	  `id` int(11) NOT NULL auto_increment,
+	  `oldid` int(11) NOT NULL default '0',
+	  `title` varchar(255) NOT NULL default '',
+	  `content` mediumtext NOT NULL,
+	  `contentmd5` varchar(255) NOT NULL default '',
+	  `summary` varchar(255) NOT NULL default '',
+	  `dateline` int(11) NOT NULL default '0',
+	  `includes` varchar(255) NOT NULL default '',
+	  `category` varchar(255) NOT NULL default '',
+	  `userid` int(11) NOT NULL default '0',
+	  PRIMARY KEY  (`id`)
+	)
+");]]></installcode>
+			<uninstallcode />
+		</code>
+	</codes>
+	<templates>
+		<template name="garticle_main" templatetype="template" date="0" username="" version=""><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle]</title>
+<style>
+table.diff td
+{
+	text-align: right;
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: 8pt;
+}
+table.diff td.code
+{
+	text-align: left;
+	font-family: 'Courier New', Courier, monospace;
+	font-weight: normal;
+}
+table.diff td.code pre
+{
+	margin: 0;
+	padding: 0;
+}
+table.diff tr.new
+{
+	background: #102C1B;
+}
+table.diff tr.old
+{
+	background: #510503;
+}
+table.diff tr.hidenew
+{
+	display: none;
+}
+table.diff tr.hideold
+{
+	display: none;
+}
+</style>
+</head>
+<body>
+
+$header
+$navbar
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" align="center">
+<tr valign="top">
+	<td>
+
+	<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+	<tr>
+		<td class="tcat">
+		<span class="smallfont" style="float:right">
+			<if condition="$show['talk']">
+			<a href="garticle.php?page=Talk:$PAGE_TITLEE">Talk</a> |
+			<else />
+			<a href="garticle.php?page=$PAGE_TITLEE">Page</a> |
+			</if>
+			<a href="garticle.php?page=$PAGE_TITLEE&do=edit">Edit</a> |
+			<a href="garticle.php?page=$PAGE_TITLEE&do=history">History</a> |
+			<a href="garticle.php?page=$PAGE_TITLEE&do=protect">Protect</a> |
+			<a href="garticle.php?page=$PAGE_TITLEE&do=delete">Delete</a>
+		</span>
+		<a href="garticle.php?page=$PAGE_TITLEE">$PAGE_TITLE</a></td>
+	</tr>
+	<tr>
+		<td class="alt1"><div class="error">$article[error]</div>$article[content]</td>
+	</tr>
+	<tr>
+		<td class="tcat smallfont">
+		<span class="smallfont" style="float:right">
+			$article[date] $article[article] by <a href="member.php?u=$article[userid]">$article[username]</a>
+		</span>
+		$vbphrase[gllc_x_copy_x]
+		</td>
+	</tr>
+	</table>
+
+	</td>
+</tr>
+</table>
+
+$footer
+</body>
+</html>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gArticle: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'garticle_main';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Get Editor</title>
+			<hookname>editor_toolbar_start</hookname>
+			<phpcode><![CDATA[if ($forumid == 'gArticle')
+{
+	global $setting;
+	$setting['allow_bbcode'] = '1';
+	$show['img_bbcode'] = $setting['allow_imgcode'];
+	$toolbartype = $setting['allow_bbcode'] ? is_wysiwyg_compatible(-1, $editor_type) : 0;
+	$show['wysiwyg_compatible'] = (is_wysiwyg_compatible(2, $editor_type) == 2);
+	$show['editor_toolbar'] = ($toolbartype > 0);
+	$editor_template_name = ($toolbartype ? 'editor_toolbar_on' : 'editor_toolbar_off');
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gArticle: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'garticle.php')
+	{
+		$userinfo['activity'] = 'viewing_garticle';
+	}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gArticle: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'viewing_garticle')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['garticle_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['garticle_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gArticle: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['garticle_'] = 'gArticle';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="garticle_title" date="0" username="" version=""><![CDATA[gArticle]]></phrase>
+			<phrase name="garticle_vbnav" date="0" username="" version=""><![CDATA[gArticle]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_garticle_moderator_groups_desc" date="0" username="" version=""><![CDATA[Comma separated list of usergroups who moderate the article.]]></phrase>
+			<phrase name="setting_garticle_moderator_groups_title" date="0" username="" version=""><![CDATA[Moderator Groups]]></phrase>
+			<phrase name="settinggroup_garticle_group1" date="0" username="" version=""><![CDATA[gArticle]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="garticle_group1" displayorder="60100">
+			<setting varname="garticle_moderator_groups" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>6,5</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

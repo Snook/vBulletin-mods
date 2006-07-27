@@ -1,0 +1,1053 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gXboxLive, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gXboxLive, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gXboxLive.xml 1219 2009-09-23 21:53:36Z ghryphen $
+	// $Rev: 1219 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2009-09-23 14:53:36 -0700 (Wed, 23 Sep 2009) $
+-->
+
+<product productid="gxboxlive" active="1">
+	<title>gXboxLive</title>
+	<description>Xbox Live Leaderboard</description>
+	<version>2.3.5</version>
+	<url>http://www.vbulletin.org/forum/showthread.php?t=139958</url>
+	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=checkversion&t=139958]]></versioncheckurl>
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.00">
+			<installcode><![CDATA[$vbulletin->db->query_write("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gxboxlive (
+		`id` int(11) NOT NULL auto_increment,
+		`userid` int(11) NOT NULL default '0',
+		`username` varchar(255) NOT NULL default '',
+		`gamertag` varchar(255) NOT NULL default '',
+		`avatar` varchar(255) NOT NULL default '',
+		`score` int(11) NOT NULL default '0',
+		`rating` int(11) NOT NULL default '0',
+		`zone` varchar(255) NOT NULL default '',
+		`lastplayed` text NOT NULL,
+		`updated` int(11) NOT NULL default '0',
+		PRIMARY KEY (`id`)
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gxboxlive;" );]]></uninstallcode>
+		</code>
+		<code version="1.20">
+			<installcode><![CDATA[$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive`
+		DROP `id`,
+		DROP `username`
+");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive`
+	CHANGE `rating` `reputation` INT( 11 ) NOT NULL DEFAULT '0'
+");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive`
+	ADD PRIMARY KEY (`userid`)
+");
+
+$vbulletin->db->query_write("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gxboxlive_games (
+		`userid` int(11) NOT NULL default '0',
+		`title` varchar(255) NOT NULL default '',
+		`link` varchar(255) NOT NULL default '',
+		`image` varchar(255) NOT NULL default '',
+		`updated` int(11) NOT NULL default '0',
+		PRIMARY KEY (`userid`, `title`)
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gxboxlive_games;" );]]></uninstallcode>
+		</code>
+		<code version="2.0.0">
+			<installcode><![CDATA[$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive`
+	ADD `strikes` INT( 1 ) NOT NULL AFTER `userid` ,
+	ADD `rank` INT( 11 ) NOT NULL AFTER `strikes` ,
+	ADD `gold` INT( 1 ) NOT NULL AFTER `rank`
+");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive`
+		ADD `error` INT( 1 ) NOT NULL AFTER `updated`
+");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive_games`
+		ADD `position` INT( 11 ) NOT NULL AFTER `userid`
+");
+
+$vbulletin->db->query_write("TRUNCATE TABLE `" . TABLE_PREFIX . "gxboxlive`");
+$vbulletin->db->query_write("TRUNCATE TABLE `" . TABLE_PREFIX . "gxboxlive_games`");
+
+$vbulletin->db->query_write("
+	UPDATE " . TABLE_PREFIX . "setting SET
+		value = '0'
+	WHERE varname = 'gxbl_user_field'
+");
+
+$vbulletin->db->query_write("
+	UPDATE " . TABLE_PREFIX . "setting SET
+		value = '0'
+	WHERE varname = 'gxbl_show_unranked'
+");
+
+require_once(DIR . '/includes/adminfunctions.php');
+build_options();]]></installcode>
+			<uninstallcode />
+		</code>
+		<code version="2.1.0">
+			<installcode><![CDATA[$vbulletin->db->query_write("TRUNCATE TABLE `" . TABLE_PREFIX . "gxboxlive`");
+$vbulletin->db->query_write("TRUNCATE TABLE `" . TABLE_PREFIX . "gxboxlive_games`");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive`
+	ADD `firstseen` INT( 11 ) NOT NULL AFTER `lastplayed`
+");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive_games`
+	ADD `tid` VARCHAR( 255 ) NOT NULL AFTER `position`
+");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive_games` DROP PRIMARY KEY ,
+	ADD PRIMARY KEY ( `userid` , `tid` )
+");
+
+$vbulletin->db->query_write("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gxboxlive_gameslist (
+		`tid` varchar(255) NOT NULL default '',
+		`title` varchar(255) NOT NULL default '',
+		`image` varchar(255) NOT NULL default '',
+		`url` varchar(255) NOT NULL default '',
+		PRIMARY KEY  (`tid`)
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gxboxlive_gameslist;" );]]></uninstallcode>
+		</code>
+		<code version="2.3.5">
+			<installcode><![CDATA[$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gxboxlive`
+		CHANGE `reputation`  `reputation` TEXT NOT NULL
+");]]></installcode>
+			<uninstallcode />
+		</code>
+	</codes>
+	<templates>
+		<template name="GXBL" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[gxboxlive_title]</title>
+</head>
+<body <if condition="$highlight[gamertagid]">onload="if (is_ie || is_moz) { fetch_object('currentPost').scrollIntoView(true); }"</if>>
+
+$header
+$navbar
+
+<if condition="$show['popups'] && $show['member'] && !$bbuserinfo[$gxbl_user_field]">
+<!-- gamertag add form -->
+<div class="vbmenu_popup" id="gamertag_add_menu" style="display:none">
+<form action="profile.php?do=updateprofile" method="post" id="profileform">
+<input type="hidden" name="s" value="$session[sessionhash]" />
+<input type="hidden" name="securitytoken" value="$bbuserinfo[securitytoken]" />
+<input type="hidden" name="do" value="updateprofile" />
+<input type="hidden" name="userfield[${gxbl_user_field}_set]" value="1" />
+
+	<table cellpadding="4" cellspacing="1" border="0">
+	<tr>
+		<td class="thead">$vbphrase[search_members]</td>
+	</tr>
+	<tr>
+		<td class="vbmenu_option" title="nohilite">
+			<input type="text" class="bginput" name="userfield[$gxbl_user_field]" id="ctb_$gxbl_user_field" value="$bbuserinfo[$gxbl_user_field]" size="20" maxlength="100" />$gobutton
+		</td>
+	</tr>
+	</table>
+</form>
+</div>
+<!-- / gamertag add form -->
+</if>
+
+<if condition="$pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:3px">
+<tr valign="bottom">
+		<td class="smallfont">&nbsp;</td>
+		<td align="$stylevar[right]">$pagenav</td>
+</tr>
+</table>
+</if>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+		<span class="smallfont" style="float:$stylevar[right]">
+			<phrase 1="$limitlower" 2="$limitupper" 3="$gxblusercount[usercount]">$vbphrase[showing_results_x_to_y_of_z]</phrase>
+		</span>
+		$vbphrase[gxboxlive_title] <if condition="$bbuserinfo[$gxbl_user_field]">- <a href="gxboxlive.php?gt=$bbuserinfo[$gxbl_user_field]">$bbuserinfo[$gxbl_user_field]</a></if>
+	</td>
+	<if condition="!$bbuserinfo[$gxbl_user_field] && $show['member']">
+	<td class="vbmenu_control" id="gamertag_add"><a href="profile.php?$session[sessionurl]do=editprofile">$vbphrase[gxbl_addtag]</a> <script type="text/javascript"> vbmenu_register("gamertag_add"); </script></td>
+	</if>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr align="center">
+	<td class="thead" nowrap="nowrap">Status</td>
+	<td class="thead" nowrap="nowrap"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=s&amp;sortorder=$oppositesort">$vbphrase[gxbl_rank]</a> <if condition="$sortfield == s"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=s&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=n&amp;sortorder=$oppositesort">$vbphrase[username]</a> <if condition="$sortfield == n"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=n&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap" colspan="2"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=gt&amp;sortorder=$oppositesort">$vbphrase[gxbl_gamertag]</a> <if condition="$sortfield == gt"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=gt&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=s&amp;sortorder=$oppositesort">$vbphrase[gxbl_score]</a> <if condition="$sortfield == s"><a href="gxboxlive.php?page=$pagenumber&amp;sortfield=s&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap">$vbphrase[reputation]</td>
+	<td class="thead" nowrap="nowrap">$vbphrase[gxbl_games]</td>
+	<if condition="$show[gxbl_message] || $show[gxbl_friend]"><td class="thead" nowrap="nowrap">&nbsp;</td></if>
+</tr>
+
+$gxbl_bit
+
+<tr>
+	<td class="tfoot" colspan="$totalcols">
+		<div class="smallfont" style="white-space: nowrap; float: left; text-align: left;" id="gxbl_copyright">$vbphrase[gllc_x_copy_x]<script type="text/javascript"> vbmenu_register("gxbl_copyright", true); </script></div>
+		<div class="smallfont" style="white-space: nowrap; float: right; text-align: right;">
+		<if condition="$pagenav">
+			<phrase 1="$limitlower" 2="$limitupper" 3="$gxblusercount[usercount]">$vbphrase[showing_results_x_to_y_of_z]</phrase>
+		</if>
+		</div>
+	</td>
+</tr>
+</table>
+
+<if condition="$pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:3px">
+<tr valign="bottom">
+	<td align="$stylevar[right]">$pagenav</td>
+</tr>
+</table>
+</if>
+
+<br />
+
+<if condition="$show['gxbl_stats']">
+$gxblstats
+</if>
+
+<!-- gxbl_copyright menu -->
+<div class="vbmenu_popup" id="gxbl_copyright_menu" style="display:none">
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_xclick" />
+<input type="hidden" name="business" value="ghryphen@gmail.com" />
+<input type="hidden" name="page_style" value="PayPal" />
+<input type="hidden" name="no_shipping" value="1" />
+<input type="hidden" name="shipping" value="0.00" />
+<input type="hidden" name="no_note" value="1" />
+<input type="hidden" name="return" value="https://github.com/ghryphen/" />
+<input type="hidden" name="cancel_return" value="$vboptions[bburl]/gxboxlive.php" />
+<input type="hidden" name="tax" value="0" />
+<input type="hidden" name="item_name" value="gXboxLive - Xbox Live Leaderboard" />
+<input type="hidden" name="on0" value="From" />
+<input type="hidden" name="os0" value="$bbuserinfo[username] / $vboptions[bburl]" />
+<input type="hidden" name="on1" value="Message" />
+	<table cellpadding="4" cellspacing="1" border="0">
+	<tr>
+		<td class="thead">Author Message:</td>
+	<tr>
+		<td class="vbmenu_option" title="nohilite" align="left">I hope you enjoy using gXboxLive<if condition="$bbuserinfo['userid']"> $bbuserinfo[username]</if>.<br />Donations can be made below if<br/>you would like to support gXboxLive.<br /><br />Thank you,<br /><a href="https://github.com/ghryphen" target="_blank">Ghryphen</a></td>
+	</tr>
+	<tr>
+		<td class="thead">Donate Via PayPal</td>
+	</tr>
+	<tr>
+		<td class="vbmenu_option" title="nohilite">Amount:
+			<input id="amount" size="10" maxlength="16" name="amount" value="0.00" type="text" title="Amount" style="width:40px" class="button" /><select name="currency_code" title="Select a Default Currency">
+			<option value="USD" selected="selected">U.S. Dollars</option>
+		</td>
+	</tr>
+	<tr>
+		<td class="vbmenu_option" title="nohilite" align="left">Enter Short Message:<br /><textarea class="button" name="os1" maxlength="200" rows="2" cols="15" style="width: 98%; overflow: auto" title="Enter Short Message"></textarea>
+			<div align="center"><input class="button" name="submit" value="Donate Now!" type="submit" /></div>
+		</td>
+	</tr>
+	</table>
+</form>
+</div>
+<!-- / gxbl_copyright menu -->
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gxbl_bit" templatetype="template" date="0" username="Ghryphen" version="2.3.0"><![CDATA[<tr align="center" <if condition="$player[gamertagid] == $highlight[gamertagid]">class="gxblhighlight" id="currentPost"</if>>
+	<if condition="$player[status]"><td class="alt2"><img src="$stylevar[imgdir_misc]/gxboxlive/status/$player[status].png" alt="$player[status]" /></td></if>
+	<td class="alt1"><if condition="in_array($player['rank'], array("1","2","3"))"><img class="inlineimg" border="0" src="$stylevar[imgdir_misc]/gxboxlive/silk/award_star_<if condition="$player['rank'] == '1'">gold<else /><if condition="$player['rank'] == '2'">silver<else />bronze</if></if>_2.png" alt="$vbphrase[gxbl_rank]: $player[rank]" /></if> $player[rank]<sup>$player[ranksuff]</sup></td>
+	<td class="<if condition="$player[userid] == $user[userid]">alt1<else />alt2</if>" align="$stylevar[left]" nowrap="nowrap"><a href="member.php?u=$player[userid]&amp;tab=gxboxlive">$player[username]</a></td>
+	<td class="alt1" align="$stylevar[left]" nowrap="nowrap"><a href="http://xaged.com/xbox/$player[gamertag]" target="_blank">$player[gamertag]</a></td>
+	<td class="alt1" nowrap="nowrap">
+		<a href="http://gamercard.xbox.com/$player[gamertag].card" target="_blank" onmouseover="gXBL_show('gamercard','$player[gamertag]');" onmouseout="return gXBL_hide();"><img border="0" width="20" height="20" src="$player[avatar]" style="border: 1px solid <if condition="$player[gold]">gold<else />silver</if>;" /></a>
+		<a href="http://avatar.xboxlive.com/avatar/$player[gamertag]/avatar-body.png" target="_blank" onmouseover="gXBL_show('nxeavatar','$player[gamertag]');" onmouseout="return gXBL_hide();"><img border="0" width="20" height="20" src="http://avatar.xboxlive.com/avatar/$player[gamertag]/avatarpic-s.png" style="border: 1px solid <if condition="$player[gold]">gold<else />silver</if>;" /></a>
+	</td>
+	<td class="alt2"><acronym title="$vbphrase[gxbl_last_updated]: $updated[date] $updated[time]">$player[score]</acronym></td>
+	<td class="alt1"><div class="xblrep"><div class="Stats">$player[reputation]</div></div></td>
+	<td class="alt2">$player[games]</td>
+	<if condition="$show[gxbl_message] || $show[gxbl_friend]">
+		<td class="alt1">
+			<if condition="$show[gxbl_message]">
+				<a href="http://live.xbox.com/en-US/MessageCenter/Compose?gamertag=$player[gamertag]" target="_blank"><img class="inlineimg" border="0" src="$stylevar[imgdir_misc]/gxboxlive/silk/email_link.png" alt="<phrase 1="$player[gamertag]">$vbphrase[gxbl_message_x_friend]</phrase>" /></a>
+			</if>
+			<if condition="$show[gxbl_friend]">
+				<a href="http://live.xbox.com/en-US/profile/FriendsMgmt.aspx?ru=$gxbl[ru]&amp;gt=$player[gamertag]&amp;act=Add" target="_blank" onClick="return confirm('<phrase 1="$player[gamertag]">$vbphrase[gxbl_confirm_x_friend]</phrase>');"><img class="inlineimg" border="0" src="$stylevar[imgdir_misc]/gxboxlive/silk/group_link.png" alt="<phrase 1="$player[gamertag]">$vbphrase[gxbl_add_x_friend]</phrase>" /></a>
+			</if>
+		</td>
+	</if>
+</tr>]]></template>
+		<template name="gxbl_bit_game" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[ <a href="$game[link]" target="_blank"><img class="inlineimg" border="0" width="20" height="20" src="$game[image]" alt="$game[title]" /></a> ]]></template>
+		<template name="gxbl_headinclude" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[<script type="text/javascript" src="clientscript/overlib/overlib.js"></script>
+
+<script type="text/javascript">
+function gXBL_setcursor(type) {
+	document.getElementsByTagName('body')[0].style.cursor = typeof type == 'undefined' ? 'default' : type;
+	links = document.getElementsByTagName('a');
+	for(i = 0; i < links.length; i++) links.item(i).style.cursor = typeof type == 'undefined' ? 'pointer' : type;
+}
+
+function gXBL_show( type, gamertag) {
+
+	if(type == 'gamercard')
+	{
+		gXBL_setcursor('progress');
+
+		var html = '<iframe onload="gXBL_setcursor();" src="http://gamercard.xbox.com/'+gamertag+'.card" scrolling="no" frameBorder="0" height="135" width="200">'+gamertag+'</iframe>';
+
+		return overlib(html, BORDER, 0, FULLHTML, WIDTH, 204, HEIGHT, 140, VAUTO, HAUTO);
+	}
+
+	if(type == 'nxeavatar')
+	{
+		gXBL_setcursor('progress');
+
+		var html = '<iframe onload="gXBL_setcursor();" src="http://avatar.xboxlive.com/avatar/'+gamertag+'/avatar-body.png" scrolling="no" frameBorder="0" height="300" width="150">'+gamertag+'</iframe>';
+
+		return overlib(html, BORDER, 0, FULLHTML, WIDTH, 150, HEIGHT, 300, VAUTO, HAUTO);
+	}
+
+}
+
+function gXBL_hide() {
+	return nd();
+}
+</script>
+<style type="text/css">
+.gxblhighlight td {
+	border:1px solid yellow;
+}
+
+div.xblrep .Stats
+{
+    float:left;
+}
+
+
+div.xblrep .Stats .Stat
+{
+    float:left;
+    text-align:left;
+}
+
+div.xblrep .Stats  .Star
+{
+    float:left;
+    width:12px;
+    height:12px;
+}
+
+div.xblrep .Stats .Empty
+{
+    background:url("http://gamercard.xbox.com/Content/images/gamerCard_Icons.png") -10px -10px no-repeat;
+}
+
+div.xblrep .Stats .Quarter
+{
+    background:url("http://gamercard.xbox.com/Content/images/gamerCard_Icons.png") -10px -30px no-repeat;
+}
+
+div.xblrep .Stats .Half
+{
+    background:url("http://gamercard.xbox.com/Content/images/gamerCard_Icons.png") -10px -50px no-repeat;
+}
+
+div.xblrep .Stats .ThreeQuarter
+{
+    background:url("http://gamercard.xbox.com/Content/images/gamerCard_Icons.png") -10px -70px no-repeat;
+}
+
+div.xblrep .Stats .Full
+{
+    background:url("http://gamercard.xbox.com/Content/images/gamerCard_Icons.png") -10px -90px no-repeat;
+}
+</style>]]></template>
+		<template name="gxbl_memberinfo" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[<iframe src="http://gamercard.xbox.com/$profilefield[value].card" scrolling="no" frameBorder="0" height="140" width="204">$profilefield[value]</iframe>]]></template>
+		<template name="gxbl_memberinfo_block" templatetype="template" date="0" username="Ghryphen" version="2.3.0"><![CDATA[<div class="alt1 block_row">
+	<ul class="list_no_decoration">
+		$block_data[gxboxlive]
+	</ul>
+</div>]]></template>
+		<template name="gxbl_memberinfo_block_gamebit" templatetype="template" date="0" username="Ghryphen" version="2.3.0"><![CDATA[<table cellpadding="5" cellspacing="5" style="width:50%; border: 1px solid; float: left; margin-bottom: 10px;">
+	<tr>
+		<td><img src="$gameinfo[image]" /></td>
+		<td align="left" width="100%">
+			<b>$gameinfo[name]</b><br /><br />
+			Achievements: $gameinfo[achievements] of $gameinfo[totalachievements]<br />
+			Gamer Score: $gameinfo[gamerscore] of $gameinfo[totalgamerscore]
+		</td>
+	</tr>
+</table>]]></template>
+		<template name="gxbl_memberinfo_block_info" templatetype="template" date="0" username="Ghryphen" version="2.3.0"><![CDATA[<table width="100%" cellpadding="5" cellspacing="5" style="border: 1px solid">
+	<tr>
+		<td valign="top" rowspan="2">
+			<img src="$gamerinfo[avatar]" />
+		</td>
+		<td align="left" width="100%" valign="top" nowrap>
+			<b><a href="gxboxlive.php?gt=$gamerinfo[gamertag]">$gamerinfo[gamertag]</a></b> - <b>$gamerinfo[presencestatus]</b><br /><br />
+			Reputation: <img src="$gamerinfo[reputationimage]"><br /> <br />
+			Gamer Score: $gamerinfo[gamerscore]<br /> <br />
+			Zone: $gamerinfo[zone]<br /><br />
+		</td>
+		<td rowspan="2" align="right">
+			<img src="http://avatar.xboxlive.com/avatar/$gamerinfo[gamertag]/avatar-body.png" />
+		</td>
+	</tr>
+	<tr>
+		<td valign="top"><b>$gamerinfo[presenceinfo]</b></td>
+	</tr>
+	</table>
+	<br />
+		$gxbl_gamebits
+		<div style="clear:both;"></div>
+	<br />
+
+	<div class="smallfont" style="white-space: nowrap; float: left; text-align: left;" id="gxbl_copyright">$vbphrase[gllc_x_copy_x]</div>]]></template>
+		<template name="gxbl_postbit" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[<if condition="$show['gxblrank']"><div><a href="gxboxlive.php?gt=$post[url_gxblgamertag]" onmouseover="gXBL_show('gamercard','$post[url_gxblgamertag]');" onmouseout="return gXBL_hide();">$vbphrase[gxboxlive_title]</a>: <if condition="in_array($post['gxblrank'], array("1","2","3"))"><img class="inlineimg" border="0" src="$stylevar[imgdir_misc]/gxboxlive/silk/award_star_<if condition="$post['gxblrank'] == '1'">gold<else /><if condition="$post['gxblrank'] == '2'">silver<else />bronze</if></if>_2.png" alt="$vbphrase[gxbl_rank]: $post[gxblrank]" /></if> $post[gxblrank]<sup>$post[gxblranksuff]</sup></div></if>]]></template>
+		<template name="gxbl_stats" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[<!-- gxbl stats on box -->
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr>
+		<td class="tcat" colspan="6">
+			<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('gxbl_stats')"><img id="collapseimg_gxbl_stats" src="$stylevar[imgdir_button]/collapse_tcat$vbcollapse[collapseimg_gxbl_stats].gif" alt="" border="0" /></a>
+			<phrase 1="$vbphrase[gxboxlive_title]"><a href="gxboxlive.php$session[sessionurl_q]">$vbphrase[x_statistics]</a></phrase>
+		</td>
+	</tr>
+</thead>
+<tbody id="collapseobj_gxbl_stats" style="$vbcollapse[collapseobj_gxbl_stats]">
+	<tr>
+		<td class="thead" align="center"><phrase 1="$vbphrase[gxbl_stats]">$vbphrase[gxbl_top_x]</phrase></td>
+		<td class="thead" align="center"><phrase 1="$vbphrase[gxbl_players]">$vbphrase[gxbl_top_x]</phrase></td>
+		<td class="thead" align="center"><phrase 1="$vbphrase[gxbl_avatars]">$vbphrase[gxbl_top_x]</phrase></td>
+		<td class="thead" align="center"><phrase 1="$vbphrase[gxbl_games]">$vbphrase[gxbl_top_x]</phrase></td>
+	</tr>
+	<tr>
+		<td class="alt1" width="20%" valign="top" nowrap="nowrap">
+			<div width="100%" class="smallfont"><span style="float:$stylevar[right]">$gxblusercount[usercount]</span>$vbphrase[gxbl_players]</div>
+			<div width="100%" class="smallfont"><span style="float:$stylevar[right]">$gxblusercount[gold]</span>$vbphrase[gxbl_gold] $vbphrase[gxbl_accounts]</div>
+			<div width="100%" class="smallfont"><span style="float:$stylevar[right]">$gxblusercount[silver]</span>$vbphrase[gxbl_silver] $vbphrase[gxbl_accounts]</div>
+			<div width="100%" class="smallfont"><span style="float:$stylevar[right]">$gxblusercount[score]</span>$vbphrase[gxbl_total] $vbphrase[gxbl_score]</div>
+			<div width="100%" class="smallfont"><span style="float:$stylevar[right]">$gxblusercount[games]</span>$vbphrase[gxbl_games]</div>
+		</td>
+		<td class="alt2" width="20%" valign="top" nowrap="nowrap">$gxbltop[players]</td>
+		<td class="alt1" width="20%" align="center">$gxbltop[avatars]</td>
+		<td class="alt1" width="20%" align="center">$gxbltop[games]</td>
+	</tr>
+</tbody>
+</table>
+<br />
+<!-- end gxbl stats box -->]]></template>
+		<template name="gxbl_top_avatars" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[ <img border="0" width="32" height="32" src="$avatar[avatar]" alt="<phrase 1="$avatar[count]">$vbphrase[gxbl_by_x_players]</phrase>" /> ]]></template>
+		<template name="gxbl_top_games" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[ <a href="$game[link]" target="_blank"><img border="0" width="32" height="32" src="$game[image]" alt="$game[title]: <phrase 1="$game[count]">$vbphrase[gxbl_by_x_players]</phrase>" /></a> ]]></template>
+		<template name="gxbl_top_players" templatetype="template" date="0" username="Ghryphen" version="2.3.0"><![CDATA[<div width="100%" class="smallfont"><span class="smallfont" style="float:$stylevar[right]">$player[score]</span><a href="member.php?u=$player[userid]&amp;tab=gxboxlive" onmouseover="gXBL_show('gamercard','$player[gamertag]');" onmouseout="return gXBL_hide();">$player[username]</a></div>]]></template>
+		<template name="gxbl_top_zones" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[<div width="100%" class="smallfont"><span style="float:$stylevar[right]">$zone[count]</span>$zone[zone]</div>]]></template>
+		<template name="gxbl_vbnav_navbarlink" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[<td class="vbmenu_control"><a href="gxboxlive.php$session[sessionurl_q]">$vbphrase[gxboxlive_vbnav]</a></td>]]></template>
+		<template name="gxbl_vbnav_quicklink" templatetype="template" date="0" username="Ghryphen" version="2.0.0"><![CDATA[<tr><td class="vbmenu_option"><a href="gxboxlive.php$session[sessionurl_q]">$vbphrase[gxboxlive_vbnav]</a></td></tr>]]></template>
+		<template name="gxbl_z_copyright" templatetype="template" date="0" username="Ghryphen" version="2.0.0" />
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gxbl_bit_game';
+$globaltemplates[] = 'gxbl_headinclude';
+$globaltemplates[] = 'gxbl_memberinfo';
+$globaltemplates[] = 'gxbl_postbit';
+$globaltemplates[] = 'gxbl_stats';
+$globaltemplates[] = 'gxbl_top_avatars';
+$globaltemplates[] = 'gxbl_top_games';
+$globaltemplates[] = 'gxbl_top_players';
+$globaltemplates[] = 'gxbl_top_zones';
+$globaltemplates[] = 'gxbl_vbnav_navbarlink';
+$globaltemplates[] = 'gxbl_vbnav_quicklink';
+$globaltemplates[] = 'gxbl_memberinfo_block';
+$globaltemplates[] = 'gxbl_memberinfo_block_gamebit';
+$globaltemplates[] = 'gxbl_memberinfo_block_info';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Stats Forumhome</title>
+			<hookname>forumhome_start</hookname>
+			<phpcode><![CDATA[if (function_exists('gxbl_has_access') && gxbl_has_access() && $vbulletin->options['gxbl_show_stats'] && $vbulletin->options['gxbl_show_statsfh'])
+{
+	($hook = vBulletinHook::fetch_hook('gxbl_stats')) ? eval($hook) : false;
+
+	if($vbulletin->options['gxbl_forumhome'])
+	{
+		$s = "<!-- end what's going on box -->";
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gxbl_stats"], $vbulletin->templatecache["FORUMHOME"] );
+		$vbulletin->templatecache["FORUMHOME"] = $t;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Links</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if(file_exists(DIR . '/includes/functions_gxboxlive.php'))
+{
+	require_once(DIR . '/includes/functions_gxboxlive.php');
+}
+
+if (function_exists('gxbl_has_access') && gxbl_has_access())
+{
+	$vbulletin->userstats['gxbl'] = gxbl_counts();
+
+	$gxblusercount = $vbulletin->userstats['gxbl'];
+
+	if ($vbulletin->options['gxbl_quicklink_loc'])
+	{
+		switch ($vbulletin->options['gxbl_quicklink_loc'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_quick_links_menu_pos1]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_quick_links_menu_pos2]';
+				break;
+			case "3":
+				$s = '$template_hook[navbar_quick_links_menu_pos3]';
+			case "4":
+				$s = '$template_hook[navbar_quick_links_menu_pos4]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gxbl_vbnav_quicklink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+	if ($vbulletin->options['gxbl_navbarlink_loc'])
+	{
+		switch ($vbulletin->options['gxbl_navbarlink_loc'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_buttons_left]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_buttons_right]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gxbl_vbnav_navbarlink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+
+	if ($vbulletin->options['gxbl_postbit_loc'])
+	{
+		switch ($vbulletin->options['gxbl_postbit_loc'])
+		{
+			case "1":
+				$s = '$template_hook[postbit_userinfo_left]';
+				break;
+			case "2":
+				$s = '$template_hook[postbit_userinfo_right_after_posts]';
+				break;
+			case "3":
+				$s = '$template_hook[postbit_userinfo_right]';
+				break;
+			case "4":
+				$s = '$template_hook[postbit_signature_start]';
+				break;
+			case "5":
+				$s = '$template_hook[postbit_signature_end]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gxbl_postbit"], $vbulletin->templatecache["postbit_legacy"] );
+		$vbulletin->templatecache["postbit_legacy"] = $t;
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gxbl_postbit"], $vbulletin->templatecache["postbit"] );
+		$vbulletin->templatecache["postbit"] = $t;
+	}
+
+	$vbulletin->templatecache["headinclude"] = $vbulletin->templatecache["headinclude"] . '\n' . $vbulletin->templatecache["gxbl_headinclude"];
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Stats</title>
+			<hookname>gxbl_stats</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['gxbl_show_stats'])
+{
+	$gxbltop = gxbl_topstats();
+
+	eval('$gxblstats = "' . fetch_template('gxbl_stats') . '";');
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Phrases</title>
+			<hookname>init_startup</hookname>
+			<phpcode><![CDATA[$phrasegroups[] = 'gxbl';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>XBL: Memberinfo Tab</title>
+			<hookname>member_build_blocks_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['gxbl_memberinfo_tab'] && function_exists('gxbl_has_access') && gxbl_has_access() && $vbulletin->options['gxbl_xaged_api'])
+{
+	$blocklist = array_merge($blocklist, array(
+		'gxboxlive' => array(
+			'class' => 'gxboxlive',
+			'title' => $vbphrase['gxboxlive_vbnav'],
+			'hook_location' => $vbulletin->options['gxbl_memberinfo_tab'] == 1 ? 'profile_left_first' : 'profile_left_last',
+		)
+	));
+
+	class vB_ProfileBlock_gxboxlive extends vB_ProfileBlock
+	{
+		var $template_name = 'gxbl_memberinfo_block';
+		function confirm_empty_wrap()
+		{
+			return false;
+		}
+
+		function confirm_display()
+		{
+			return ($this->block_data['gxboxlive'] != '');
+		}
+
+		function prepare_output($id = '', $options = array())
+		{
+			global $vbulletin;
+
+			$gamertag = trim(strtolower($this->profile->userinfo["field" . $vbulletin->options['gxbl_user_field']]));
+			
+			if ($gamertag)
+			{
+				require_once(DIR . '/includes/class_gxboxstatus.php');
+				
+				$x = new XboxData;
+				$x->SetGUID( $vbulletin->options['gxbl_xaged_api'] );
+				$x->SetGamertag( $gamertag );
+
+				$profile = $x->GetGamercard();	
+		
+				$gamerinfo['avatar'] = $profile['GamerInfo']['tileUrl'];
+				$gamerinfo['gamertag'] = $profile['GamerInfo']['gamertag'];
+				$gamerinfo['reputationimage'] = $profile['GamerInfo']['reputationUrl'];
+				$gamerinfo['gamerscore'] = $profile['GamerInfo']['score'];
+				$gamerinfo['zone'] = $profile['GamerInfo']['zone'];
+				$gamerinfo['presencestatus'] = $profile['GamerPresence']['StatusText'];
+				$gamerinfo['presenceinfo'] = $profile['GamerPresence']['info'];
+
+				if (isset($profile['GamerInfo']['RecentGames']['Game']['tile32Url']))
+				{
+					$gameinfo['image'] = $profile['GamerInfo']['RecentGames']['Game']['tile64Url'];
+					$gameinfo['name'] = $profile['GamerInfo']['RecentGames']['Game']['name'];
+					$gameinfo['achievements'] = $profile['GamerInfo']['RecentGames']['Game']['achievements'];
+					$gameinfo['totalachievements'] = $profile['GamerInfo']['RecentGames']['Game']['totalAchievements'];
+					$gameinfo['gamerscore'] = $profile['GamerInfo']['RecentGames']['Game']['gamerscore'];
+					$gameinfo['totalgamerscore'] = $profile['GamerInfo']['RecentGames']['Game']['totalGamerscore'];
+
+					eval('$gxbl_gamebits .= "' . fetch_template('gxbl_memberinfo_block_gamebit') . '";');
+				}
+				elseif (is_array($profile['GamerInfo']['RecentGames']['Game']))
+				{
+					foreach ($profile['GamerInfo']['RecentGames']['Game'] as $games)
+					{
+						$gameinfo['image'] = $games['tile64Url'];
+						$gameinfo['name'] = $games['name'];
+						$gameinfo['achievements'] = $games['achievements'];
+						$gameinfo['totalachievements'] = $games['totalAchievements'];
+						$gameinfo['gamerscore'] = $games['gamerscore'];
+						$gameinfo['totalgamerscore'] = $games['totalGamerscore'];
+
+						eval('$gxbl_gamebits .= "' . fetch_template('gxbl_memberinfo_block_gamebit') . '";');
+					}
+				}
+
+
+				global $copyrightyear;
+				$vbphrase['gllc_x_copy_x'] = construct_phrase('%s, Copyright &copy; 2006 - %s, <a href="https://github.com/ghryphen" target="_blank">Ghryphen</a>', 'gXboxLive', $copyrightyear);
+
+				eval('$this->block_data[gxboxlive] = "' . fetch_template('gxbl_memberinfo_block_info') . '";');
+			}
+		}
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Memberinfo</title>
+			<hookname>member_customfields</hookname>
+			<phpcode><![CDATA[global $vbulletin;
+	global $vbphrase;
+
+if ($vbulletin->options['gxbl_memberinfo'] && $profilefield['profilefieldid'] == str_replace("field", "", $vbulletin->options['gxbl_user_field']) )
+{
+	if($profilefield['value'])
+	{
+		eval('$profilefield[value] = "' . fetch_template('gxbl_memberinfo') . '";');
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Ajax</title>
+			<hookname>newreply_post_ajax</hookname>
+			<phpcode><![CDATA[$hook_query_fields .= ", gxboxlive.rank AS gxblrank, gxboxlive.gamertag AS gxblgamertag, gxboxlive.score AS gxblscore";
+$hook_query_joins .= "LEFT JOIN " . TABLE_PREFIX . "gxboxlive AS gxboxlive ON (user.userid = gxboxlive.userid)";]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gxboxlive.php')
+{
+	$userinfo['activity'] = 'gxboxlive';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gxboxlive')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gxboxlive_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gxboxlive_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Postbit display</title>
+			<hookname>postbit_display_start</hookname>
+			<phpcode><![CDATA[if(function_exists('gxbl_has_access') && gxbl_has_access() && $post[gxblrank] && $this->registry->options['gxbl_postbit_loc'] && ( $this->registry->options['gxbl_forumids'] == '0' || in_array($forum['forumid'], explode(',',$this->registry->options['gxbl_forumids']))) )
+{
+	$show['gxblrank'] = true;
+
+	if(!$this->registry->options['gxbl_show_unranked'] && !$post[gxblscore])
+	{
+		$show['gxblrank'] = false;
+	}
+	else
+	{
+		$post['url_gxblgamertag'] = urlencode($post['gxblgamertag']);
+
+		$post['gxblranksuff'] = gxbl_suffix($post['gxblrank']);
+
+		eval('$gxblrank = "' . fetch_template('gxbl_postbit') . '";');
+	}
+}
+else
+{
+	$show['gxblrank'] = false;
+	$post['gxblrank'] = false;
+	$page = false;
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Showthread query</title>
+			<hookname>showthread_query</hookname>
+			<phpcode><![CDATA[$hook_query_fields .= ", gxboxlive.rank AS gxblrank, gxboxlive.gamertag AS gxblgamertag, gxboxlive.score AS gxblscore";
+$hook_query_joins .= "LEFT JOIN " . TABLE_PREFIX . "gxboxlive AS gxboxlive ON (user.userid = gxboxlive.userid)";]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gxbl'] = 'gXboxLive';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: User Deleted</title>
+			<hookname>userdata_delete</hookname>
+			<phpcode><![CDATA[if (VB_AREA == 'AdminCP')
+{
+	$this->registry->db->query_write("DELETE FROM " . TABLE_PREFIX . "gxboxlive WHERE userid = " . $this->existing['userid']);
+	$this->registry->db->query_write("DELETE FROM " . TABLE_PREFIX . "gxboxlive_games WHERE userid = " . $this->existing['userid']);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBL: Userdata update</title>
+			<hookname>userdata_postsave</hookname>
+			<phpcode><![CDATA[if( (THIS_SCRIPT == 'profile' || ( VB_AREA == 'AdminCP' && $_POST['do'] == 'update') ) && $this->userfield['field' . $this->registry->options['gxbl_user_field']] != $this->existing['field' . $this->registry->options['gxbl_user_field']] )
+{
+	$this->dbobject->query_write("
+		DELETE FROM " . TABLE_PREFIX . "gxboxlive
+		WHERE userid = $userid
+	");
+
+	$this->dbobject->query_write("
+		DELETE FROM " . TABLE_PREFIX . "gxboxlive_games
+		WHERE userid = $userid
+	");
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Scheduled Tasks" fieldname="cron">
+			<phrase name="task_gxboxlive_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Scans all gamer cards and collects data for gXboxLive Leaderboard]]></phrase>
+			<phrase name="task_gxboxlive_log" date="0" username="Ghryphen" version="2.0.0"><![CDATA[{1}]]></phrase>
+			<phrase name="task_gxboxlive_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[gXboxLive Update]]></phrase>
+		</phrasetype>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gxboxlive_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[gXboxLive Leaderboard]]></phrase>
+			<phrase name="gxboxlive_vbnav" date="0" username="Ghryphen" version="2.0.0"><![CDATA[gXboxLive]]></phrase>
+		</phrasetype>
+		<phrasetype name="gXboxLive Phrases" fieldname="gxbl">
+			<phrase name="gxbl_accounts" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Accounts]]></phrase>
+			<phrase name="gxbl_add_x_friend" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Add {1} to your friends list]]></phrase>
+			<phrase name="gxbl_addtag" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Add Your GamerTag]]></phrase>
+			<phrase name="gxbl_avatars" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Avatars]]></phrase>
+			<phrase name="gxbl_by_x_players" date="0" username="Ghryphen" version="2.0.0"><![CDATA[By {1} players]]></phrase>
+			<phrase name="gxbl_confirm_x_friend" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Are you sure you wish to add {1} to your Xbox Live friends list?]]></phrase>
+			<phrase name="gxbl_gamertag" date="0" username="Ghryphen" version="2.0.0"><![CDATA[GamerTag]]></phrase>
+			<phrase name="gxbl_games" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Games]]></phrase>
+			<phrase name="gxbl_gold" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Gold]]></phrase>
+			<phrase name="gxbl_last_updated" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Last Updated]]></phrase>
+			<phrase name="gxbl_message_x_friend" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Send {1} a message]]></phrase>
+			<phrase name="gxbl_players" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Players]]></phrase>
+			<phrase name="gxbl_rank" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Rank]]></phrase>
+			<phrase name="gxbl_score" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Score]]></phrase>
+			<phrase name="gxbl_silver" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Silver]]></phrase>
+			<phrase name="gxbl_stats" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Stats]]></phrase>
+			<phrase name="gxbl_top_x" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Top {1}]]></phrase>
+			<phrase name="gxbl_total" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Total]]></phrase>
+			<phrase name="gxbl_zone" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Zone]]></phrase>
+			<phrase name="gxbl_zones" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Zones]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gxbl_displaygroups_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Comma separated list of usergroups which are displayed on the leaderboard. Set to 0 to display all but banned groups.]]></phrase>
+			<phrase name="setting_gxbl_displaygroups_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Display usergroups]]></phrase>
+			<phrase name="setting_gxbl_forumhome_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This will attempt to automatically insert the stats into the forumhome. If it does not automatically instert the information, place $gxblstats where you would like it displayed.]]></phrase>
+			<phrase name="setting_gxbl_forumhome_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Automatically add to Forumhome]]></phrase>
+			<phrase name="setting_gxbl_forumids_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Comma separated list of forum ids to display rank on postbit. 0 for all forums.]]></phrase>
+			<phrase name="setting_gxbl_forumids_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Forum IDs]]></phrase>
+			<phrase name="setting_gxbl_memberinfo_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This replace the users gamertag with the gamercard in their profile.]]></phrase>
+			<phrase name="setting_gxbl_memberinfo_tab_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This displays a tab in their profile with recent game history.]]></phrase>
+			<phrase name="setting_gxbl_memberinfo_tab_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Memberinfo tab]]></phrase>
+			<phrase name="setting_gxbl_memberinfo_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Memberinfo gamercard]]></phrase>
+			<phrase name="setting_gxbl_navbarlink_loc_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Choose the template hook location in the navbar.]]></phrase>
+			<phrase name="setting_gxbl_navbarlink_loc_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Navbar insert location]]></phrase>
+			<phrase name="setting_gxbl_postbit_loc_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Choose the template hook location in the postbit.]]></phrase>
+			<phrase name="setting_gxbl_postbit_loc_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Postbit insert location]]></phrase>
+			<phrase name="setting_gxbl_quicklink_loc_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Choose the template hook location in the quick link menu.]]></phrase>
+			<phrase name="setting_gxbl_quicklink_loc_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Quick Link insert location]]></phrase>
+			<phrase name="setting_gxbl_rep_stars_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Choose what color stars you wish to use. Choose official Xbox.com images or gXBL images.]]></phrase>
+			<phrase name="setting_gxbl_rep_stars_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Repution star color]]></phrase>
+			<phrase name="setting_gxbl_required_posts_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Enter how many posts a user must have to be able to show up on the list.]]></phrase>
+			<phrase name="setting_gxbl_required_posts_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Required Post Count]]></phrase>
+			<phrase name="setting_gxbl_show_friend_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This will show a link to xbox.com which will allow users to invite people to their Xbox Live friends list.]]></phrase>
+			<phrase name="setting_gxbl_show_friend_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Display Friend Request]]></phrase>
+			<phrase name="setting_gxbl_show_markup_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This will display user name styling. This must also be enabled in the main forum settings as well.]]></phrase>
+			<phrase name="setting_gxbl_show_markup_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Show User Name Markup]]></phrase>
+			<phrase name="setting_gxbl_show_message_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This will show a link to xbox.com which allow users to send Xbox Live messages.]]></phrase>
+			<phrase name="setting_gxbl_show_message_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Display Message User]]></phrase>
+			<phrase name="setting_gxbl_show_perpage_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Choose how many user names per page should be shown.]]></phrase>
+			<phrase name="setting_gxbl_show_perpage_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[User Names Per Page]]></phrase>
+			<phrase name="setting_gxbl_show_stats_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This will display statistics about the leaderboard. Choose how many to list in top stats.]]></phrase>
+			<phrase name="setting_gxbl_show_stats_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Show Extended Statistics]]></phrase>
+			<phrase name="setting_gxbl_show_statsfh_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[This will display statistics on the forum home page. Adds approximately 5 queries.]]></phrase>
+			<phrase name="setting_gxbl_show_statsfh_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Show Statistics on Forumhome]]></phrase>
+			<phrase name="setting_gxbl_show_topstats_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Display players which have no Xbox Live score.]]></phrase>
+			<phrase name="setting_gxbl_show_topstats_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Display UnRanked Users]]></phrase>
+			<phrase name="setting_gxbl_show_unranked_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Display players which have no Xbox Live score. Enabling this can introduce some buggy results.]]></phrase>
+			<phrase name="setting_gxbl_show_unranked_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Display UnRanked Users (Not recommended)]]></phrase>
+			<phrase name="setting_gxbl_user_field_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Enter the profile field id which contains the users Xbox Live GamerTag. Example: field15 is <b>15</b>]]></phrase>
+			<phrase name="setting_gxbl_user_field_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[User Profile Field]]></phrase>
+			<phrase name="setting_gxbl_user_timeout_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[How recent in days must a user have been active to be displayed. Set to 0 to show all users.]]></phrase>
+			<phrase name="setting_gxbl_user_timeout_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[User Activity Timeout]]></phrase>
+			<phrase name="setting_gxbl_usergroup_access_desc" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Comma separated list of usergroups which can access the page. Set to 0 to allow all access.]]></phrase>
+			<phrase name="setting_gxbl_usergroup_access_title" date="0" username="Ghryphen" version="2.0.0"><![CDATA[Access usergroups]]></phrase>
+			<phrase name="setting_gxbl_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_gxbl_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="setting_gxbl_xaged_api_desc" date="0" username="" version=""><![CDATA[Enter API key for access.]]></phrase>
+			<phrase name="setting_gxbl_xaged_api_title" date="0" username="" version=""><![CDATA[Xaged API]]></phrase>			
+			<phrase name="settinggroup_gxbl_group" date="0" username="Ghryphen" version="2.0.0"><![CDATA[gXboxLive]]></phrase>
+			<phrase name="settinggroup_gxbl_group1" date="0" username="Ghryphen" version="2.0.0"><![CDATA[gXboxLive - Forumhome]]></phrase>
+			<phrase name="settinggroup_gxbl_group2" date="0" username="Ghryphen" version="2.0.0"><![CDATA[gXboxLive - Memberinfo]]></phrase>
+			<phrase name="settinggroup_gxbl_group3" date="0" username="Ghryphen" version="2.0.0"><![CDATA[gXboxLive - Showthread]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gxbl_group" displayorder="61610">
+			<setting varname="gxbl_quicklink_loc" displayorder="25">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_quick_links_menu_pos1]
+2|$template_hook[navbar_quick_links_menu_pos2]
+3|$template_hook[navbar_quick_links_menu_pos3]
+4|$template_hook[navbar_quick_links_menu_pos4]
+]]></optioncode>
+				<defaultvalue>4</defaultvalue>
+			</setting>
+			<setting varname="gxbl_navbarlink_loc" displayorder="25">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_buttons_left]
+2|$template_hook[navbar_buttons_right]
+]]></optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_show_message" displayorder="30">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_show_friend" displayorder="40">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_show_markup" displayorder="50">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_show_stats" displayorder="60">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+0|0
+5|5
+6|6
+7|7
+8|8
+9|9
+10|10
+11|11
+12|12
+13|13
+14|14
+15|15
+</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_show_perpage" displayorder="70">
+				<datatype>number</datatype>
+				<defaultvalue>25</defaultvalue>
+			</setting>
+			<setting varname="gxbl_user_timeout" displayorder="80">
+				<datatype>number</datatype>
+				<defaultvalue>365</defaultvalue>
+			</setting>
+			<setting varname="gxbl_required_posts" displayorder="90">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_usergroup_access" displayorder="110">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_displaygroups" displayorder="112">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_rep_stars" displayorder="120">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+0|gXBL: Images located in image directory
+1|Xbox.com: White stars on dark background
+2|Xbox.com: Green stars on light background
+</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_show_unranked" displayorder="130">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_user_field" displayorder="140">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_xaged_api" displayorder="200">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gXboxLive&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+		<settinggroup name="gxbl_group1" displayorder="61611">
+			<setting varname="gxbl_show_statsfh" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_forumhome" displayorder="20">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+		<settinggroup name="gxbl_group2" displayorder="61612">
+			<setting varname="gxbl_memberinfo" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbl_memberinfo_tab" displayorder="20">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[profile_left_first]
+2|$template_hook[profile_left_last]]]></optioncode>
+				<defaultvalue>2</defaultvalue>
+			</setting>
+		</settinggroup>
+		<settinggroup name="gxbl_group3" displayorder="61613">
+			<setting varname="gxbl_postbit_loc" displayorder="20">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[postbit_userinfo_left]
+2|$template_hook[postbit_userinfo_right_after_posts]
+3|$template_hook[postbit_userinfo_right]
+4|$template_hook[postbit_signature_start]
+5|$template_hook[postbit_signature_end]
+]]></optioncode>
+				<defaultvalue>2</defaultvalue>
+			</setting>
+			<setting varname="gxbl_forumids" displayorder="30">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+		<cron varname="gxboxlive" active="1" loglevel="1">
+			<filename>./includes/cron/miner.gxboxlive.php</filename>
+			<scheduling weekday="-1" day="-1" hour="-1" minute="-1" />
+		</cron>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

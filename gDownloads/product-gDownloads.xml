@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gDownloads, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gDownloads, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN INFO ###################################
+	// $Id: product-gDownloads.xml 892 2008-01-26 01:17:00Z ghryphen $
+	// $Rev: 892 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-25 17:17:00 -0800 (Fri, 25 Jan 2008) $
+-->
+
+<product productid="gdownloads" active="1">
+	<title>gDownloads</title>
+	<description>Reads directory of files and lists them for download</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode />
+			<uninstallcode />
+		</code>
+	</codes>
+	<templates>
+		<template name="GDL" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle] - $vbphrase[gdl_title]</title>
+</head>
+<body>
+
+$header
+$navbar
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+		$vbphrase[gdl_title]
+	</td>
+</tr>
+</table>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr align="center">
+    <td class="thead">File Name</td>
+    <td class="thead">Date</td>
+    <td class="thead">Size</td>
+  </tr>
+
+	$gdl_bits
+
+<tr>
+	<td colspan="3" class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>
+
+<br />
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gdl_bit" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<tr>
+	<td class="alt1"><a href="$file[link]">$file[name]</a></td>
+	<td class="alt2">$file[date] <span class="time">$file[time]</span></td>
+	<td class="alt1">$file[size]</td>
+</tr>]]></template>
+		<template name="gdl_vbnav_navbarlink" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<td class="vbmenu_control"><a href="gdownloads.php$session[sessionurl_q]">$vbphrase[gdl_vbnav]</a></td>]]></template>
+		<template name="gdl_vbnav_quicklink" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<tr><td class="vbmenu_option"><a href="gdownloads.php$session[sessionurl_q]">$vbphrase[gdl_vbnav]</a></td></tr>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gTS: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gdl_vbnav_quicklink';
+$globaltemplates[] = 'gdl_vbnav_navbarlink';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gDL: Links</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if (is_member_of($vbulletin->userinfo, explode(',',$vbulletin->options['gdl_usergroup'])))
+{
+	if ($vbulletin->options['gdl_nav_quicklink'])
+	{
+		$s = '$template_hook[navbar_quick_links_menu_pos3]';
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gdl_vbnav_quicklink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+	if ($vbulletin->options['gdl_nav_navbar'])
+	{
+		$s = '$template_hook[navbar_buttons_left]';
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gdl_vbnav_navbarlink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gDL: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gdownloads.php')
+{
+	$userinfo['activity'] = 'gdownloads';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gDL: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gdownloads')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gdl_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gdl_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gDL: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gdl'] = 'gDownloads';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gdl_title" date="0" username="" version="1.0.0"><![CDATA[gDownloads]]></phrase>
+			<phrase name="gdl_vbnav" date="0" username="Ghryphen" version="1.00"><![CDATA[gDownloads]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gdl_nav_navbar_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Add gDownloads link to the Navbar.]]></phrase>
+			<phrase name="setting_gdl_nav_navbar_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Add Navbar Link]]></phrase>
+			<phrase name="setting_gdl_nav_quicklink_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Add gDownloads link to the Quick Nav menu.]]></phrase>
+			<phrase name="setting_gdl_nav_quicklink_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Add Quick Link]]></phrase>
+			<phrase name="setting_gdl_usergroup_desc" date="0" username="" version="1.0.0"><![CDATA[Comma separated list of usergroup ids which can access the page.]]></phrase>
+			<phrase name="setting_gdl_usergroup_title" date="0" username="" version="1.0.0"><![CDATA[Usergroup IDs]]></phrase>
+			<phrase name="settinggroup_gdl_group1" date="0" username="" version="1.0.0"><![CDATA[gDownloads]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gdl_group1" displayorder="60200">
+			<setting varname="gdl_usergroup" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>5,6,7</defaultvalue>
+			</setting>
+			<setting varname="gdl_nav_quicklink" displayorder="300">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gdl_nav_navbar" displayorder="310">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

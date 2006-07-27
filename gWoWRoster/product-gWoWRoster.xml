@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gWoWRoster, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gWoWRoster, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gWoWRoster.xml 1187 2009-06-22 22:30:10Z ghryphen $
+	// $Rev: 1187 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2009-06-22 15:30:10 -0700 (Mon, 22 Jun 2009) $
+-->
+
+<product productid="gwowroster" active="1">
+	<title>gWoWRoster</title>
+	<description>World of Warcraft guild roster.</description>
+	<version>1.0.15</version>
+	<url>http://www.vbulletin.org/forum/showthread.php?t=170605</url>
+	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=checkversion&t=170605]]></versioncheckurl>
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode><![CDATA[// Main Character Info
+$vbulletin->db->query("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gwowroster_charinfo (
+		`locale` VARCHAR( 2 ) NOT NULL ,
+		`realm` VARCHAR( 100 ) NOT NULL ,
+		`name` VARCHAR( 100 ) NOT NULL ,
+		`updated` INT( 255 ) NOT NULL ,
+		`charname` VARCHAR( 100 ) NOT NULL ,
+		`talentspec` VARCHAR( 10 ) NOT NULL ,
+		`talenttree` VARCHAR( 255 ) NOT NULL ,
+		PRIMARY KEY ( `locale`, `realm`, `name`, `charname` )
+	)
+");
+
+// Character Professions
+$vbulletin->db->query("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gwowroster_charinfo_prof (
+		`locale` VARCHAR( 2 ) NOT NULL ,
+		`realm` VARCHAR( 100 ) NOT NULL ,
+		`name` VARCHAR( 100 ) NOT NULL ,
+		`charname` VARCHAR( 100 ) NOT NULL ,
+		`key` VARCHAR( 100 ) NOT NULL ,
+		`updated` INT( 255 ) NOT NULL ,
+		`primary` INT( 1 ) NOT NULL ,
+		`profname` VARCHAR( 100 ) NOT NULL ,
+		`max` INT( 10 ) NOT NULL ,
+		`value` INT( 10 ) NOT NULL ,
+		PRIMARY KEY ( `locale`, `realm`, `name`, `charname`, `key` )
+	)
+");
+
+// Guildinfo Columns
+$cols_guild_info = "
+	`faction` VARCHAR( 100 ) NOT NULL ,
+	`membercount` INT( 10 ) NOT NULL ,
+	`battlegroup` VARCHAR( 100 ) NOT NULL ,
+	`count70` INT( 10 ) NOT NULL ,
+	`count60` INT( 10 ) NOT NULL ,
+	`count50` INT( 10 ) NOT NULL ,
+	`count40` INT( 10 ) NOT NULL ,
+	`count30` INT( 10 ) NOT NULL ,
+	`count20` INT( 10 ) NOT NULL ,
+	`count10` INT( 10 ) NOT NULL ,
+	`count00` INT( 10 ) NOT NULL ,
+	`class1` INT( 10 ) NOT NULL ,
+	`class2` INT( 10 ) NOT NULL ,
+	`class3` INT( 10 ) NOT NULL ,
+	`class4` INT( 10 ) NOT NULL ,
+	`class5` INT( 10 ) NOT NULL ,
+	`class7` INT( 10 ) NOT NULL ,
+	`class8` INT( 10 ) NOT NULL ,
+	`class9` INT( 10 ) NOT NULL ,
+	`class11` INT( 10 ) NOT NULL ,
+	`race1` INT( 10 ) NOT NULL ,
+	`race2` INT( 10 ) NOT NULL ,
+	`race3` INT( 10 ) NOT NULL ,
+	`race4` INT( 10 ) NOT NULL ,
+	`race5` INT( 10 ) NOT NULL ,
+	`race6` INT( 10 ) NOT NULL ,
+	`race7` INT( 10 ) NOT NULL ,
+	`race8` INT( 10 ) NOT NULL ,
+	`race10` INT( 10 ) NOT NULL ,
+	`race11` INT( 10 ) NOT NULL ,
+	`racegen11` INT( 10 ) NOT NULL ,
+	`racegen10` INT( 10 ) NOT NULL ,
+	`racegen21` INT( 10 ) NOT NULL ,
+	`racegen20` INT( 10 ) NOT NULL ,
+	`racegen31` INT( 10 ) NOT NULL ,
+	`racegen30` INT( 10 ) NOT NULL ,
+	`racegen41` INT( 10 ) NOT NULL ,
+	`racegen40` INT( 10 ) NOT NULL ,
+	`racegen51` INT( 10 ) NOT NULL ,
+	`racegen50` INT( 10 ) NOT NULL ,
+	`racegen61` INT( 10 ) NOT NULL ,
+	`racegen60` INT( 10 ) NOT NULL ,
+	`racegen71` INT( 10 ) NOT NULL ,
+	`racegen70` INT( 10 ) NOT NULL ,
+	`racegen81` INT( 10 ) NOT NULL ,
+	`racegen80` INT( 10 ) NOT NULL ,
+	`racegen101` INT( 10 ) NOT NULL ,
+	`racegen100` INT( 10 ) NOT NULL ,
+	`racegen111` INT( 10 ) NOT NULL ,
+	`racegen110` INT( 10 ) NOT NULL ,
+";
+
+// Guild Registry
+$vbulletin->db->query("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gwowroster_guildinfo (
+		`locale` VARCHAR( 2 ) NOT NULL ,
+		`realm` VARCHAR( 100 ) NOT NULL ,
+		`name` VARCHAR( 100 ) NOT NULL ,
+		`updated` INT( 255 ) NOT NULL ,
+		" . $cols_guild_info . "
+		PRIMARY KEY ( `locale`, `realm`, `name` )
+	);
+");
+
+// Guild History
+$vbulletin->db->query("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gwowroster_hist_guildinfo (
+		`locale` VARCHAR( 2 ) NOT NULL ,
+		`realm` VARCHAR( 100 ) NOT NULL ,
+		`name` VARCHAR( 100 ) NOT NULL ,
+		`date` INT( 255 ) NOT NULL ,
+		" . $cols_guild_info . "
+		PRIMARY KEY ( `locale`, `realm`, `name`, `date` )
+	);
+");
+
+// Rosterinfo Columns
+$cols_roster_info = "
+	`level` INT( 2 ) NOT NULL ,
+	`class` VARCHAR( 20 ) NOT NULL ,
+	`classid` INT( 2 ) NOT NULL ,
+	`gender` VARCHAR( 10 ) NOT NULL ,
+	`genderid` INT( 2 ) NOT NULL ,
+	`race` VARCHAR( 10 ) NOT NULL ,
+	`raceid` INT( 2 ) NOT NULL ,
+	`rank` VARCHAR( 2 ) NOT NULL ,
+	`charurl` VARCHAR( 100 ) NOT NULL ,
+";
+
+// Historical Character Data from Roster
+$vbulletin->db->query("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gwowroster_hist_rosterinfo (
+		`locale` VARCHAR( 2 ) NOT NULL ,
+		`realm` VARCHAR( 100 ) NOT NULL ,
+		`name` VARCHAR( 100 ) NOT NULL ,
+		`charname` VARCHAR( 100 ) NOT NULL ,
+		`date` INT( 255 ) NOT NULL ,
+		" . $cols_roster_info . "
+		PRIMARY KEY ( `locale`, `realm`, `name`, `charname`, `date` )
+	)
+");
+
+// Character Data from Roster
+$vbulletin->db->query("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gwowroster_rosterinfo (
+		`locale` VARCHAR( 2 ) NOT NULL ,
+		`realm` VARCHAR( 100 ) NOT NULL ,
+		`name` VARCHAR( 100 ) NOT NULL ,
+		`charname` VARCHAR( 100 ) NOT NULL ,
+		`updated` INT( 255 ) NOT NULL ,
+		" . $cols_roster_info . "
+		PRIMARY KEY ( `locale`, `realm`, `name`, `charname` )
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gwowroster_charinfo;");
+$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gwowroster_guildinfo;");
+$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gwowroster_rosterinfo;");
+
+if($vbulletin->options['gwr_uninstall_history'])
+{
+	$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gwowroster_hist_guildinfo;");
+	$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gwowroster_hist_rosterinfo;");
+}]]></uninstallcode>
+		</code>
+		<code version="1.0.8">
+			<installcode><![CDATA[$vbulletin->db->query("
+	ALTER TABLE " . TABLE_PREFIX . "gwowroster_guildinfo ADD `count80` INT( 10 ) NOT NULL AFTER  `battlegroup`;
+");
+$vbulletin->db->query("
+	ALTER TABLE " . TABLE_PREFIX . "gwowroster_guildinfo ADD `class6` INT( 10 ) NOT NULL AFTER  `class5`;
+");]]></installcode>
+			<uninstallcode />
+		</code>
+		<code version="1.0.11">
+			<installcode><![CDATA[$vbulletin->db->query("
+	ALTER TABLE " . TABLE_PREFIX . "gwowroster_hist_guildinfo ADD `count80` INT( 10 ) NOT NULL AFTER  `battlegroup`;
+");
+$vbulletin->db->query("
+	ALTER TABLE " . TABLE_PREFIX . "gwowroster_hist_guildinfo  ADD `class6` INT( 10 ) NOT NULL AFTER  `class5`;
+");]]></installcode>
+			<uninstallcode />
+		</code>
+		<code version="1.0.15">
+			<installcode><![CDATA[$vbulletin->db->query("
+	ALTER TABLE " . TABLE_PREFIX . "gwowroster_rosterinfo ADD `achpoints` INT( 10 ) NOT NULL AFTER  `level`;
+");
+$vbulletin->db->query("
+	ALTER TABLE " . TABLE_PREFIX . "gwowroster_hist_rosterinfo ADD `achpoints` INT( 10 ) NOT NULL AFTER  `level`;
+");]]></installcode>
+			<uninstallcode />
+		</code>
+	</codes>
+	<templates>
+		<template name="gwr_header" templatetype="template" date="0" username="" version=""><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<style type="text/css" id="vbulletin_css">
+<!--
+.class_6
+{
+	color: #C41F3B;
+}
+.class_11
+{
+	color: #FF7D0A;
+}
+.class_3
+{
+	color: #ABD473;
+}
+.class_8
+{
+	color: #69CCF0;
+}
+.class_2
+{
+	color: #F58CBA;
+}
+.class_5
+{
+	color: #FFFFFF;
+}
+.class_4
+{
+	color: #FFF569;
+}
+.class_7
+{
+	color: #00DBBA;
+}
+.class_9
+{
+	color: #9482CA;
+}
+.class_1
+{
+	color: #C79C6E;
+}
+-->
+</style>
+<title>$vboptions[bbtitle] - $vbphrase[gwr_title]</title>
+</head>
+<body>
+
+$header
+$navbar
+
+<if condition="$guild_count > 1">
+<!-- Guild List Popup -->
+<div class="vbmenu_popup" id="guild_choice_menu" style="display:none">
+	<table cellpadding="4" cellspacing="1" border="0">
+	$guild_jump
+	</table>
+</div>
+<!-- / Guild List Popup -->
+</if>
+
+<if condition="$pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:3px">
+<tr valign="bottom">
+		<td class="smallfont">&nbsp;</td>
+		<td align="$stylevar[right]">$pagenav</td>
+</tr>
+</table>
+</if>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center" style="border-bottom-width:0px">
+<tr>
+	<td class="tcat" width="100%">
+	<if condition="$pagenav">
+		<span class="smallfont" style="float:$stylevar[right]">
+			<phrase 1="$limitlower" 2="$limitupper" 3="$charcount[count]">$vbphrase[showing_results_x_to_y_of_z]</phrase>
+		</span>
+	</if>
+	<if condition="$guild_count > 1">
+	<span id="guild_choice">$guild[realm]: $guild[name]</span> <script type="text/javascript"> vbmenu_register("guild_choice"); </script>
+	<else />
+	<a href="gwowroster.php?$guild[url]">$guild[realm]: $guild[name]</a>
+	</if>
+	</td>
+</tr>
+</table>]]></template>
+		<template name="gwr_roster" templatetype="template" date="0" username="" version=""><![CDATA[$gwr[header]
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr align="center">
+	<td class="thead" nowrap="nowrap" width="100%"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=name&amp;sortorder=$oppositesort">Name</a> <if condition="$sortfield == name"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=name&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap">Spec</td>
+	<td class="thead" nowrap="nowrap">Stats</td>
+	<td class="thead" nowrap="nowrap"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=level&amp;sortorder=$oppositesort">Level</a> <if condition="$sortfield == level"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=level&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=achpoints&amp;sortorder=$oppositesort">AchPoints</a> <if condition="$sortfield == achpoints"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=achpoints&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=cl&amp;sortorder=$oppositesort">Class</a> <if condition="$sortfield == cl"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=cl&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<td class="thead" nowrap="nowrap">
+		<a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=gender&amp;sortorder=$oppositesort">Gender</a> <if condition="$sortfield == gender"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=gender&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if> /
+		<a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=race&amp;sortorder=$oppositesort">Race</a> <if condition="$sortfield == race"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=race&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if>
+	</td>
+	<td class="thead" nowrap="nowrap"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=rank&amp;sortorder=$oppositesort">Rank</a> <if condition="$sortfield == rank"><a href="gwowroster.php?$guild[url]&page=$pagenumber&amp;sortfield=rank&amp;sortorder=$oppositesort"><img class="inlineimg" src="$stylevar[imgdir_button]/sort$oppositesort.gif" alt="$vbphrase[reverse_sort_order]" border="0" /></a></if></td>
+	<if condition="$vboptions[gwr_show_ext]">
+	<td class="thead" nowrap="nowrap">Ext</td>
+	</if>
+</tr>
+
+$rosterbits
+
+<tr>
+	<td class="tfoot" colspan="9">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>
+
+<if condition="$pagenav">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:3px">
+<tr valign="bottom">
+	<td class="smallfont" style="padding-left: 2px;">&nbsp;</td>
+	<td align="$stylevar[right]">$pagenav</td>
+</tr>
+</table>
+</if>
+
+<br />
+
+$gwr[stats]
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gwr_roster_bit" templatetype="template" date="0" username="" version=""><![CDATA[<tr align="center">
+	<td class="alt2" align="$stylevar[left]" nowrap="nowrap">
+		<if condition="$player[level] >= '10'">
+			<span class="class_$player[classid]" style="float:$stylevar[right]">$player[specialization]</span>
+		</if>
+		<img class="inlineimg" width="20" height="20" src="$stylevar[imgdir_misc]/gwowroster/avatar/$player[avatar]/$player[genderid]-$player[raceid]-$player[classid].gif" alt="$player[class]" /> <a href="http://$guild[localelwr].battle.net/wow/en/character/$guild[realmlwraz]/$player[charnamelwr]/" target="_blank">$player[charname]</a>
+	</td>
+	<td class="alt1" nowrap="nowrap">
+		<if condition="$player[level] >= '10'">
+			<a href="http://$guild[localelwr].battle.net/wow/en/character/$guild[realmlwraz]/$player[charnamelwr]/talent/" target="_blank"><if condition="$player[specone] || $player[spectwo] || $player[specthree]">$player[specone]/$player[spectwo]/$player[specthree]<else /><img class="inlineimg" style="border:0; width:16px; height:16px;" src="$stylevar[imgdir_misc]/progress.gif" /></if></a>
+		</if>
+	</td>
+	<td class="alt2" nowrap="nowrap">        
+		<a href="http://$guild[localelwr].battle.net/wow/en/character/$guild[realmlwraz]/$player[charnamelwr]/reputation/" target="_blank">Rep</a>|<a href="http://$guild[localelwr].battle.net/wow/en/character/$guild[realmlwraz]/$player[charnamelwr]/statistic" target="_blank">Stats</a>
+	</td>
+	<td class="alt1" nowrap="nowrap">$player[level]</td>
+	<td class="alt2" nowrap="nowrap"><a href="http://$guild[localelwr].battle.net/wow/en/character/$guild[realmlwraz]/$player[charnamelwr]/achievement" target="_blank">$player[achpoints]</a></td>
+	<td class="alt1 class_$player[classid]" align="$stylevar[left]" nowrap="nowrap"><img class="inlineimg" width="20" height="20" src="$stylevar[imgdir_misc]/gwowroster/icons/class/$player[classid].png" alt="$player[class]" /> $player[class]</td>
+	<td class="alt2" align="$stylevar[left]" nowrap="nowrap"><img class="inlineimg" width="20" height="20" src="$stylevar[imgdir_misc]/gwowroster/icons/race/$player[raceid]-$player[genderid].png" alt="$player[gender] $player[race]" /> $player[race]</td>
+	<td class="alt1" nowrap="nowrap">$player[rank]</td>
+	<if condition="$vboptions[gwr_show_ext]">
+	<td class="alt2" nowrap="nowrap">
+		<if condition="$vboptions[gwr_show_wowhead]"><a href="http://www.wowhead.com/?profile=$guild[localelwr].$guild[realmlwraz].$player[charnamelwr]" target="_blank"><img class="inlineimg" width="16" height="16" border="0" src="$stylevar[imgdir_misc]/gwowroster/icons/ext/wowhead.png" alt="wowhead" /></a></if>
+		<if condition="$player[level] >= $vboptions[gwr_show_heroes_min] && $player[level] <= $vboptions[gwr_show_heroes_max]">
+			<if condition="$vboptions[gwr_show_heroes]"><a href="http://www.wow-heroes.com/index.php?zone=$guild[localelwr]&server=$guild[realm]&name=$player[charname]" target="_blank"><img class="inlineimg" width="16" height="16" border="0" src="$stylevar[imgdir_misc]/gwowroster/icons/ext/heroes.png" alt="heroes" /></a></if>
+		</if>
+		<if condition="$player[level] >= $vboptions[gwr_show_imba_min] && $player[level] <= $vboptions[gwr_show_imba_max]">
+			<if condition="$vboptions[gwr_show_imba]"><a href="http://be.imba.hu/?zone=$guild[locale]&realm=$guild[realm]&character=$player[charname]" target="_blank"><img class="inlineimg" width="16" height="16" border="0" src="$stylevar[imgdir_misc]/gwowroster/icons/ext/imba.png" alt="imba" /></a></if>
+		</if>
+		<if condition="$vboptions[gwr_show_juju]"><a href="http://www.wowjuju.com/repcalc#$guild[locale]_$guild[realm]_$player[charname]" target="_blank"><img class="inlineimg" width="16" height="16" border="0" src="$stylevar[imgdir_misc]/gwowroster/icons/ext/juju.png" alt="juju" /></a></if>
+		<if condition="$vboptions[gwr_show_light]"><a href="http://www.armory-light.com/$guild[localelwr]/$guild[realm]/$player[charname]/" target="_blank"><img class="inlineimg" width="16" height="16" border="0" src="$stylevar[imgdir_misc]/gwowroster/icons/ext/light.png" alt="light" /></a></if>
+		<if condition="$vboptions[gwr_show_wowachieve]"><a href="http://www.wow-achievements.com/Person.aspx?region=$guild[locale]&realm=$guild[realm]&name=$player[charname]" target="_blank"><img class="inlineimg" width="16" height="16" border="0" src="$stylevar[imgdir_misc]/gwowroster/icons/ext/wowachieve.png" alt="wowachive" /></a></if>
+	</td>
+	</if>
+</tr>]]></template>
+		<template name="gwr_stats" templatetype="template" date="0" username="" version=""><![CDATA[<br />
+
+<!-- gwr stats on box -->
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr>
+		<td class="tcat" colspan="5">
+			<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('gwr_stats')"><img id="collapseimg_gwr_stats" src="$stylevar[imgdir_button]/collapse_tcat$vbcollapse[collapseimg_gwr_stats].gif" alt="" border="0" /></a>
+			<phrase 1="$guild[name]">$vbphrase[x_statistics]</phrase>
+		</td>
+	</tr>
+</thead>
+<tbody id="collapseobj_gwr_stats" style="$vbcollapse[collapseobj_gwr_stats]">
+	<tr align="center">
+		<td class="thead" width="25%">General</td>
+		<td class="thead" width="25%">Level</td>
+		<td class="thead" width="25%">Class</td>
+		<td class="thead" width="25%">Race</td>
+	</tr>
+	<tr>
+		<td class="alt1" valign="top">
+			<!--<span style="float:$stylevar[right]">$guild[battlegroup]</span>Battlegroup<br />-->
+			<span style="float:$stylevar[right]">$guild[faction]</span>Faction<br />
+			<span style="float:$stylevar[right]">$guild[membercount]</span>Members<br />
+			<span style="float:$stylevar[right]">$guild[realm]</span>Realm<br />
+			<span style="float:$stylevar[right]">$guild[battlegroup]</span>Battlegroup<br /><br />
+            <a href="http://$guild[localelwr].battle.net/wow/en/guild/$guild[realmlwraz]/$guild[namelwr]/" target="_blank">Armory</a><br />
+			<if condition="$vboptions[gwr_show_ext]">
+				<if condition="$vboptions[gwr_show_wowhead]"><a href="http://www.wowhead.com/?profiles=$guild[localelwr].$guild[realmlwraz]&amp;filter=cr=9;crs=0;crv=$guild[nameencode]&amp;roster=1" target="_blank">Wowhead</a><br /></if>
+				<if condition="$vboptions[gwr_show_wowjutsu]"><a href="http://www.wowjutsu.com/$guild[localelwr]/$guild[realmlwraz]/$guild[name].html" target="_blank">WowJutsu</a><br /></if>
+				<if condition="$vboptions[gwr_show_wowprog]"><a href="http://www.wowprogress.com/guild/$guild[localelwr]/$guild[realmwowprog]/$guild[namelwr]" target="_blank">WoWProgress</a><br /></if>
+				<if condition="$vboptions[gwr_show_guildox]"><a href="http://www.guildox.com/go/g.asp?n=$guild[name]&r=$guild[realm]-$guild[locale]" target="_blank">GuildOx</a><br /></if>
+			</if>
+		</td>
+		<td class="alt2" valign="top">
+			<span style="float:$stylevar[right]">$guild[count80]</span>80-80<br />
+			<span style="float:$stylevar[right]">$guild[count70]</span>70-79<br />
+			<span style="float:$stylevar[right]">$guild[count60]</span>60-69<br />
+			<span style="float:$stylevar[right]">$guild[count50]</span>50-59<br />
+			<span style="float:$stylevar[right]">$guild[count40]</span>40-49<br />
+			<span style="float:$stylevar[right]">$guild[count30]</span>30-39<br />
+			<span style="float:$stylevar[right]">$guild[count20]</span>20-29<br />
+			<span style="float:$stylevar[right]">$guild[count10]</span>10-19<br />
+			<span style="float:$stylevar[right]">$guild[count00]</span>00-09<br />
+		</td>
+		<td class="alt1" valign="top">
+			<table cellspacing="0" cellpadding="0" width="100%">
+			<tr><td align="right">$guild[class6]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/6.png" alt="Death Knight" /> <span class="class_6">Death Knight</span></td><td align="right">$guild[percent_class6]%</td></tr>
+			<tr><td align="right">$guild[class11]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/11.png" alt="Druid" /> <span class="class_11">Druid</span></td><td align="right">$guild[percent_class11]%</td></tr>
+			<tr><td align="right">$guild[class3]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/3.png" alt="Hunter" /> <span class="class_3">Hunter</span></td><td align="right">$guild[percent_class3]%</td></tr>
+			<tr><td align="right">$guild[class8]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/8.png" alt="Mage" /> <span class="class_8">Mage</span></td><td align="right">$guild[percent_class8]%</td></tr>
+			<tr><td align="right">$guild[class2]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/2.png" alt="Paladin" /> <span class="class_2">Paladin</span></td><td align="right">$guild[percent_class2]%</td></tr>
+			<tr><td align="right">$guild[class5]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/5.png" alt="Priest" /> <span class="class_5">Priest</span></td><td align="right">$guild[percent_class5]%</td></tr>
+			<tr><td align="right">$guild[class4]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/4.png" alt="Rogue" /> <span class="class_4">Rogue</span></td><td align="right">$guild[percent_class4]%</td></tr>
+			<tr><td align="right">$guild[class7]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/7.png" alt="Shaman" /> <span class="class_7">Shaman</span></td><td align="right">$guild[percent_class7]%</td></tr>
+			<tr><td align="right">$guild[class9]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/9.png" alt="Warlock" /> <span class="class_9">Warlock</span></td><td align="right">$guild[percent_class9]%</td></tr>
+			<tr><td align="right">$guild[class1]</td><td width="100%"><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/class/1.png" alt="Warrior" /> <span class="class_1">Warrior</span></td><td align="right">$guild[percent_class1]%</td></tr>
+			</table>
+		</td>
+		<td class="alt2" valign="top">
+		<if condition="$guild[faction] == 'Alliance'">
+			<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race11]</span>Draenei</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen111]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/11-1.png" alt="Female Draenei" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen110]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/11-0.png" alt="Male Draenei" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race7]</span>Gnome</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen71]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/7-1.png" alt="Female Gnome" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen70]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/7-0.png" alt="Male Gnome" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race3]</span>Dwarf</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen31]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/3-1.png" alt="Female Dwarf" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen30]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/3-0.png" alt="Male Dwarf" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race1]</span>Human</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen11]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/1-1.png" alt="Female Human" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen10]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/1-0.png" alt="Male Human" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race4]</span>Night Elf</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen41]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/4-1.png" alt="Female Night Elf" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen40]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/4-0.png" alt="Male Night Elf" /> Male
+				</td>
+			</tr>
+			</table>
+		<else />
+			<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race10]</span>Blood Elf</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen101]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/10-1.png" alt="Female Blood Elf" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen100]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/10-0.png" alt="Male Blood Elf" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race2]</span>Orc</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen21]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/2-1.png" alt="Female Orc" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen20]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/2-0.png" alt="Male Orc" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race6]</span>Tauren</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen61]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/6-1.png" alt="Female Tauren" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen60]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/6-0.png" alt="Male Tauren" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race8]</span>Troll</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen81]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/8-1.png" alt="Female Troll" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen80]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/8-0.png" alt="Male Troll" /> Male
+				</td>
+			</tr>
+			<tr>
+				<td style="padding-right: 6px;"><span style="float:$stylevar[right]">$guild[race5]</span>Undead</td>
+				<td class="smallfont">
+					<span style="float:$stylevar[right]">$guild[racegen51]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/5-1.png" alt="Female Undead" /> Female<br />
+					<span style="float:$stylevar[right]">$guild[racegen50]</span><img class="inlineimg" width="16" height="16" src="$stylevar[imgdir_misc]/gwowroster/icons/race/5-0.png" alt="Male Undead" /> Male
+				</td>
+			</tr>
+			</table>
+		</if>
+		</td>
+	</tr>
+
+</tbody>
+</table>
+<br />
+<!-- end gwr stats box -->]]></template>
+		<template name="gwr_vbnav_navbarlink" templatetype="template" date="0" username="" version=""><![CDATA[<td class="vbmenu_control"><a href="gwowroster.php$session[sessionurl_q]">$vbphrase[gwr_vbnav]</a></td>]]></template>
+		<template name="gwr_vbnav_quicklink" templatetype="template" date="0" username="" version=""><![CDATA[<tr><td class="vbmenu_option"><a href="gwowroster.php$session[sessionurl_q]">$vbphrase[gwr_vbnav]</a></td></tr>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gWR: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gwr_vbnav_quicklink';
+$globaltemplates[] = 'gwr_vbnav_navbarlink';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWR: Links</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['gwr_usergroup'] == '0' || is_member_of($vbulletin->userinfo, explode(',',$vbulletin->options['gwr_usergroup'])))
+{
+	if ($vbulletin->options['gwr_quicklink_loc'])
+	{
+		switch ($vbulletin->options['gwr_quicklink_loc'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_quick_links_menu_pos1]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_quick_links_menu_pos2]';
+				break;
+			case "3":
+				$s = '$template_hook[navbar_quick_links_menu_pos3]';
+			case "4":
+				$s = '$template_hook[navbar_quick_links_menu_pos4]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gwr_vbnav_quicklink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+	if ($vbulletin->options['gwr_navbarlink_loc'])
+	{
+		switch ($vbulletin->options['gwr_navbarlink_loc'])
+		{
+			case "1":
+				$s = '$template_hook[navbar_buttons_left]';
+				break;
+			case "2":
+				$s = '$template_hook[navbar_buttons_right]';
+				break;
+		}
+
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gwr_vbnav_navbarlink"], $vbulletin->templatecache["navbar"] );
+		$vbulletin->templatecache["navbar"] = $t;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWR: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gwowroster.php')
+{
+	$userinfo['activity'] = 'gwowroster';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWR: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gwowroster')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gwr_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gwr_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWR: Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gwr_'] = 'gWoWRoster';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Scheduled Tasks" fieldname="cron">
+			<phrase name="task_gwowroster_charinfo_desc" date="0" username="" version=""><![CDATA[Scans World of Warcraft Armory for Character Information]]></phrase>
+			<phrase name="task_gwowroster_charinfo_log" date="0" username="" version=""><![CDATA[{1}]]></phrase>
+			<phrase name="task_gwowroster_charinfo_title" date="0" username="" version=""><![CDATA[gWoWRoster Character Info Update]]></phrase>
+			<phrase name="task_gwowroster_guildinfo_desc" date="0" username="" version=""><![CDATA[Scans World of Warcraft Armory for Main Roster]]></phrase>
+			<phrase name="task_gwowroster_guildinfo_log" date="0" username="" version=""><![CDATA[{1}]]></phrase>
+			<phrase name="task_gwowroster_guildinfo_title" date="0" username="" version=""><![CDATA[gWoWRoster Guild Info Update]]></phrase>
+		</phrasetype>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gwr_title" date="0" username="" version=""><![CDATA[gWoWRoster]]></phrase>
+			<phrase name="gwr_vbnav" date="0" username="" version=""><![CDATA[gWoWRoster]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gwr_guild_desc" date="0" username="" version=""><![CDATA[Server and Guild Name information.<br /><br />Example: US(or EU/KR/CN/TW)|Alleria|Allied Tribal Forces]]></phrase>
+			<phrase name="setting_gwr_guild_title" date="0" username="" version=""><![CDATA[Guild Name]]></phrase>
+			<phrase name="setting_gwr_guildhistory_desc" date="0" username="" version=""><![CDATA[Log guild history.<br /><br /><i>This will duplicate your roster daily which can result in a very large table.</i>]]></phrase>
+			<phrase name="setting_gwr_guildhistory_prune_desc" date="0" username="" version=""><![CDATA[Do you wish to delete trend histories for guilds not listed above?<br /><br /><i>Useful if you list a guild and then remove it, but trend info will be gone if you add the guild again later.</i>]]></phrase>
+			<phrase name="setting_gwr_guildhistory_prune_title" date="0" username="" version=""><![CDATA[Guild History Prune]]></phrase>
+			<phrase name="setting_gwr_guildhistory_title" date="0" username="" version=""><![CDATA[Guild History]]></phrase>
+			<phrase name="setting_gwr_navbarlink_loc_desc" date="0" username="" version=""><![CDATA[Add gWoWRoster link to the Navbar.]]></phrase>
+			<phrase name="setting_gwr_navbarlink_loc_title" date="0" username="" version=""><![CDATA[Add Navbar Link]]></phrase>
+			<phrase name="setting_gwr_perpage_desc" date="0" username="" version=""><![CDATA[Enter the number of characters to display per page.]]></phrase>
+			<phrase name="setting_gwr_perpage_title" date="0" username="" version=""><![CDATA[Characters Per Page]]></phrase>
+			<phrase name="setting_gwr_quicklink_loc_desc" date="0" username="" version=""><![CDATA[Add gWoWRoster link to the Quick Nav menu.]]></phrase>
+			<phrase name="setting_gwr_quicklink_loc_title" date="0" username="" version=""><![CDATA[Add Quick Link]]></phrase>
+			<phrase name="setting_gwr_rank_achpoints_desc" date="0" username="" version=""><![CDATA[When enabled the default sort will be  by level and by achievement points. Disable to sort by level and by name.]]></phrase>
+			<phrase name="setting_gwr_rank_achpoints_title" date="0" username="" version=""><![CDATA[Default sort by level/achivement points.]]></phrase>
+			<phrase name="setting_gwr_show_ext_desc" date="0" username="" version=""><![CDATA[Shows an additional column with links to various sites.]]></phrase>
+			<phrase name="setting_gwr_show_ext_title" date="0" username="" version=""><![CDATA[Show External Links]]></phrase>
+			<phrase name="setting_gwr_show_guildox_desc" date="0" username="" version=""><![CDATA[Shows a link to guildox.com]]></phrase>
+			<phrase name="setting_gwr_show_guildox_title" date="0" username="" version=""><![CDATA[Show External Link guildox.com]]></phrase>
+			<phrase name="setting_gwr_show_heroes_desc" date="0" username="" version=""><![CDATA[Shows a link to wow-heroes.com]]></phrase>
+			<phrase name="setting_gwr_show_heroes_max_desc" date="0" username="" version=""><![CDATA[Enter what highest level a character must be to use wow-heroes.com]]></phrase>
+			<phrase name="setting_gwr_show_heroes_max_title" date="0" username="" version=""><![CDATA[Maximum level wow-heroes.com supports]]></phrase>
+			<phrase name="setting_gwr_show_heroes_min_desc" date="0" username="" version=""><![CDATA[Enter what lowest level a character must be to use wow-heroes.com]]></phrase>
+			<phrase name="setting_gwr_show_heroes_min_title" date="0" username="" version=""><![CDATA[Minimun level wow-heroes.com supports]]></phrase>
+			<phrase name="setting_gwr_show_heroes_title" date="0" username="" version=""><![CDATA[Show External Link wow-heroes.com]]></phrase>
+			<phrase name="setting_gwr_show_imba_desc" date="0" username="" version=""><![CDATA[Shows a link to be.imba.hu]]></phrase>
+			<phrase name="setting_gwr_show_imba_max_desc" date="0" username="" version=""><![CDATA[Enter what highest level a character must be to use be.imba.hu]]></phrase>
+			<phrase name="setting_gwr_show_imba_max_title" date="0" username="" version=""><![CDATA[Maximum level be.imba.hu supports]]></phrase>
+			<phrase name="setting_gwr_show_imba_min_desc" date="0" username="" version=""><![CDATA[Enter what lowest level a character must be to use be.imba.hu]]></phrase>
+			<phrase name="setting_gwr_show_imba_min_title" date="0" username="" version=""><![CDATA[Minimun level be.imba.hu supports]]></phrase>
+			<phrase name="setting_gwr_show_imba_title" date="0" username="" version=""><![CDATA[Show External Link be.imba.hu]]></phrase>
+			<phrase name="setting_gwr_show_juju_desc" date="0" username="" version=""><![CDATA[Shows a link to wowjuju.com]]></phrase>
+			<phrase name="setting_gwr_show_juju_title" date="0" username="" version=""><![CDATA[Show External Link wowjuju.com]]></phrase>
+			<phrase name="setting_gwr_show_light_desc" date="0" username="" version=""><![CDATA[Shows a link to armory-light.com]]></phrase>
+			<phrase name="setting_gwr_show_light_title" date="0" username="" version=""><![CDATA[Show External Link armory-light.com]]></phrase>
+			<phrase name="setting_gwr_show_wowachieve_desc" date="0" username="" version=""><![CDATA[Shows a link to wow-achievements.com]]></phrase>
+			<phrase name="setting_gwr_show_wowachieve_title" date="0" username="" version=""><![CDATA[Show External Link wow-achievements.com]]></phrase>
+			<phrase name="setting_gwr_show_wowhead_desc" date="0" username="" version=""><![CDATA[Shows a link to wowhead.com]]></phrase>
+			<phrase name="setting_gwr_show_wowhead_title" date="0" username="" version=""><![CDATA[Show External Link wowhead.com]]></phrase>
+			<phrase name="setting_gwr_show_wowjutsu_desc" date="0" username="" version=""><![CDATA[Shows a link to wowjutsu.com]]></phrase>
+			<phrase name="setting_gwr_show_wowjutsu_title" date="0" username="" version=""><![CDATA[Show External Link wowjutsu.com]]></phrase>
+			<phrase name="setting_gwr_show_wowprog_desc" date="0" username="" version=""><![CDATA[Shows a link to wowprogress.com]]></phrase>
+			<phrase name="setting_gwr_show_wowprog_title" date="0" username="" version=""><![CDATA[Show External Link wowprogress.com]]></phrase>
+			<phrase name="setting_gwr_uninstall_history_desc" date="0" username="" version=""><![CDATA[Enable this if you wish for ALL gWoWRoster data to be deleted upon uninstall.<br /><br /><i>By default history data tables will be left intact when you uninstall in case you want to reinstall at a later date.</i>]]></phrase>
+			<phrase name="setting_gwr_uninstall_history_title" date="0" username="" version=""><![CDATA[Delete All gWoWRoster Data]]></phrase>
+			<phrase name="setting_gwr_userfield_desc" date="0" username="" version=""><![CDATA[Enter the profile field id for the users WoW Characters. Example: field15]]></phrase>
+			<phrase name="setting_gwr_userfield_title" date="0" username="" version=""><![CDATA[Userfield ID]]></phrase>
+			<phrase name="setting_gwr_usergroup_desc" date="0" username="" version=""><![CDATA[Comma separated list of Usergroup ID's which can access the product.]]></phrase>
+			<phrase name="setting_gwr_usergroup_title" date="0" username="" version=""><![CDATA[Usergroup ID]]></phrase>
+			<phrase name="setting_gwr_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_gwr_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="settinggroup_gwr_group1" date="0" username="" version=""><![CDATA[gWoWRoster]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gwr_group1" displayorder="61500">
+			<setting varname="gwr_quicklink_loc" displayorder="10">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_quick_links_menu_pos1]
+2|$template_hook[navbar_quick_links_menu_pos2]
+3|$template_hook[navbar_quick_links_menu_pos3]
+4|$template_hook[navbar_quick_links_menu_pos4]
+]]></optioncode>
+				<defaultvalue>4</defaultvalue>
+			</setting>
+			<setting varname="gwr_navbarlink_loc" displayorder="20">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[select:piped
+0|None
+1|$template_hook[navbar_buttons_left]
+2|$template_hook[navbar_buttons_right]
+]]></optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwr_userfield" displayorder="30">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_ext" displayorder="40">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_imba" displayorder="50">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_imba_max" displayorder="51">
+				<datatype>number</datatype>
+				<defaultvalue>70</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_imba_min" displayorder="52">
+				<datatype>number</datatype>
+				<defaultvalue>70</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_heroes" displayorder="60">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_heroes_max" displayorder="61">
+				<datatype>number</datatype>
+				<defaultvalue>80</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_heroes_min" displayorder="62">
+				<datatype>number</datatype>
+				<defaultvalue>70</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_wowhead" displayorder="63">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_juju" displayorder="70">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_light" displayorder="80">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_wowachieve" displayorder="85">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_wowjutsu" displayorder="90">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_wowprog" displayorder="100">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_show_guildox" displayorder="101">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_usergroup" displayorder="110">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwr_guild" displayorder="120">
+				<datatype>free</datatype>
+				<optioncode>textarea</optioncode>
+				<defaultvalue>US|Alleria|Allied Tribal Forces</defaultvalue>
+			</setting>
+			<setting varname="gwr_perpage" displayorder="130">
+				<datatype>free</datatype>
+				<defaultvalue>30</defaultvalue>
+			</setting>
+			<setting varname="gwr_rank_achpoints" displayorder="135">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_guildhistory" displayorder="140">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwr_guildhistory_prune" displayorder="150">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwr_uninstall_history" displayorder="160">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwr_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gWoWRoster&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+		<cron varname="gwowroster_charinfo" active="1" loglevel="0">
+			<filename>./includes/cron/cron.gwowroster.charinfo.php</filename>
+			<scheduling weekday="-1" day="-1" hour="-1" minute="5,15,25,35,45,55" />
+		</cron>
+		<cron varname="gwowroster_guildinfo" active="1" loglevel="0">
+			<filename>./includes/cron/cron.gwowroster.guildinfo.php</filename>
+			<scheduling weekday="-1" day="-1" hour="-1" minute="30" />
+		</cron>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gItemStats, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gItemStats, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN INFO ###################################
+	// $Id: product-gItemStats.xml 892 2008-01-26 01:17:00Z ghryphen $
+	// $Rev: 892 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-25 17:17:00 -0800 (Fri, 25 Jan 2008) $
+-->
+
+<product productid="gitemstats" active="1">
+	<title>gItemStats</title>
+	<description><![CDATA[[item]ItemName[/item] displays World of Warcraft item data.]]></description>
+	<version>1.04</version>
+	<url>http://www.vbulletin.org/forum/showthread.php?t=141177</url>
+	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=checkversion&t=141177]]></versioncheckurl>
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.00">
+			<installcode />
+			<uninstallcode><![CDATA[$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gitemstats;" );]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="headinclude_gitemstats" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[<link rel="stylesheet" href="itemstats/templates/itemstats.css" type="text/css">
+<script type="text/javascript" src="itemstats/overlib/overlib.js">
+<!-- overLIB (c) Erik Bosrup --></script>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gIS: Itemstats - AdminCP</title>
+			<hookname>admin_global</hookname>
+			<phpcode><![CDATA[if (!defined('ITEMSTATS_LOADED') && file_exists(DIR . '/includes/functions_gitemstats.php'))
+{
+	require_once(DIR . '/includes/functions_gitemstats.php');
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gIS: Parse Text</title>
+			<hookname>bbcode_create</hookname>
+			<phpcode><![CDATA[$this->tag_list['no_option']['item']['callback'] = 'handle_external';
+$this->tag_list['no_option']['item']['external_callback'] = 'handle_bbcode_item';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gIS: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'headinclude_gitemstats';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gIS: Itemstats</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[$vbulletin->templatecache["headinclude"] = $vbulletin->templatecache["headinclude"] . '\n' . $vbulletin->templatecache["headinclude_gitemstats"];
+
+if (!defined('ITEMSTATS_LOADED') && file_exists(DIR . '/includes/functions_gitemstats.php'))
+{
+	require_once(DIR . '/includes/functions_gitemstats.php');
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gitemstats_alla_lang_order_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Comma separated language priority list. Options: enUS,frFR,deDE,esES,koKR,zhCN,zhTW]]></phrase>
+			<phrase name="setting_gitemstats_alla_lang_order_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Allakhazam Language Priority]]></phrase>
+			<phrase name="setting_gitemstats_alla_socket_img_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Sockets images path for Allakhazam items.]]></phrase>
+			<phrase name="setting_gitemstats_alla_socket_img_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Allakhazam Socket Image]]></phrase>
+			<phrase name="setting_gitemstats_automatic_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Choose yes if you want the item stats loaded at the time of posting. Choose no if you want to require a click to gather the item stats.]]></phrase>
+			<phrase name="setting_gitemstats_automatic_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Automatic Search]]></phrase>
+			<phrase name="setting_gitemstats_icon_ext_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[The file extension of the icon images.]]></phrase>
+			<phrase name="setting_gitemstats_icon_ext_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Icon Extenstion]]></phrase>
+			<phrase name="setting_gitemstats_icon_store_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[The location of the icon images with trailing slash.]]></phrase>
+			<phrase name="setting_gitemstats_icon_store_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Icon Storage]]></phrase>
+			<phrase name="setting_gitemstats_itemstats_link_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Display the "itemstats.free.fr" in the tooltips.]]></phrase>
+			<phrase name="setting_gitemstats_itemstats_link_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Itemstats Link]]></phrase>
+			<phrase name="setting_gitemstats_site_order_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Comma separated site priority list. Options: thottbot,allakhazam,judgehype,buffed,wowdbu]]></phrase>
+			<phrase name="setting_gitemstats_site_order_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Site Priority]]></phrase>
+			<phrase name="settinggroup_gitemstats_group1" date="0" username="Ghryphen" version="1.00"><![CDATA[gItemStats]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gitemstats_group1" displayorder="60500">
+			<setting varname="gitemstats_automatic" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gitemstats_site_order" displayorder="20">
+				<datatype>free</datatype>
+				<defaultvalue>thottbot,allakhazam,judgehype,buffed,wowdbu</defaultvalue>
+			</setting>
+			<setting varname="gitemstats_icon_store" displayorder="30">
+				<datatype>free</datatype>
+				<defaultvalue>http://wow.allakhazam.com/images/icons/</defaultvalue>
+			</setting>
+			<setting varname="gitemstats_icon_ext" displayorder="40">
+				<datatype>free</datatype>
+				<defaultvalue>.png</defaultvalue>
+			</setting>
+			<setting varname="gitemstats_alla_lang_order" displayorder="50">
+				<datatype>free</datatype>
+				<defaultvalue>enUS,frFR,deDE,esES,koKR,zhCN,zhTW</defaultvalue>
+			</setting>
+			<setting varname="gitemstats_alla_socket_img" displayorder="60">
+				<datatype>free</datatype>
+				<defaultvalue>http://wow.allakhazam.com/images/</defaultvalue>
+			</setting>
+			<setting varname="gitemstats_itemstats_link" displayorder="70">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

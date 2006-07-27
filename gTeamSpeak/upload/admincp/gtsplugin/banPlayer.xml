@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTeamSpeak, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// ########################### SVN info ###################################
+	// $Id: banPlayer.xml 469 2007-03-01 18:45:34Z ghryphen $
+	// $Rev: 469 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2007-03-01 10:45:34 -0800 (Thu, 01 Mar 2007) $
+-->
+
+<gTeamSpeak>
+	<title>banPlayer</title>
+	<description>Allows you to ban a player for x minutes.</description>
+	<version>1.00</version>
+	<order>1</order>
+	<reqsa>1</reqsa>
+	<enabled>1</enabled>
+	<menuoption><![CDATA[
+			print_form_header($this_script, 'sadmin_banPlayer', 0, 1, 'resetForm');
+			print_table_header('Temporary Ban Player');
+			print_select_row('User', 'userid', func_gts_sa_banplayer());
+			print_textarea_row('Ban Message', 'message');
+			print_input_row('Minutes to Ban', 'bantime');
+			print_submit_row('Ban Player', 0);
+	]]></menuoption>
+	<phpcode><![CDATA[if ($_REQUEST['do'] == 'sadmin_banPlayer')
+{
+
+	print_form_header();
+	print_table_header('Message to User');
+
+	if (empty($_REQUEST['bantime']))
+	{
+		print_description_row('Please enter Minutes to Ban.','','','','center');
+	}
+	else
+	{
+		$message = str_replace ("\r\n", " ", $_REQUEST["message"]);
+
+		$cyts->sadmin_banPlayer($_REQUEST["userid"], $_REQUEST["bantime"]);
+		$cyts->admin_kick($_REQUEST["userid"], $message) ;
+
+		print_description_row("Sent Message: " . nl2br($_REQUEST["message"]) . "");
+	}
+
+	print_table_footer(2, construct_button_code($vbphrase['go_back'], 'javascript:history.back(1)'));
+}]]></phpcode>
+	<functions><![CDATA[function func_gts_sa_banplayer()
+{
+	global $vbulletin;
+	global $cyts;
+
+	$pl = $cyts->info_playerList();
+
+	$plarray = array();
+
+	foreach ($pl AS $user)
+	{
+		$chan = $cyts->info_channelInfo($user['c_id']);
+
+		$plarray[$user['p_id']] = $user['nick'];
+	}
+
+	asort($plarray);
+
+	return $plarray;
+}]]></functions>
+</gTeamSpeak>

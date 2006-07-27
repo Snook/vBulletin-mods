@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gWiki, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gWiki, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gWiki.xml 907 2008-01-29 23:48:43Z ghryphen $
+	// $Rev: 907 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-29 15:48:43 -0800 (Tue, 29 Jan 2008) $
+-->
+
+<product productid="gwiki" active="1">
+	<title>gWiki</title>
+	<description>Integrated vBulletin wiki.</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gwiki_main" templatetype="template" date="0" username="Ghryphen" version="1.00"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle]</title>
+<style>
+table.diff td
+{
+	text-align: right;
+	padding-left: 3px;
+	padding-right: 3px;
+	font-size: 8pt;
+}
+table.diff td.code
+{
+	text-align: left;
+	font-family: 'Courier New', Courier, monospace;
+	font-weight: normal;
+}
+table.diff td.code pre
+{
+	margin: 0;
+	padding: 0;
+}
+table.diff tr.new
+{
+	background: #102C1B;
+}
+table.diff tr.old
+{
+	background: #510503;
+}
+table.diff tr.hidenew
+{
+	display: none;
+}
+table.diff tr.hideold
+{
+	display: none;
+}
+</style>
+</head>
+<body>
+
+$header
+$navbar
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" align="center">
+<tr valign="top">
+	<td>
+
+	<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+	<tr>
+		<td class="tcat">
+		<span class="smallfont" style="float:right">
+			<if condition="$show['talk']">
+			<a href="gwiki.php?page=Talk:$PAGE_TITLEE">Talk</a> |
+			<else />
+			<a href="gwiki.php?page=$PAGE_TITLEE">Page</a> |
+			</if>
+			<a href="gwiki.php?page=$PAGE_TITLEE&do=edit">Edit</a> |
+			<a href="gwiki.php?page=$PAGE_TITLEE&do=history">History</a> |
+			<a href="gwiki.php?page=$PAGE_TITLEE&do=protect">Protect</a> |
+			<a href="gwiki.php?page=$PAGE_TITLEE&do=delete">Delete</a>
+		</span>
+		<a href="gwiki.php?page=$PAGE_TITLEE">$PAGE_TITLE</a></td>
+	</tr>
+	<tr>
+		<td class="alt1"><div class="error">$wiki[error]</div>$wiki[content]</td>
+	</tr>
+	<tr>
+		<td class="tcat smallfont">
+		<span class="smallfont" style="float:right">
+			$wiki[date] $wiki[wiki] by <a href="member.php?u=$wiki[userid]">$wiki[username]</a>
+		</span>
+		$vbphrase[gllc_x_copy_x]
+		</td>
+	</tr>
+	</table>
+
+	</td>
+</tr>
+</table>
+
+$footer
+</body>
+</html>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gWiki: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gwiki_main';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Get Editor</title>
+			<hookname>editor_toolbar_start</hookname>
+			<phpcode><![CDATA[if ($forumid == 'gWiki')
+{
+	global $setting;
+	$setting['allow_bbcode'] = '1';
+	$show['img_bbcode'] = $setting['allow_imgcode'];
+	$toolbartype = $setting['allow_bbcode'] ? is_wysiwyg_compatible(-1, $editor_type) : 0;
+	$show['wysiwyg_compatible'] = (is_wysiwyg_compatible(2, $editor_type) == 2);
+	$show['editor_toolbar'] = ($toolbartype > 0);
+	$editor_template_name = ($toolbartype ? 'editor_toolbar_on' : 'editor_toolbar_off');
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWiki: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gwiki.php')
+	{
+		$userinfo['activity'] = 'viewing_gwiki';
+	}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWiki: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'viewing_gwiki')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gwiki_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gwiki_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWiki: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gwiki_'] = 'gWiki';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gwiki_title" date="0" username="Ghryphen" version="1.00"><![CDATA[gWiki]]></phrase>
+			<phrase name="gwiki_vbnav" date="0" username="Ghryphen" version="1.00"><![CDATA[gWiki]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gwiki_moderator_groups_desc" date="0" username="Ghryphen" version="1.00"><![CDATA[Comma separated list of usergroups who moderate the wiki.]]></phrase>
+			<phrase name="setting_gwiki_moderator_groups_title" date="0" username="Ghryphen" version="1.00"><![CDATA[Moderator Groups]]></phrase>
+			<phrase name="settinggroup_gwiki_group1" date="0" username="Ghryphen" version="1.00"><![CDATA[gWiki]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gwiki_group1" displayorder="61200">
+			<setting varname="gwiki_moderator_groups" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>6,5</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<navgroups product="gKeyExchange">
+	<navgroup text="gKeyExchange" displayorder="20" hr="true">
+		<navoption displayorder="130">
+			<text>Options</text>
+			<link>options.php?do=options&amp;dogroup=gkeyexchange_settings</link>
+		</navoption>
+		<navoption displayorder="140">
+			<text>Manage Programs</text>
+			<link>gkeyexchange.php?do=programs</link>
+		</navoption>
+		<navoption displayorder="150">
+			<text>Add a Program</text>
+			<link>gkeyexchange.php?do=addprogram</link>
+		</navoption>
+		<navoption displayorder="150">
+			<text>Add Keys</text>
+			<link>gkeyexchange.php?do=addkeys</link>
+		</navoption>
+	</navgroup>
+</navgroups>

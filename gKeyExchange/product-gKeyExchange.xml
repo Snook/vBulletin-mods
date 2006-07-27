@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gKeyExchange, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gKeyExchange, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gKeyExchange.xml 907 2008-01-29 23:48:43Z ghryphen $
+	// $Rev: 907 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-01-29 15:48:43 -0800 (Tue, 29 Jan 2008) $
+-->
+
+<product productid="gkeyexchange" active="1">
+	<title>gKeyExchange</title>
+	<description>A key distribution system.</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode><![CDATA[$vbulletin->db->query("
+	CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "gkeyexchange_program (
+		`id` int(10) NOT NULL auto_increment,
+		`enabled` tinyint(1) NOT NULL default '0',
+		`textid` varchar(10) NOT NULL default '',
+		`title` varchar(100) NOT NULL default '',
+		`keyregex` varchar(255) NOT NULL default '',
+		`request` tinyint(1) NOT NULL default '0',
+		`requestug` varchar(100) NOT NULL default '',
+		`requestpp` int(10) NOT NULL default '0',
+		`requestposts` int(10) NOT NULL default '0',
+		`requestreghours` int(10) NOT NULL default '0',
+		`donate` tinyint(1) NOT NULL default '0',
+		`donateug` varchar(100) NOT NULL default '',
+		`donatepp` int(10) NOT NULL default '0',
+		`donateposts` int(10) NOT NULL default '0',
+		`donatereghours` int(10) NOT NULL default '0',
+		PRIMARY KEY  (`id`)
+	)
+");
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "usergroup`
+		ADD `gkepermissions` int(10) NOT NULL default '0'
+");]]></installcode>
+			<uninstallcode><![CDATA[$vbulletin->db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gkeyexchange_program;" );
+
+$vbulletin->db->query_write("
+	ALTER TABLE `" . TABLE_PREFIX . "gkepermissions`
+		DROP `gkepermissions`
+");]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="gke_main" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+	<title>$vboptions[bbtitle] - $pagetitle</title>
+</head>
+<body$onload>
+$header
+$navbar
+
+<!-- table to support left column nav -->
+<table cellpadding="0" cellspacing="0" border="0" width="100%" align="center">
+<tr valign="top">
+	<td>
+
+		<!-- usercp nav -->
+		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0">
+		<tr>
+			<td class="tcat"><a href="gkeyexchange.php">$vbphrase[gke_title]</a></td>
+		</tr>
+		<tr>
+			<td class="thead" nowrap="nowrap">Available Programs</td>
+		</tr>
+		$keyexchange[select]
+		</table>
+		<!-- / usercp nav -->
+
+	</td>
+	<td>&nbsp;&nbsp;</td>
+	<td width="100%">
+
+		<!-- main page contents -->
+		$keyexchange[contents]
+		<!-- / main page contents -->
+
+	</td>
+</tr>
+</table>
+<!-- / table to support left column nav -->
+$footer
+</body>
+</html>]]></template>
+		<template name="gke_program" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr>
+	<td class="tcat" width="100%">
+		$program[title]
+	</td>
+</tr>
+<tr>
+	<td class="alt1">
+
+	<if condition="$program[fail_availablekeys]">
+		<p class="tborder alt2" style="font-weight:bold; text-align:center; color:orange; padding:10px;"><img class="inlineimg" src="$stylevar[imgdir_statusicon]/announcement_new.gif" alt="Announcement" /> We are sorry but there are no <i>$program[title]</i> keys available at this time.</p>
+	</if>
+
+	<if condition="$donation['message']">
+		<p class="tborder alt2" style="font-weight:bold; text-align:center; color:orange; padding:10px;"><img class="inlineimg" src="$stylevar[imgdir_statusicon]/announcement_new.gif" alt="Announcement" /> $donation[message] </p>
+	</if>
+
+	<p class="tborder alt2" style="padding:10px;">Welcome to $vboptions[bbtitle]'s <i>$program[title]</i> KeyExchange. $program[description]</p>
+
+	<table cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+	</tr>
+		<td width="50%" valign="top">
+
+
+			<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+			<tr align="center">
+				<td class="thead">Aquire a key</td>
+			</tr>
+			<tr>
+				<td class="alt1">
+					<if condition="$show[request]">
+						<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+						<form action="gkeyexchange.php" method="post">
+						<input type="hidden" name="do" value="request">
+						<input type="hidden" name="pid" value="$program[id]">
+						<tr>
+							<td class="alt2">Confirm type <b><font color="yellow">YES</font></b></td>
+							<td class="alt2"><input class="button" name="req_key" type="text""></td>
+						</tr>
+						<tr>
+							<td class="alt2">Confirm</td>
+							<td class="alt2"><input class="button" name="req_confirm" type="checkbox"> $gobutton</td>
+						</tr>
+						</form>
+						</table>
+					<else />
+
+						<p>We are sorry, but you do not qualify to aquire a key.</p>
+
+						<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+						<if condition="$program[fail_reqbanned]">
+						<tr align="center">
+							<td colspan="2" class="thead">Rules</td>
+						</tr>
+						<tr>
+							<td class="alt1 smallfont">Denied by Administrator</td>
+							<td class="alt1 smallfont">If you feel this is in error, please contact and administrator.</td>
+						</tr>
+						<else />
+						<tr align="center">
+							<td class="thead">Rules</td>
+							<td colspan="2" class="thead">&nbsp;</td>
+						</tr>
+						<tr>
+							<td class="alt2 smallfont">You are required to make $program[requestposts] forum posts.</td>
+							<if condition="$program[fail_reqposts]">
+								<td class="alt1 smallfont">$program[fail_reqposts]</td>
+								<td class="alt2 smallfont"><span style="color:red">Fail</span></td>
+							<else />
+								<td class="alt1 smallfont" colspan="2"><span style="color:green">Pass</span></td>
+							</if>
+						</tr>
+						<tr>
+							<td class="alt2 smallfont">You must wait $program[requestreghours] hours from the time you registered.</td>
+							<if condition="$program[fail_reqreghours]">
+								<td class="alt1 smallfont">$program[fail_reqreghours]</td>
+								<td class="alt2 smallfont"><span style="color:red">Fail</span></td>
+							<else />
+								<td class="alt1 smallfont" colspan="2"><span style="color:green">Pass</span></td>
+							</if>
+						</tr>
+						<tr>
+							<td class="alt2 smallfont">You may aquire $program[requestpp] keys per person.</td>
+							<td class="alt1 smallfont" colspan="2"><span style="color:<if condition="$program[fail_reqpp]">red">Fail<else />green">Pass</if></span></td>
+						</tr>
+						<tr>
+							<td class="alt2 smallfont">Keys available in database.</td>
+							<td class="alt1 smallfont" colspan="2"><span style="color:<if condition="$program[fail_availablekeys]">red">Fail<else />green">Pass</if></span></td>
+						</tr>
+						</if>
+						</table>
+
+					</if>
+				</td>
+			</td>
+			</table>
+
+		</td>
+		<td valign="top">
+
+			<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+			<tr align="center">
+				<td class="thead">Donate a key</td>
+			</tr>
+			<tr>
+				<td class="alt1">
+					<if condition="$show[donate]">
+						<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+						<form action="gkeyexchange.php?programid=$program[id]" method="post">
+						<input type="hidden" name="do" value="donation">
+						<tr>
+							<td class="alt2">Key</td>
+							<td class="alt2"><input class="button" name="don_key" type="text" value="$donation[keyvalue]"></td>
+						</tr>
+						<tr>
+							<td class="alt2">Confirm</td>
+							<td class="alt2"><input class="button" name="don_confirm" type="checkbox"> $gobutton</td>
+						</tr>
+						</form>
+						</table>
+					<else />
+						<p>We are sorry, but you do not qualify to donate a key.</p>
+					</if>
+				</td>
+			</tr>
+			</table>
+
+		</td>
+	</tr>
+	</table>
+
+	</td>
+</tr>
+<tr>
+	<td colspan="2" class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>
+
+<br />
+
+<if condition="$show['donators'] || $show['receivers']">
+<br />
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<thead>
+	<tr>
+		<td class="tcat" colspan="2">$vbphrase[whats_going_on]</td>
+	</tr>
+</thead>
+
+<if condition="$show['donators']">
+<tbody>
+	<tr>
+		<td class="thead" colspan="2">
+			<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('forumhome_keyexchange_receivers')"><img id="collapseimg_forumhome_keyexchange_receivers" src="$stylevar[imgdir_button]/collapse_thead$vbcollapse[collapseimg_forumhome_keyexchange_receivers].gif" alt="" border="0" /></a>
+			Last 100 people who received a key</phrase>
+		</td>
+	</tr>
+</tbody>
+<tbody id="collapseobj_forumhome_keyexchange_receivers" style="$vbcollapse[collapseobj_forumhome_keyexchange_receivers]">
+	<tr>
+		<td class="alt2"><img src="$stylevar[imgdir_misc]/whos_online.gif" alt="Who's Online" border="0" /></td>
+		<td class="alt1" width="100%">
+			<div class="smallfont">
+				<div>$keyexchange[receivers]</div>
+			</div>
+		</td>
+	</tr>
+</tbody>
+<tbody>
+	<tr>
+		<td class="thead" colspan="2">
+			<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('forumhome_keyexchange_donators')"><img id="collapseimg_forumhome_keyexchange_donators" src="$stylevar[imgdir_button]/collapse_thead$vbcollapse[collapseimg_forumhome_keyexchange_donators].gif" alt="" border="0" /></a>
+			Total Donators: $show[donators]</phrase>
+		</td>
+	</tr>
+</tbody>
+</if>
+
+<if condition="$show['donators']">
+<tbody id="collapseobj_forumhome_keyexchange_donators" style="$vbcollapse[collapseobj_forumhome_keyexchange_donators]">
+	<tr>
+		<td class="alt2"><img src="$stylevar[imgdir_misc]/whos_online.gif" alt="Who's Online" border="0" /></td>
+		<td class="alt1" width="100%">
+			<div class="smallfont">
+				<div>$keyexchange[donators]</div>
+			</div>
+		</td>
+	</tr>
+</tbody>
+</if>
+
+</table>
+<br />
+</if>]]></template>
+		<template name="gke_programs_bit" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<tr>
+	<td class="alt2" nowrap="nowrap">
+		<img class="inlineimg" src="$stylevar[imgdir_misc]/gkeyexchange/$programmenu[textid].gif" alt="$programmenu[title]" /> <a class="smallfont" href="gkeyexchange.php?programid=$programmenu[id]">$programmenu[title]</a>
+	</td>
+</tr>]]></template>
+		<template name="gke_received_bit" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<tr>
+	<td class="alt1"><a href="gkeyexchange.php?programid=$userkey[id]">$userkey[title]</a></td>
+	<td class="alt1">$userkey[key]</td>
+	<td class="alt1"><div class="smallfont" align="$stylevar[right]">$userkey[date] <span class="time">$userkey[time]</span></div></td>
+	<td class="alt1"><a href="member.php?u=$userkey[donated_byid]">$userkey[username]</a></td>
+</tr>]]></template>
+		<template name="gke_welcome" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr>
+	<td class="tcat">&nbsp;</td>
+</tr>
+<tr>
+	<td class="alt1" valign="top">
+
+	<if condition="$request['message']">
+		<p class="tborder alt2" style="font-weight:bold; text-align:center; color:orange; padding:10px;"><img class="inlineimg" src="$stylevar[imgdir_statusicon]/announcement_new.gif" alt="Announcement" /> $request[message] </p>
+	</if>
+
+	<p>Welcome to the KeyExchange, a place where you can donate or obtain trial keys for various games.</p>
+
+	<if condition="$show['receivedkeys']">
+	<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+	<tr>
+		<td class="tcat" colspan="4">Keys you have received</td>
+	</tr>
+	<tr align="center">
+		<td class="thead">Title</td>
+		<td class="thead">Key</td>
+		<td class="thead">Date</td>
+		<td class="thead">Provided By</td>
+	</tr>
+	$keys_received
+	</table>
+	</if>
+
+	</td>
+</tr>
+<tr>
+	<td class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</table>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gkE: Cache Additional Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gke_main';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gKE: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'gkeyexchange.php')
+{
+	$userinfo['activity'] = 'gkeyexchange';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gKE: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gkeyexchange')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gke_title']);
+	$userinfo['where'] = "<a href=\"" . $userinfo['location'] . "\">" . $vbphrase['gke_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gKE: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gke_'] = 'gKeyExchange';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gke_title" date="0" username="" version="1.0.0"><![CDATA[gKeyExchange]]></phrase>
+			<phrase name="gke_vbnav" date="0" username="" version="1.0.0"><![CDATA[gKeyExchange]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gke_enabled_desc" date="0" username="" version="1.0.0"><![CDATA[Enable/Disable key exchange.]]></phrase>
+			<phrase name="setting_gke_enabled_title" date="0" username="" version="1.0.0"><![CDATA[Enabled]]></phrase>
+			<phrase name="setting_gke_usergroup_desc" date="0" username="" version="1.0.0"><![CDATA[Comma separated list of usergroup id's which can access the page.]]></phrase>
+			<phrase name="setting_gke_usergroup_title" date="0" username="" version="1.0.0"><![CDATA[Overall Usergroup IDs]]></phrase>
+			<phrase name="settinggroup_gkeyexchange_settings" date="0" username="" version="1.0.0"><![CDATA[gKeyExchange]]></phrase>
+		</phrasetype>
+		<phrasetype name="Control Panel User Groups" fieldname="cpusergroup">
+			<phrase name="gke_ugp_canadminexchange" date="0" username="" version="1.0.0"><![CDATA[Can Admin Key Exchange?]]></phrase>
+			<phrase name="gkepermissions" date="0" username="" version="1.0.0"><![CDATA[Key Exchange Permissions]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gkeyexchange_settings" displayorder="50570">
+			<setting varname="gke_enabled" displayorder="0">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gke_usergroup" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>5,6,7</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

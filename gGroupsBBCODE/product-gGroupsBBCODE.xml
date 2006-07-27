@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="ggroupsbbcode" active="1">
+	<title>gGroupsBBCODE</title>
+	<description>Allow BBCODE in Social Group descriptions</description>
+	<version>1.0.0</version>
+	<url />
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>Put bbcode in group description</title>
+			<hookname>group_list_groupbit</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/includes/class_bbcode.php');
+$parser =& new vB_BbCodeParser($vbulletin, fetch_tag_list());
+$group['mediumdescription'] = $parser->do_parse($group['mediumdescription'], true, true, true, true, true, true);
+$pos = strpos($group['mediumdescription'], '.');
+if ($pos != false)
+{
+    $group['mediumdescription'] = substr($group['mediumdescription'], 0, $pos+1);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Put bbcode in group description</title>
+			<hookname>group_overview</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/includes/class_bbcode.php');
+$parser =& new vB_BbCodeParser($vbulletin, fetch_tag_list());
+$randomgroup['mediumdescription'] = $parser->do_parse($randomgroup['mediumdescription'], true, true, true, true, true, true);
+$pos = strpos($randomgroup['mediumdescription'], '.');
+if ($pos != false)
+{
+    $randomgroup['mediumdescription'] = substr($randomgroup['mediumdescription'], 0, $pos+1);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Put bbcode in group description</title>
+			<hookname>group_start_postcheck</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/includes/class_bbcode.php');
+$parser =& new vB_BbCodeParser($vbulletin, fetch_tag_list());
+$group['description'] = $parser->do_parse($group['description'], true, true, true, true, true, true);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Put bbcode in group description</title>
+			<hookname>group_list_groupbit</hookname>
+			<phpcode><![CDATA[require_once(DIR . '/includes/class_bbcode.php');
+$parser =& new vB_BbCodeParser($vbulletin, fetch_tag_list());
+$group['shortdescription'] = $parser->do_parse($group['shortdescription'], true, true, true, true, true, true);
+$pos = strpos($group['shortdescription'], '.');
+if ($pos != false)
+{
+    $group['shortdescription'] = substr($group['shortdescription'], 0, $pos+1);
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+	</phrases>
+	<options>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

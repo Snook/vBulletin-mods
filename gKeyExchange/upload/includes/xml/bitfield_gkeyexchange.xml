@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<bitfields product="gKeyExchange">
+	<bitfielddefs>
+		<group name="ugp">
+			<group name="gkepermissions">
+				<bitfield name="canadminexchange" group="gkepermissions"  phrase="gke_ugp_canadminexchange" install="">1</bitfield>
+			</group>
+		</group>
+	</bitfielddefs>
+</bitfields>

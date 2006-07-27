@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTeamSpeak, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// ########################### SVN info ###################################
+	// $Id: pruneUsers.xml 469 2007-03-01 18:45:34Z ghryphen $
+	// $Rev: 469 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2007-03-01 10:45:34 -0800 (Thu, 01 Mar 2007) $
+-->
+
+<gTeamSpeak>
+	<title>pruneUsers</title>
+	<description>Allows you to prune inactive accounts.</description>
+	<version>1.00</version>
+	<order>1</order>
+	<reqsa>0</reqsa>
+	<enabled>1</enabled>
+	<menuoption><![CDATA[print_form_header($this_script, 'pruneusers', 0, 1);
+		print_table_header('Prune Users');
+		print_description_row('This will remove people from the TeamSpeak server who have not have not logged on for x days.');
+		print_input_row('Days to Prune', 'prunedays');
+		print_radio_row('Do not prune SA Accounts', 'ignoresa', array( 'true' => 'True', 'false' => 'False' ), 'true');
+		print_radio_row('Prune Accounts who have never logged in.', 'prunenever', array( 'yes' => 'Yes', 'no' => 'No' ), 'yes');
+		print_radio_row('Test Run', 'testrun', array( 'yes' => 'Yes', 'no' => 'No' ), 'yes');
+		print_submit_row('Prune Users', 0);]]></menuoption>
+	<phpcode><![CDATA[if ($_REQUEST['do'] == 'pruneusers')
+{
+	print_form_header();
+	print_table_header('Prune Users');
+
+	if (empty($_REQUEST['prunedays']))
+	{
+		print_description_row('Please enter day(s) to Prune.','','','','center');
+	}
+	else
+	{
+		print_description_row('Pruning users who have not logged on in the last '. $_REQUEST['prunedays'] .' day(s).','','','','center');
+		func_gts_prune_users();
+	}
+
+	print_table_footer(2, construct_button_code($vbphrase['go_back'], 'javascript:history.back(1)'));
+}]]></phpcode>
+	<functions><![CDATA[]]></functions>
+</gTeamSpeak>

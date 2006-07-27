@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<navgroups product="gteamspeak">
+	<navgroup text="gTeamSpeak" displayorder="10" hr="true">
+		<navoption link="gteamspeak.php" displayorder="130">
+			<text>gTeamSpeak</text>
+		</navoption>
+		<navoption link="gteamspeak.php?do=manageusers" displayorder="140">
+			<text>Manage Users</text>
+		</navoption>
+		<navoption link="gteamspeak.php?do=manageplugins" displayorder="140">
+			<text>Plugins</text>
+		</navoption>
+		<navoption link="options.php?do=options&amp;dogroup=gts_group1" displayorder="150">
+			<text>Options</text>
+		</navoption>
+		<navoption link="options.php?do=options&amp;dogroup=gts_group2" displayorder="160">
+			<text>Whois Online Options</text>
+		</navoption>
+		<navoption link="options.php?do=options&amp;dogroup=gts_group3" displayorder="170">
+			<text>Advanced Options</text>
+		</navoption>
+	</navgroup>
+</navgroups>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gXboxStatus, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gXboxStatus, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gBoxStatus.xml 1200 2009-08-19 21:17:11Z ghryphen $
+	// $Rev: 1200 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2009-08-19 14:17:11 -0700 (Wed, 19 Aug 2009) $
+-->
+
+<product productid="gxboxstatus" active="1">
+	<title>gXboxStatus</title>
+	<description>Xbox stats and live status.</description>
+	<version>1.0.2</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gxbs_whos_online" templatetype="template" date="0" username="" version=""><![CDATA[<!-- logged-in xbox users -->
+<script type="text/javascript" src="clientscript/overlib/overlib.js"></script>
+
+<script type="text/javascript">
+function gXBS_show( type, gamertag) {
+
+	if(type == 'gamercard')
+	{
+		var html = '<iframe src="http://gamercard.xbox.com/'+gamertag+'.card" scrolling="no" frameBorder="0" height="140" width="204">'+gamertag+'</iframe>';
+
+		return overlib(html, BORDER, 0, FULLHTML, WIDTH, 204, HEIGHT, 140, VAUTO, HAUTO);
+	}
+
+	if(type == 'nxeavatar')
+	{
+		var html = '<iframe src="http://avatar.xboxlive.com/avatar/'+gamertag+'/avatar-body.png" scrolling="no" frameBorder="0" height="300" width="150">'+gamertag+'</iframe>';
+
+		return overlib(html, BORDER, 0, FULLHTML, WIDTH, 150, HEIGHT, 300, VAUTO, HAUTO);
+	}
+
+}
+
+function gXBS_hide() {
+	return nd();
+}
+</script>
+<tbody>
+	<tr>
+		<td class="thead" colspan="2">
+			<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('forumhome_gxboxstatus_activeusers')"><img id="collapseimg_forumhome_gxboxstatus_activeusers" src="$stylevar[imgdir_button]/collapse_thead$vbcollapse[collapseimg_forumhome_gxboxstatus_activeusers].gif" alt="" border="0" /></a>
+			$vbphrase[gxbs_currently_active_users]: $gxboxstatus_total_online (<phrase 1="$gxboxstatus_total_online" 2="$gxboxstatus_total_offline">$vbphrase[gxbs_currently_x_active_x_inactive_users]</phrase>)
+		</td>
+	</tr>
+</tbody>
+<tbody id="collapseobj_forumhome_gxboxstatus_activeusers" style="$vbcollapse[collapseobj_forumhome_gxboxstatus_activeusers]">
+	<tr>
+		<td class="alt2"><img src="$stylevar[imgdir_misc]/gxboxstatus/whos_gxbls.gif" border="0" /></td>
+		<td class="alt1" width="100%">
+			<div class="smallfont">
+				<div>$gxboxstatus_activeusers</div>
+			</div>
+		</td>
+	</tr>
+</tbody>
+<!-- end logged-in xbox users -->]]></template>
+		<template name="gxbs_whos_online_bit" templatetype="template" date="0" username="" version=""><![CDATA[<nobr><if condition="$gameinfo[name] == $live[title]"><a href="$gameinfo[achievmentDetailsUrl]" target="_blank"><img src="$gameinfo[tile32Url]" alt="$gameinfo[name]" height="20" border="0" class="inlineimg" /></a> </if><a href="member.php?$session[sessionurl]u=$gxblsuser[userid]&amp;tab=gxboxlive" onmouseover="gXBS_show('gamercard','$live[gamertag]');" onmouseout="return gXBS_hide();" rel="nofollow"><if condition="!$live['online']"><span class="time" style="text-decoration: none;"></if>$gxblsuser[username]<if condition="!$live['online']"></span></if></a></nobr>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gXBS: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gxbs_whos_online';
+$globaltemplates[] = 'gxbs_whos_online_bit';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[gXBS: Who's Online - Forumhome]]></title>
+			<hookname>forumhome_start</hookname>
+			<phpcode><![CDATA[($hook = vBulletinHook::fetch_hook('gxbs_whos_online')) ? eval($hook) : false;
+
+	if (trim($gxboxstatus_activeusers) != '')
+	{
+		$s = '<!-- end logged-in users -->';
+		$t = str_replace( $s, $s . '\n' . $vbulletin->templatecache["gxbs_whos_online"], $vbulletin->templatecache["FORUMHOME"] );
+		$vbulletin->templatecache["FORUMHOME"] = $t;
+	}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[gXBS: Who's Online]]></title>
+			<hookname>gxbs_whos_online</hookname>
+			<phpcode><![CDATA[$gxboxstatus_total_online = 0;
+	$gxboxstatus_total_active = 0;
+	$gxboxstatus_total_inactive = 0;
+
+	if (is_numeric($vbulletin->options['gxbs_user_field']) && $vbulletin->options['gxbs_user_field'] != '0')
+	{
+		$gxbs_user_field = "field" . $vbulletin->options['gxbs_user_field'];
+	} else {
+		$gxbs_user_field = $vbulletin->options['gxbs_user_field'];
+	}
+
+	if ($vbulletin->options['gxbs_user_timeout'] != '0')
+	{
+		$timeout = TIMENOW - ($vbulletin->options['gxbs_user_timeout'] * 86400);
+		$gxbs_user_timeout = "AND " . TABLE_PREFIX . "user.lastvisit >= '" . $timeout . "'";
+	}
+
+  $res = $vbulletin->db->query("SELECT
+  	" . TABLE_PREFIX . "user.userid,
+  	" . TABLE_PREFIX . "user.username,
+  	" . TABLE_PREFIX . "user.posts,
+  	" . TABLE_PREFIX . "user.lastvisit,
+  	" . TABLE_PREFIX . "userfield." . $gxbs_user_field . "
+  FROM
+  	`" . TABLE_PREFIX . "userfield`
+  LEFT JOIN
+  	`" . TABLE_PREFIX . "user` ON " . TABLE_PREFIX . "userfield.userid = " . TABLE_PREFIX . "user.userid
+  WHERE
+		" . TABLE_PREFIX . "user.posts >= '" . $vbulletin->options['gxbs_required_posts'] . "'
+  AND
+  	" . TABLE_PREFIX . "userfield." . $gxbs_user_field . " != '' AND " . TABLE_PREFIX . "userfield." . $gxbs_user_field . " != 'User does not exist' " . $gxbs_user_timeout);
+
+	function gxbs_parse($url)
+	{
+		$xml = @file_get_contents($url);
+
+		if ($xml != false)
+		{
+			require_once(DIR . '/includes/class_xml.php');
+
+			$xmlobj = new vB_XML_Parser($xml);
+
+			return $xmlobj->parse();
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	while ($gxblsuser = $vbulletin->db->fetch_array($res))
+	{
+		$gxblsuser['xboxname'] = trim(strtolower($gxblsuser[$gxbs_user_field]));
+
+		$liveinfo = gxbs_parse('./xbox_cache/' . $gxblsuser['xboxname'] . '_presence.xml');
+		$gameinfo = $liveinfo['GamerInfo'];
+		$live = $liveinfo['GamerPresence'];
+
+		if($live['online'] == '1' && ( $live['status'] == '0' || $live['status'] == '2' || $live['status'] == '3' ))
+		{
+			if($gameinfo['RecentGames'] && $gameinfo['RecentGames']['Game']['tile32Url'])
+			{
+				$gameinfo = $gameinfo['RecentGames']['Game'];
+
+				$gxboxstatus_total_online++;
+				eval('$gxboxstatus_activeusers .= ", ' . fetch_template('gxbs_whos_online_bit') . '";');
+			}
+			elseif($gameinfo['RecentGames'] && $gameinfo['RecentGames']['Game']['0']['tile32Url'])
+			{
+				$gameinfo = $gameinfo['RecentGames']['Game']['0'];
+
+				$gxboxstatus_total_online++;
+				eval('$gxboxstatus_activeusers .= ", ' . fetch_template('gxbs_whos_online_bit') . '";');
+			}
+			else
+			{
+				$gxboxstatus_total_offline++;
+				eval('$gxboxstatus_inactiveusers .= ", ' . fetch_template('gxbs_whos_online_bit') . '";');
+			}
+		}
+		elseif($live['online'] == '0')
+		{	
+			$gxboxstatus_total_offline++;
+			eval('$gxboxstatus_inactiveusers .= ", ' . fetch_template('gxbs_whos_online_bit') . '";');
+		}
+
+	}
+
+	$gxboxstatus_total_inactive = $gxboxstatus_total_online - $gxboxstatus_total_active;
+
+	$gxboxstatus_activeusers = substr($gxboxstatus_activeusers, 2);
+	$gxboxstatus_inactiveusers = substr($gxboxstatus_inactiveusers, 2);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gXBS: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gxbs_'] = 'gXboxStatus';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Scheduled Tasks" fieldname="cron">
+			<phrase name="task_gxboxstatus_desc" date="0" username="" version=""><![CDATA[Scans all Xbox xml and collects data]]></phrase>
+			<phrase name="task_gxboxstatus_log" date="0" username="" version=""><![CDATA[{1}]]></phrase>
+			<phrase name="task_gxboxstatus_title" date="0" username="" version=""><![CDATA[gXboxStatus Update]]></phrase>
+		</phrasetype>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gxbs_currently_active_users" date="0" username="" version=""><![CDATA[Current Xbox Users]]></phrase>
+			<phrase name="gxbs_currently_x_active_x_inactive_users" date="0" username="" version=""><![CDATA[{1} active and {2} inactive]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gxbs_required_posts_desc" date="0" username="" version=""><![CDATA[Enter how many posts a user must have to be able to show up on the list.]]></phrase>
+			<phrase name="setting_gxbs_required_posts_title" date="0" username="" version=""><![CDATA[Required Post Count]]></phrase>
+			<phrase name="setting_gxbs_user_field_desc" date="0" username="" version=""><![CDATA[Enter the profile field id which contains the users Xbox Live GamerTag. Example: field15]]></phrase>
+			<phrase name="setting_gxbs_user_field_title" date="0" username="" version=""><![CDATA[User Profile Field]]></phrase>
+			<phrase name="setting_gxbs_user_timeout_desc" date="0" username="" version=""><![CDATA[How recent in days must a user have been active to be displayed. Set to 0 to show all users.]]></phrase>
+			<phrase name="setting_gxbs_user_timeout_title" date="0" username="" version=""><![CDATA[User Activity Timeout]]></phrase>
+			<phrase name="setting_gxbs_usergroup_access_desc" date="0" username="" version=""><![CDATA[Comma separated list of usergroups which can access the page. Set to 0 to allow all access.]]></phrase>
+			<phrase name="setting_gxbs_usergroup_access_title" date="0" username="" version=""><![CDATA[Usergroup Access]]></phrase>
+			<phrase name="setting_gxbs_xaged_api_desc" date="0" username="" version=""><![CDATA[Enter API key for access.]]></phrase>
+			<phrase name="setting_gxbs_xaged_api_title" date="0" username="" version=""><![CDATA[Xaged API]]></phrase>
+			<phrase name="settinggroup_gxbs_group" date="0" username="" version=""><![CDATA[gXboxStatus]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gxbs_group" displayorder="61600">
+			<setting varname="gxbs_user_timeout" displayorder="90">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbs_required_posts" displayorder="100">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbs_usergroup_access" displayorder="110">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbs_user_field" displayorder="130">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gxbs_xaged_api" displayorder="140">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+		<cron varname="gxboxstatus" active="1" loglevel="0">
+			<filename>./includes/cron/cron.gxboxstatus.php</filename>
+			<scheduling weekday="-1" day="-1" hour="-1" minute="-1" />
+		</cron>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

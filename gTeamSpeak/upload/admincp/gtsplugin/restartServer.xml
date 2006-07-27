@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTeamSpeak, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// ########################### SVN info ###################################
+	// $Id: restartServer.xml 469 2007-03-01 18:45:34Z ghryphen $
+	// $Rev: 469 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2007-03-01 10:45:34 -0800 (Thu, 01 Mar 2007) $
+-->
+
+<gTeamSpeak>
+	<title>restartServer</title>
+	<description>Allows you to restart the server.</description>
+	<version>1.00</version>
+	<order>1</order>
+	<reqsa>1</reqsa>
+	<enabled>1</enabled>
+	<menuoption><![CDATA[
+			print_form_header($this_script, 'retrash', 0, 1, 'resetForm');
+			print_table_header('Restart the Server');
+			print_description_row('Stops/Starts the server in order to update new and deleted channels.');
+			print_submit_row('Restart', 0);
+	]]></menuoption>
+	<phpcode><![CDATA[if ($_REQUEST['do'] == 'retrash')
+{
+
+	print_form_header('', '', 0, 1, 'gtsretrash');
+	print_table_header('Retrashing');
+
+	$cyts->sadmin_messageServer("Server will Restart in 10 seconds.", "true");
+	sleep(5);
+	$cyts->sadmin_messageServer("Server will Restart in 5 seconds.", "true");
+	sleep(1);
+	$cyts->sadmin_messageServer("Server will Restart in 4 seconds.", "true");
+	sleep(1);
+	$cyts->sadmin_messageServer("Server will Restart in 3 seconds.", "true");
+	sleep(1);
+	$cyts->sadmin_messageServer("Server will Restart in 2 seconds.", "true");
+	sleep(1);
+	$cyts->sadmin_messageServer("Server will Restart in 1 second.", "true");
+	sleep(1);
+
+	$cyts->sadmin_serverStop();
+ 	$cyts->sadmin_serverStart($ts2db['serverid']);
+
+	print_table_footer(2, construct_button_code($vbphrase['go_back'], 'javascript:history.back(1)'));
+}]]></phpcode>
+	<functions>
+	</functions>
+</gTeamSpeak>

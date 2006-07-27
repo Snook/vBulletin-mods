@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gWoWEvents, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gWoWEvents, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gWoWEvents.xml 1189 2009-08-05 20:08:28Z ghryphen $
+	// $Rev: 1189 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2009-08-05 13:08:28 -0700 (Wed, 05 Aug 2009) $
+-->
+
+<product productid="gwowevents" active="1">
+	<title>gWoWEvents</title>
+	<description>An event signup system for World of Warcraft</description>
+	<version>1.0.11</version>
+	<url>http://www.vbulletin.org/forum/showthread.php?t=170592</url>
+	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=checkversion&t=170592]]></versioncheckurl>
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="1.0.0">
+			<installcode><![CDATA[$db->query_write("ALTER TABLE ".TABLE_PREFIX."event ADD gwe_signup BOOL NOT NULL DEFAULT '0'");
+
+$db->query_write("
+	CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."gwowevents` (
+  	`eventid` int(10) NOT NULL default '0',
+  	`userid` int(10) NOT NULL default '0',
+  	`date` int(10) NOT NULL default '0',
+  	`changed` int(10) NOT NULL default '0',
+  	`response` int(1) NOT NULL default '0',
+  	`comment` text NOT NULL,
+  	`armorydata` int(1) NOT NULL default '0',
+  	`locale` char(2) NOT NULL default '',
+  	`realmchar` varchar(100) NOT NULL default '',
+  	`realm` varchar(100) NOT NULL default '',
+  	`character` varchar(100) NOT NULL default '',
+  	`charurl` varchar(100) NOT NULL default '',
+  	`level` int(3) NOT NULL default '0',
+  	`title` varchar(25) NOT NULL default '',
+  	`faction` varchar(25) NOT NULL default '',
+  	`factionid` int(1) NOT NULL default '0',
+  	`gender` varchar(25) NOT NULL default '',
+  	`genderid` int(1) NOT NULL default '0',
+  	`race` varchar(25) NOT NULL default '',
+  	`raceid` int(1) NOT NULL default '0',
+  	`class` varchar(25) NOT NULL default '',
+  	`classid` int(1) NOT NULL default '0',
+  	`talentspec` varchar(10) NOT NULL default '',
+  	`talent1` int(3) NOT NULL default '0',
+  	`talent2` int(3) NOT NULL default '0',
+  	`talent3` int(3) NOT NULL default '0',
+  	`guild` varchar(100) NOT NULL default '',
+  	`guildurl` varchar(100) NOT NULL default '',
+  	`hp` int(10) NOT NULL default '0',
+  	`mp` int(10) NOT NULL default '0',
+  	`str` int(10) NOT NULL default '0',
+  	`agi` int(10) NOT NULL default '0',
+  	`sta` int(10) NOT NULL default '0',
+  	`int` int(10) NOT NULL default '0',
+  	`spi` int(10) NOT NULL default '0',
+  	`arm` int(10) NOT NULL default '0',
+  	`strbase` int(10) NOT NULL default '0',
+  	`agibase` int(10) NOT NULL default '0',
+  	`stabase` int(10) NOT NULL default '0',
+  	`intbase` int(10) NOT NULL default '0',
+  	`spibase` int(10) NOT NULL default '0',
+  	`armbase` int(10) NOT NULL default '0',
+  	`prof1` varchar(25) NOT NULL default '',
+  	`skill1` int(10) NOT NULL default '0',
+  	`prof2` varchar(25) NOT NULL default '',
+  	`skill2` int(10) NOT NULL default '0',
+  	`cooking` int(10) NOT NULL default '0',
+  	`firstaid` int(10) NOT NULL default '0',
+  	`fishing` int(10) NOT NULL default '0',
+  	`riding` int(10) NOT NULL default '0',
+  PRIMARY KEY  (`eventid`,`userid`)
+	)
+");]]></installcode>
+			<uninstallcode><![CDATA[$db->query_write("ALTER TABLE ".TABLE_PREFIX."event DROP gwe_signup");
+
+if($vbulletin->options['gwe_uninstall_history'])
+{
+	$vbulletin->db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "gwowevents;");
+}]]></uninstallcode>
+		</code>
+		<code version="1.0.4">
+			<installcode><![CDATA[$db->query_write("UPDATE ".TABLE_PREFIX."gwowevents SET `response` = '4' WHERE `response` = '3' ");
+$db->query_write("UPDATE ".TABLE_PREFIX."gwowevents SET `response` = '3' WHERE `response` = '2' ");]]></installcode>
+			<uninstallcode />
+		</code>
+		<code version="1.0.5">
+			<installcode><![CDATA[$db->query_write("
+	CREATE TABLE IF NOT EXISTS `".TABLE_PREFIX."gwowevents_visitor` (
+  `eventid` int(10) unsigned NOT NULL default '0',
+  `visitorid` int(10) unsigned NOT NULL default '0',
+  `dateline` int(10) unsigned NOT NULL default '0',
+  `visible` smallint(5) unsigned NOT NULL default '1',
+  PRIMARY KEY  (`visitorid`,`eventid`),
+  KEY `userid` (`eventid`,`visible`,`dateline`)
+	)
+");]]></installcode>
+			<uninstallcode />
+		</code>
+	</codes>
+	<templates>
+		<template name="gwe_signup" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<if condition="$eventinfo['gwe_pre_signup']"><if condition="$attendeecount['yes'] > 0 || $attendeecount['maybe'] > 0 || $attendeecount['no'] > 0">
+	<br /><br />
+
+<style type="text/css">
+<!--
+.class_6
+{
+	color: #C41F3B;
+}
+.class_11
+{
+	color: #FF7D0A;
+}
+.class_3
+{
+	color: #ABD473;
+}
+.class_8
+{
+	color: #69CCF0;
+}
+.class_2
+{
+	color: #F58CBA;
+}
+.class_5
+{
+	color: #FFFFFF;
+}
+.class_4
+{
+	color: #FFF569;
+}
+.class_7
+{
+	color: #00DBBA;
+}
+.class_9
+{
+	color: #9482CA;
+}
+.class_1
+{
+	color: #C79C6E;
+}
+-->
+</style>
+
+<if condition="$attendeecount['yes']">
+
+<table class="tborder" width="100%" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" align="center">
+<tr align="center">
+	<th class="thead" width="10%">$vbphrase[gwe_total]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_death_knight]" title="$vbphrase[gwe_death_knight] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/6.png" alt="$vbphrase[gwe_death_knight]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_death_knight]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_druid]" title="$vbphrase[gwe_druid] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/11.png" alt="$vbphrase[gwe_druid]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_druid]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_hunter]" title="$vbphrase[gwe_hunter] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/3.png" alt="$vbphrase[gwe_hunter]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_hunter]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_mage]" title="$vbphrase[gwe_mage] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/8.png" alt="$vbphrase[gwe_mage]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_mage]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_paladin]" title="$vbphrase[gwe_paladin] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/2.png" alt="$vbphrase[gwe_paladin]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_paladin]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_priest]" title="$vbphrase[gwe_priest] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/5.png" alt="$vbphrase[gwe_priest]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_priest]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_rogue]" title="$vbphrase[gwe_rogue] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/4.png" alt="$vbphrase[gwe_rogue]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_rogue]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_shaman]" title="$vbphrase[gwe_shaman] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/7.png" alt="$vbphrase[gwe_shaman]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_shaman]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_warlock]" title="$vbphrase[gwe_warlock] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/9.png" alt="$vbphrase[gwe_warlock]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_warlock]</th>
+	<th class="thead" width="10%"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_warrior]" title="$vbphrase[gwe_warrior] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/1.png" alt="$vbphrase[gwe_warrior]"><if condition="$vboptions['gwe_wikienable']"></a></if> $vbphrase[gwe_warrior]</th>
+</tr>
+<tr align="center">
+	<td class="alt1">$attendeecount[yes]</td>
+	<td class="alt1">$attendeeclasscount[6]</td>
+	<td class="alt1">$attendeeclasscount[11]</td>
+	<td class="alt1">$attendeeclasscount[3]</td>
+	<td class="alt1">$attendeeclasscount[8]</td>
+	<td class="alt1">$attendeeclasscount[2]</td>
+	<td class="alt1">$attendeeclasscount[5]</td>
+	<td class="alt1">$attendeeclasscount[4]</td>
+	<td class="alt1">$attendeeclasscount[7]</td>
+	<td class="alt1">$attendeeclasscount[9]</td>
+	<td class="alt1">$attendeeclasscount[1]</td>
+</tr>
+</table>
+
+<br />
+
+</if>
+
+<table class="tborder" width="100%" cellpadding="4" cellspacing="$stylevar[cellspacing]" border="0" align="center">
+<tr align="center">
+	<th class="thead">$vbphrase[username]</th>
+	<th class="thead" colspan="2">$vbphrase[gwe_character]</th>
+	<th class="thead">Class</th>
+	<th class="thead" colspan="2">$vbphrase[gwe_spec]</th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_health]" title="$vbphrase[gwe_health] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Health.png" alt="$vbphrase[gwe_health]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_mana]" title="$vbphrase[gwe_mana] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Mana.png" alt="$vbphrase[gwe_mana]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_strength]" title="$vbphrase[gwe_strength] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Strength.png" alt="$vbphrase[gwe_strength]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_agility]" title="$vbphrase[gwe_agility] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Agility.png" alt="$vbphrase[gwe_agility]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_stamina]" title="$vbphrase[gwe_stamina] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Stamina.png" alt="$vbphrase[gwe_stamina]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_intellect]" title="$vbphrase[gwe_intellect] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Intellect.png" alt="$vbphrase[gwe_intellect]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_spirit]" title="$vbphrase[gwe_spirit] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Spirit.png" alt="$vbphrase[gwe_spirit]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_armor]" title="$vbphrase[gwe_armor] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/stat/Armor.png" alt="$vbphrase[gwe_armor]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<if condition="$vboptions['gwe_show_prof']">
+	<th class="thead" colspan="2">Profession</th>
+	</if>
+	<if condition="$vboptions['gwe_show_skills']">
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_cooking]" title="$vbphrase[gwe_cooking] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/skill/Cooking.png" alt="$vbphrase[gwe_cooking]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_first_aid]" title="$vbphrase[gwe_first_aid] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/skill/First_Aid.png" alt="$vbphrase[gwe_first_aid]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_fishing]" title="$vbphrase[gwe_fishing] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/skill/Fishing.png" alt="$vbphrase[gwe_fishing]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	<th class="thead"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$vbphrase[gwe_riding]" title="$vbphrase[gwe_riding] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/skill/Riding.png" alt="$vbphrase[gwe_riding]" /><if condition="$vboptions['gwe_wikienable']"></a></if></th>
+	</if>
+</tr>
+
+$attendee_yes
+
+<if condition="$attendeecount['late'] > 0 && $vboptions[gwe_allowlate]">
+
+<tr>
+	<th class="thead" colspan="20" align="center">$vbphrase[yes] $vbphrase[gwe_late] ($attendeecount[late])</th>
+</tr>
+
+$attendee_late
+
+</if>
+
+<if condition="$attendeecount['maybe'] > 0 && $vboptions[gwe_allowmaybe]">
+
+<tr>
+	<th class="thead" colspan="20" align="center">$vbphrase[gwe_maybe] ($attendeecount[maybe])</th>
+</tr>
+
+$attendee_maybe
+
+</if>
+
+<if condition="$attendeecount['no'] > 0">
+
+<tr>
+	<th class="thead" colspan="20" align="center">$vbphrase[no] ($attendeecount[no])</th>
+</tr>
+
+$attendee_no
+
+</if>
+
+</table>
+
+<else />
+
+<br />
+
+</if>
+
+<if condition="$visitorbits">
+
+<br />
+
+<table class="tborder" width="100%" cellpadding="4" cellspacing="$stylevar[cellspacing]" border="0" align="center">
+<tr>
+	<th class="thead">$vbphrase[gwe_who_visited]</th>
+</tr>
+<tr>
+	<td class="alt1 smallfont">$visitorbits</td>
+</tr>
+</table>
+
+</if></if>]]></template>
+		<template name="gwe_signup_allow" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<div><label for="cb_signup"><input type="checkbox" name="gwe_signup" value="1" id="cb_signup" tabindex="3" <if condition="$eventinfo['gwe_signup']">checked</if> />$vbphrase[gwe_allow_signup]</label></div>]]></template>
+		<template name="gwe_signup_bit" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<tr style="border-top: 1px solid #6c98e1;">
+	<td class="alt1" rowspan="2"><a href="$vboptions[bburl]/member.php?u=$attendee[userid]">$attendee[username]</a></td>
+	<if condition="$attendee[armorydata] == 1">
+	<td class="alt2" nowrap="nowrap"><a href="http://<if condition="$vboptions['gwe_locale'] == 'EU'">eu<else />www</if>.wowarmory.com/character-sheet.xml?$attendee[charurl]" title="$attendee[guild]" target="_blank">$attendee[character]</a></td>
+	<td class="alt2" align="center">$attendee[level]</td>
+	<td class="alt1" align="center"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$attendee[race]" title="$attendee[race] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/race/$attendee[raceid]-$attendee[genderid].png" alt="$attendee[gender] $attendee[race]" /><if condition="$vboptions['gwe_wikienable']"></a><a href="$vboptions[gwe_wikilink]$attendee[class]" title="$attendee[class] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/class/$attendee[classid].png" alt="$attendee[class]" /><if condition="$vboptions['gwe_wikienable']"></a></if></td>
+	<td class="alt2 smallfont" align="left" nowrap="nowrap"><if condition="$attendee['spec1']"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$attendee[class] talents" title="$attendee[spec1phrase] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/spec/$attendee[classid]-$attendee[spec1].png" alt="$attendee[spec1phrase]" /><if condition="$vboptions['gwe_wikienable']"></a></if></if><if condition="$attendee['spec2']"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$attendee[class] talents" title="$attendee[spec2phrase] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/spec/$attendee[classid]-$attendee[spec2].png" alt="$attendee[spec2phrase]" /><if condition="$vboptions['gwe_wikienable']"></a></if></if></td>
+	<td class="alt2 smallfont" align="center" nowrap="nowrap"><span class="class_$attendee[classid]">$attendee[talent1]/$attendee[talent2]/$attendee[talent3]</span></td>
+	<td class="alt1 smallfont" align="right">$attendee[hp]</td>
+	<td class="alt2 smallfont" align="right"><if condition="$attendee[mp] != '100'">$attendee[mp]</if></td>
+	<td class="alt1 smallfont" align="right"><acronym title="Base: $attendee[strbase]"<if condition="$attendee[str] > $attendee[strbase]"> style="color: #1EFF00; cursor: help;"</if>>$attendee[str]</acronym></td>
+	<td class="alt2 smallfont" align="right"><acronym title="Base: $attendee[agibase]"<if condition="$attendee[agi] > $attendee[agibase]"> style="color: #1EFF00; cursor: help;"</if>>$attendee[agi]</acronym></td>
+	<td class="alt1 smallfont" align="right"><acronym title="Base: $attendee[stabase]"<if condition="$attendee[sta] > $attendee[stabase]"> style="color: #1EFF00; cursor: help;"</if>>$attendee[sta]</acronym></td>
+	<td class="alt2 smallfont" align="right"><acronym title="Base: $attendee[intbase]"<if condition="$attendee[int] > $attendee[intbase]"> style="color: #1EFF00; cursor: help;"</if>>$attendee[int]</acronym></td>
+	<td class="alt1 smallfont" align="right"><acronym title="Base: $attendee[spibase]"<if condition="$attendee[spi] > $attendee[spibase]"> style="color: #1EFF00; cursor: help;"</if>>$attendee[spi]</acronym></td>
+	<td class="alt2 smallfont" align="right"><acronym title="Base: $attendee[armbase]"<if condition="$attendee[arm] > $attendee[armbase]"> style="color: #1EFF00; cursor: help;"</if>>$attendee[arm]</acronym></td>
+	<if condition="$vboptions['gwe_show_prof']">
+	<td class="alt1 smallfont" nowrap="nowrap"><if condition="$attendee[prof1]"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$attendee[prof1]" title="$attendee[prof1] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/skill/$attendee[prof1].png" alt="$attendee[prof1]" /><if condition="$vboptions['gwe_wikienable']"></a></if> $attendee[skill1]</if></td>
+	<td class="alt2 smallfont" nowrap="nowrap"><if condition="$attendee[prof2]"><if condition="$vboptions['gwe_wikienable']"><a href="$vboptions[gwe_wikilink]$attendee[prof1]" title="$attendee[prof1] on $vboptions[gwe_wikilink]" target="_blank"></if><img class="inlineimg" style="border:0; width:20px; height:20px;" src="$stylevar[imgdir_misc]/gwowevents/icons/skill/$attendee[prof2].png" alt="$attendee[prof2]" /><if condition="$vboptions['gwe_wikienable']"></a></if> $attendee[skill2]</if></td>
+	</if>
+	<if condition="$vboptions['gwe_show_skills']">
+	<td class="alt1 smallfont" align="right">$attendee[cooking]</td>
+	<td class="alt2 smallfont" align="right">$attendee[firstaid]</td>
+	<td class="alt1 smallfont" align="right">$attendee[fishing]</td>
+	<td class="alt2 smallfont" align="right">$attendee[riding]</td>
+	</if>
+	<else />
+	<td class="alt2">$attendee[character]</td>
+	<td class="alt1" colspan="18"><img class="inlineimg" style="border:0; width:16px; height:16px;" src="$stylevar[imgdir_misc]/progress.gif" /> $vbphrase[gwe_waiting]</td>
+	</if>
+</tr>
+<tr>
+	<td class="alt1 smallfont" colspan="<if condition="$vboptions['gwe_show_prof'] && $vboptions['gwe_show_skills']">13<else /><if condition="$vboptions['gwe_show_prof'] && !$vboptions['gwe_show_skills']">9<else />11</if></if>"><if condition="$vboptions['gwe_commentenabled'] && $attendee['comment']">$attendee[comment]<else />&nbsp;</if></td>
+	<td class="alt1" colspan="6"><span class="smallfont" style="white-space:nowrap">$attendee[signup_date] <span class="time">$attendee[signup_time]</span></span></td>
+</tr>]]></template>
+		<template name="gwe_signup_charselect" templatetype="template" date="0" username="" version="1.0.0" />
+		<template name="gwe_signup_form" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<if condition="$bbuserinfo['userid'] && $eventinfo['gwe_signup'] && $vboptions['gwe_enabled']">
+<form action="calendar.php?do=getinfo&e=$eventinfo[eventid]" method="post">
+<input type="hidden" name="securitytoken" value="$bbuserinfo[securitytoken]" />
+<input type="hidden" name="do" value="getinfo" />
+<input type="hidden" name="gwe_do" value="signup" />
+<input type="hidden" name="e" value="$eventinfo[eventid]" />
+<input type="hidden" name="locale" value="$vboptions[gwe_locale]" />
+<if condition="$myinfo['response']">
+<input type="hidden" name="prevsign" value="$myinfo[date]" />
+</if>
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tbody>
+<tr>
+	<td class="tcat">
+	<a style="float:$stylevar[right]" href="#top" onclick="return toggle_collapse('gwe_signup')"><img id="collapseimg_gwe_signup" src="$stylevar[imgdir_button]/collapse_thead$vbcollapse[collapseimg_gwe_signup].gif" alt="" border="0" /></a>
+	$vbphrase[gwe_attendance]
+	</td>
+</tr>
+</tbody>
+<tbody id="collapseobj_gwe_signup" style="$vbcollapse[collapseobj_gwe_signup]">
+<tr>
+	<td class="alt1" align="center">
+		<if condition="$show['signupauth']">
+		<if condition="!$eventinfo['gwe_pre_signup'] || !$eventinfo['gwe_post_signup']">
+			<if condition="!$eventinfo['gwe_post_signup']">
+				Signup for this event is no longer available.
+			</if>
+			<if condition="!$eventinfo['gwe_pre_signup']">
+				<phrase 1="$vboptions[gwe_pre_signup]">$vbphrase[gwe_advanced_x_days]</phrase>
+			</if>
+		<else />
+		<if condition="!$character_select">
+			<a href="profile.php?do=editprofile">$vbphrase[gwe_add_characters]</a>
+		<else />
+		<div style="width:$stylevar[formwidth]" align="$stylevar[left]">
+		<if condition="$errormessage"><br /><span class="highlight">Error:</span> $errormessage<br /><br /></if>
+
+		<fieldset class="fieldset">
+			<legend>$vbphrase[gwe_character]</legend>
+			<table cellpadding="0" cellspacing="$stylevar[formspacer]" border="0">
+			<tr>
+				<td>
+				<select name="realmchar">
+					<option value="0">- $vbphrase[please_select_one] -</option>
+					$character_select
+				</select>
+				</td>
+			</tr>
+			</table>
+		</fieldset>
+
+		<fieldset class="fieldset">
+			<legend>$vbphrase[gwe_attendance]</legend>
+			<div style="padding:$stylevar[formspacer]px">
+				<input type="radio" name="response" value="1" <if condition="$myinfo['response'] == '1'">checked</if> />$vbphrase[yes]<if condition="$vboptions[gwe_allowlate]"> $vbphrase[gwe_ontime]</if>
+				<if condition="$vboptions[gwe_allowlate]"><input type="radio" name="response" value="2" <if condition="$myinfo['response'] == '2'">checked</if> />$vbphrase[yes] $vbphrase[gwe_late]</if>
+				<if condition="$vboptions[gwe_allowmaybe]"><input type="radio" name="response" value="3" <if condition="$myinfo['response'] == '3'">checked</if> />$vbphrase[gwe_maybe]</if>
+				<input type="radio" name="response" value="4" <if condition="$myinfo['response'] == '4'">checked</if> />$vbphrase[no]
+			</div>
+		</fieldset>
+
+		<if condition="$vboptions['gwe_commentenabled']">
+		<fieldset class="fieldset">
+			<legend>$vbphrase[gwe_comment]</legend>
+			<div style="padding:$stylevar[formspacer]px">
+				<textarea name="comment" rows="4" cols="50" wrap="virtual" style="width:$stylevar[messagewidth]">$myinfo[comment]</textarea>
+			</div>
+		</fieldset>
+		</if>
+		</if>
+	</div>
+
+	<div style="margin-top:$stylevar[cellpadding]px">
+		<input type="submit" class="button" value="$vbphrase[submit]" accesskey="s" />
+		<input type="reset" class="button" name="reset" value="$vbphrase[reset_fields]" accesskey="r" />
+	</div>
+	</if>
+	<else />
+		$vbphrase[gwe_noauth]
+	</if>
+	</td>
+</tr>
+<tr>
+	<td colspan="6" class="tfoot">
+		<div class="smallfont" style="width: 400px; float: left; text-align: left;">$vbphrase[gllc_x_copy_x]</div>
+	</td>
+</tr>
+</tbody>
+</table>
+
+</form>
+</if>]]></template>
+		<template name="gwe_visitorbit" templatetype="template" date="0" username="" version="1.0.0"><![CDATA[<a href="member.php?$session[sessionurl]u=$user[userid]" title="$user[view_date] $user[view_time]">$user[musername]</a>$user[invisiblemark]$user[buddymark], ]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Cache Additional Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gwe_signup';
+$globaltemplates[] = 'gwe_signup_allow';
+$globaltemplates[] = 'gwe_signup_bit';
+$globaltemplates[] = 'gwe_signup_form';
+$globaltemplates[] = 'gwe_visitorbit';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Event Creation Signup Option</title>
+			<hookname>calendar_add_complete</hookname>
+			<phpcode><![CDATA[if (!$vbulletin->options['gwe_calendar'] || in_array($calendarinfo['calendarid'], explode(',', $vbulletin->options['gwe_calendar'])))
+{
+	eval('$disablesmiliesoption .= "' . fetch_template('gwe_signup_allow') . '";');
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Event edit Signup Option</title>
+			<hookname>calendar_edit_complete</hookname>
+			<phpcode><![CDATA[if (!$vbulletin->options['gwe_calendar'] || in_array($calendarinfo['calendarid'], explode(',', $vbulletin->options['gwe_calendar'])))
+{
+	eval('$disablesmiliesoption .= "' . fetch_template('gwe_signup_allow') . '";');
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Add signups to Event Description</title>
+			<hookname>calendar_getday_event</hookname>
+			<phpcode><![CDATA[	require_once('./includes/functions_gwowevents.php');
+	$vbphrase['gllc_x_copy_x'] = construct_phrase('%s, Copyright &copy; 2006 - %s, <a href="https://github.com/ghryphen" target="_blank">Ghryphen</a>', 'gWoWEvents', $copyrightyear);
+
+	// Signup POST
+	if ($_REQUEST['gwe_do'] == 'signup' AND $_REQUEST['do'] == 'getinfo')
+	{
+		$vbulletin->input->clean_array_gpc('p', array(
+			'response' => TYPE_INT,
+			'realmchar' => TYPE_STR,
+			'locale' => TYPE_STR,
+			'comment' => TYPE_NOHTML,
+			'prevsign' => TYPE_INT
+		));
+
+		list($submit['realm'], $submit['character']) = explode(".", $vbulletin->GPC['realmchar']);
+
+		if (strlen($vbulletin->GPC['comment']) > $vbulletin->options['gwe_commentmax'])
+		{
+			$submit['comment'] = substr($vbulletin->GPC['comment'], 0, $vbulletin->options['gwe_commentmax'] - 3) . '...';
+		}
+		else
+		{
+			$submit['comment'] = $vbulletin->GPC['comment'];
+		}
+
+		if ($vbulletin->GPC['realmchar'] != '0' && in_array($vbulletin->GPC['response'], array('1', '2', '3', '4')))
+		{
+			$makepost = true;
+			$errormessage = '';
+
+			if ($vbulletin->options['gwe_commentenabled'] && ($vbulletin->GPC['response'] == '2' || $vbulletin->GPC['response'] == '3'))
+			{
+				if(strlen($submit['comment']) < $vbulletin->options['gwe_commentmin'])
+				{
+					$makepost = false;
+					$errormessage = construct_phrase($vbphrase['gwe_comment_required'], $vbulletin->options['gwe_commentmin']);
+				}
+				else
+				{
+					$makepost = true;
+				}
+			}
+		}
+
+		if ($makepost)
+		{
+			$res = $db->query_read("SELECT * FROM	".TABLE_PREFIX."gwowevents WHERE `userid` = '" . $vbulletin->userinfo['userid'] . "' AND `armorydata` = '1' ORDER BY date DESC LIMIT 1");
+
+			while ($prev = $vbulletin->db->fetch_array($res))
+			{
+				$previous_data = "
+					`charurl` = '" . $prev['charurl'] . "' ,
+					`faction` = '" . $prev['faction'] . "' ,
+					`factionid` = '" . $prev['factionid'] . "' ,
+					`gender` = '" . $prev['gender'] . "' ,
+					`genderid` = '" . $prev['genderid'] . "' ,
+					`race` = '" . $prev['race'] . "' ,
+					`raceid` = '" . $prev['raceid'] . "' ,
+					`class` = '" . $prev['class'] . "' ,
+					`classid` = '" . $prev['classid'] . "' ,
+				";
+			}
+
+			$write_query = "
+				`eventid` = '" . $eventinfo['eventid'] . "' ,
+				`userid` = '" . $vbulletin->userinfo['userid'] . "' ,
+				`response` = '" . $vbulletin->GPC['response'] . "' ,
+				`comment` = '" . $db->escape_string($submit['comment']) . "' ,
+				`armorydata` = '" . 0 . "' ,
+				`locale` = '" . $db->escape_string($vbulletin->GPC['locale']) . "' ,
+				`realmchar` = '" . $db->escape_string($vbulletin->GPC['realmchar']) . "' ,
+				`realm` = '" . $db->escape_string($submit['realm']) . "' ,
+				`character` = '" . $db->escape_string($submit['character']) . "' ,
+				" . $previous_data . "
+			";
+
+			if ($vbulletin->GPC['prevsign'])
+			{
+				$write_query .= "`date` = '" . $vbulletin->GPC['prevsign'] . "' ,";
+			}
+			else
+			{
+				$write_query .= "`date` = '" . TIMENOW . "' ,";
+			}
+
+			$vbulletin->db->query_write("REPLACE INTO " . TABLE_PREFIX . "gwowevents SET " . $write_query . " changed = '" . TIMENOW . "'");
+		}
+	}
+	else
+	{
+		// Log visitors
+		if ($vbulletin->userinfo['userid'] && $eventinfo['eventid'])
+		{
+			$vbulletin->db->query_write("
+				REPLACE INTO " . TABLE_PREFIX . "gwowevents_visitor
+					(eventid, visitorid, dateline, visible)
+				VALUES
+					(
+						" . $eventinfo['eventid'] . ",
+						" . $vbulletin->userinfo['userid'] . ",
+						" . TIMENOW . ",
+						" . ($vbulletin->userinfo['options'] & $vbulletin->bf_misc_useroptions['invisible'] ? 0 : 1) . "
+					)
+			");
+		}
+	}
+
+	// Permission
+	if (is_member_of($vbulletin->userinfo, explode(',', $vbulletin->options['gwe_usergroup'])))
+	{
+		$show['signupauth'] = 1;
+	}
+
+	// Allow Pre signup
+	if((TIMENOW + $offset + ($vbulletin->options['gwe_pre_signup'] * 86400)) >= $eventinfo['dateline_to_user'])
+	{
+		$eventinfo['gwe_pre_signup'] = true;
+	}
+	else
+	{
+		$eventinfo['gwe_pre_signup'] = false;
+	}
+
+	// Allow Post signup
+	if(TIMENOW <= $eventinfo['dateline_from_user'])
+	{
+		$eventinfo['gwe_post_signup'] = true;
+	}
+	else
+	{
+		$eventinfo['gwe_post_signup'] = false;
+	}
+
+	// Vistor output
+	if($show['signupauth'] && $eventinfo['eventid'] && $vbulletin->options['gwe_show_visitors'])
+	{
+		$visitors_db = $vbulletin->db->query_read_slave("
+			SELECT user.userid, user.username, user.usergroupid, user.displaygroupid, gwowevents_visitor.visible, gwowevents_visitor.dateline
+			FROM " . TABLE_PREFIX . "gwowevents_visitor AS gwowevents_visitor
+			INNER JOIN " . TABLE_PREFIX . "user AS user ON (user.userid = gwowevents_visitor.visitorid)
+			WHERE gwowevents_visitor.eventid = " . $eventinfo['eventid'] . "
+				" . (!($vbulletin->userinfo['permissions']['genericpermissions'] & $vbulletin->bf_ugp_genericpermissions['canseehidden']) ? " AND (visible = 1 OR gwowevents_visitor.visitorid = " . $vbulletin->userinfo['userid'] . ")" : "") . "
+			ORDER BY user.username ASC
+		");
+
+		$visitors = array();
+		while ($user = $vbulletin->db->fetch_array($visitors_db))
+		{
+			$visitors["$user[username]"] = $user;
+		}
+
+		uksort($visitors, 'strnatcasecmp');
+
+		if (!is_array($buddylist))
+		{
+			if ($vbulletin->userinfo['buddylist'] = trim($vbulletin->userinfo['buddylist']))
+			{
+				$buddylist = preg_split('/\s+/', $vbulletin->userinfo['buddylist'], -1, PREG_SPLIT_NO_EMPTY);
+			}
+			else
+			{
+				$buddylist = array();
+			}
+		}
+
+		$visitorbits = '';
+		foreach ($visitors AS $user)
+		{
+			fetch_musername($user);
+			$user['invisiblemark'] = !$user['visible'] ? '*' : '';
+			$user['buddymark'] = in_array($user['userid'], $buddylist) ? '+' : '';
+			$user['view_date'] = vbdate($vbulletin->options['dateformat'], $user['dateline'], 1);
+			$user['view_time'] = vbdate($vbulletin->options['timeformat'], $user['dateline']);
+			eval('$visitorbits .= "' . fetch_template('gwe_visitorbit') . '";');
+		}
+		$visitorbits = substr($visitorbits, 0, -2);
+	}
+
+	// fieldID or ID
+	if (is_numeric($vbulletin->options['gwe_fieldid']))
+	{
+		$gwe_fieldid = "field" . $vbulletin->options['gwe_fieldid'];
+	}
+	else
+	{
+		$gwe_fieldid = $vbulletin->options['gwe_fieldid'];
+	}
+
+	// Sort
+	switch($vbulletin->options['gwe_signup_sort'])
+	{
+		case 0: $orderby = "gwe.date"; break;
+		case 1: $orderby = "gwe.character"; break;
+		case 2: $orderby = "gwe.class"; break;
+	};
+
+	// Signups
+	$res = $db->query_read("
+		SELECT	gwe.*,
+			user.username,
+			userfield.$gwe_fieldid
+		FROM
+			".TABLE_PREFIX."gwowevents gwe
+		LEFT JOIN
+			".TABLE_PREFIX."userfield AS userfield ON userfield.userid = gwe.userid
+		LEFT JOIN
+			".TABLE_PREFIX."user AS user ON user.userid = gwe.userid
+		WHERE
+			eventid = 0".$eventinfo['eventid']."
+		ORDER BY
+			gwe.response ASC, ".$orderby."
+	");
+
+	while ($attendee = $db->fetch_array($res))
+	{
+		// Spec
+		if (is_numeric($attendee["talent1"]))
+		{
+			$spec = array($attendee["talent1"], $attendee["talent2"], $attendee["talent3"]);
+
+			arsort($spec);
+
+			$spec = array_keys($spec);
+
+			if ($attendee["talent" . ($spec[0] + 1)] == 0)
+			{
+				$attendee["spec1"] = "None";
+				$attendee["spec2"] = "";
+			} else {
+				$lim = $attendee["talent" . ($spec[0] + 1)] / 2;
+
+				if ($attendee["talent" . ($spec[2] + 1)] >= $lim)
+				{
+					$attendee["spec1"] = "Hybrid";
+					$attendee["spec2"] = "";
+				} else if ($attendee["talent" . ($spec[1] + 1)] >= $lim) {
+					$attendee["spec1"] = $spec[0] + 1;
+					$attendee["spec1phrase"] = $gwephrase['spec'][$attendee['classid']][$attendee['spec1']];
+					$attendee["spec2"] = $spec[1] + 1;
+					$attendee["spec2phrase"] = $gwephrase['spec'][$attendee['classid']][$attendee['spec2']];;
+				} else {
+					$attendee["spec1"] = $spec[0] + 1;
+					$attendee["spec1phrase"] = $gwephrase['spec'][$attendee['classid']][$attendee['spec1']];
+					$attendee["spec2"] = "";
+					$attendee["spec2phrase"] = "";
+				}
+			}
+
+		}
+		else
+		{
+			$attendee["spec1"] = "";
+			$attendee["spec2"] = "";
+		}
+
+		$attendee['signup_date'] = vbdate($vbulletin->options['dateformat'], $attendee['date'], 1);
+		$attendee['signup_time'] = vbdate($vbulletin->options['timeformat'], $attendee['date']);
+
+		if ($attendee['response'] == '1')
+		{
+			$attendeecount['yes']++;
+			$attendeeclasscount[$attendee['classid']]++;
+			eval('$attendee_yes .= "' . fetch_template('gwe_signup_bit') . '";');
+		}
+		if ($attendee['response'] == '2')
+		{
+			$attendeecount['late']++;
+			eval('$attendee_late .= "' . fetch_template('gwe_signup_bit') . '";');
+		}
+		if ($attendee['response'] == '3')
+		{
+			$attendeecount['maybe']++;
+			eval('$attendee_maybe .= "' . fetch_template('gwe_signup_bit') . '";');
+		}
+		if ($attendee['response'] == '4')
+		{
+			$attendeecount['no']++;
+			eval('$attendee_no .= "' . fetch_template('gwe_signup_bit') . '";');
+		}
+
+		// Setup users registered info
+		if ($attendee['userid'] == $vbulletin->userinfo['userid'])
+		{
+			$myinfo = $attendee;
+		}
+	}
+
+	// Character select menu
+	$chars = explode("\n", $vbulletin->userinfo[$gwe_fieldid]);
+
+	$charcount = 0;
+
+	foreach ($chars AS $item)
+	{
+		list($char['locale'], $char['realm'], $char['faction'], $char['character']) = explode("|", $item);
+
+		$char['character'] = trim($char['character']);
+		$char['realm'] = trim($char['realm']);
+		$char['realmchar'] = $char['realm'] . '.' . $char['character'];
+
+		if (!$vbulletin->options['gwe_allowserver'] || in_array($char['realm'], explode(',', $vbulletin->options['gwe_allowserver'])))
+		{
+			if ($char['locale'] == $vbulletin->options['gwe_locale'])
+			{
+				if($myinfo['realmchar'] == $char['realmchar'])
+				{
+					$char_selected = 'selected';
+				}
+				else
+				{
+					$char_selected = '';
+				}
+
+				$character_select .= '<option value="' . $char['realmchar'] . '" ' . $char_selected . '>' . $char['realm'] . ' - ' . $char['character'] . '</option>'."\n";
+				$charcount++;
+			}
+		}
+
+		// Stops after first result if alts are not enabled
+		if ($charcount == 1 && !$vbulletin->options['gwe_allowalts'])
+		{
+			break;
+		}
+	}
+
+	$timenow = TIMENOW;
+
+	eval('$eventinfo[event] .= "' . fetch_template('gwe_signup') . '";');
+
+	eval('$gwowevents = "' . fetch_template('gwe_signup_form') . '";');]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Delete Event</title>
+			<hookname>calendar_manage_start</hookname>
+			<phpcode><![CDATA[if ($vbulletin->GPC['dodelete'])
+	{
+		$vbulletin->db->query("DELETE FROM " . TABLE_PREFIX . "gwowevents WHERE `eventid` = '" . $eventinfo['eventid'] . "'");
+	}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Update signup field</title>
+			<hookname>calendar_update_process</hookname>
+			<phpcode><![CDATA[$vbulletin->input->clean_gpc('p', 'gwe_signup', TYPE_BOOL);
+$eventdata->set('gwe_signup', $vbulletin->GPC['gwe_signup']);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Add signup fields to table</title>
+			<hookname>eventdata_start</hookname>
+			<phpcode><![CDATA[$this->validfields['gwe_signup'] = array(TYPE_UINT, REQ_NO);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Template Mod</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[$s = '</form>';
+
+	$t = str_replace( $s, $s . '\n<br />\n' . $vbulletin->templatecache["gwe_signup_form"], $vbulletin->templatecache["calendar_showeventsbit"] );
+	$vbulletin->templatecache["calendar_showeventsbit"] = $t;]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gWE: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gwe_'] = 'gWoWEvents';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Calendar" fieldname="calendar">
+			<phrase name="gwe_add_characters" date="0" username="" version="1.0.0"><![CDATA[Add characters to your profile to signup for this event.]]></phrase>
+			<phrase name="gwe_advanced_x_days" date="0" username="" version="1.0.0"><![CDATA[This event is not yet available for signup. Registration will be available {1} days prior to the start time for this event.]]></phrase>
+			<phrase name="gwe_agility" date="0" username="" version="1.0.0"><![CDATA[Agility]]></phrase>
+			<phrase name="gwe_allow_signup" date="0" username="" version="1.0.0"><![CDATA[Allow users to signup]]></phrase>
+			<phrase name="gwe_armor" date="0" username="" version="1.0.0"><![CDATA[Armor]]></phrase>
+			<phrase name="gwe_attend_on_x" date="0" username="" version="1.0.0"><![CDATA[Will you be able to attend on {1}?]]></phrase>
+			<phrase name="gwe_attendance" date="0" username="" version="1.0.0"><![CDATA[Event Attendance]]></phrase>
+			<phrase name="gwe_cancelled" date="0" username="" version="1.0.0"><![CDATA[Cancelled]]></phrase>
+			<phrase name="gwe_character" date="0" username="" version="1.0.0"><![CDATA[Character]]></phrase>
+			<phrase name="gwe_class" date="0" username="" version="1.0.0"><![CDATA[Class]]></phrase>
+			<phrase name="gwe_comment" date="0" username="" version="1.0.0"><![CDATA[Comment]]></phrase>
+			<phrase name="gwe_comment_required" date="0" username="" version="1.0.0"><![CDATA[Comment less than {1} characters.]]></phrase>
+			<phrase name="gwe_confirmed" date="0" username="" version="1.0.0"><![CDATA[Confirmed]]></phrase>
+			<phrase name="gwe_cooking" date="0" username="" version="1.0.0"><![CDATA[Cooking]]></phrase>
+			<phrase name="gwe_death_knight" date="0" username="" version="1.0.0"><![CDATA[Death Knight]]></phrase>
+			<phrase name="gwe_druid" date="0" username="" version="1.0.0"><![CDATA[Druid]]></phrase>
+			<phrase name="gwe_first_aid" date="0" username="" version="1.0.0"><![CDATA[First Aid]]></phrase>
+			<phrase name="gwe_fishing" date="0" username="" version="1.0.0"><![CDATA[Fishing]]></phrase>
+			<phrase name="gwe_gender" date="0" username="" version="1.0.0"><![CDATA[Gender]]></phrase>
+			<phrase name="gwe_health" date="0" username="" version="1.0.0"><![CDATA[Health]]></phrase>
+			<phrase name="gwe_hunter" date="0" username="" version="1.0.0"><![CDATA[Hunter]]></phrase>
+			<phrase name="gwe_intellect" date="0" username="" version="1.0.0"><![CDATA[Intellect]]></phrase>
+			<phrase name="gwe_late" date="0" username="" version="1.0.0"><![CDATA[Late]]></phrase>
+			<phrase name="gwe_level" date="0" username="" version="1.0.0"><![CDATA[Level]]></phrase>
+			<phrase name="gwe_mage" date="0" username="" version="1.0.0"><![CDATA[Mage]]></phrase>
+			<phrase name="gwe_mana" date="0" username="" version="1.0.0"><![CDATA[Mana]]></phrase>
+			<phrase name="gwe_maxlength" date="0" username="" version="1.0.0"><![CDATA[Max Length]]></phrase>
+			<phrase name="gwe_maybe" date="0" username="" version="1.0.0"><![CDATA[Maybe]]></phrase>
+			<phrase name="gwe_name" date="0" username="" version="1.0.0"><![CDATA[Name]]></phrase>
+			<phrase name="gwe_noauth" date="0" username="" version="1.0.0"><![CDATA[You are not authorized to sign up for this event.]]></phrase>
+			<phrase name="gwe_ontime" date="0" username="" version="1.0.0"><![CDATA[On Time]]></phrase>
+			<phrase name="gwe_paladin" date="0" username="" version="1.0.0"><![CDATA[Paladin]]></phrase>
+			<phrase name="gwe_priest" date="0" username="" version="1.0.0"><![CDATA[Priest]]></phrase>
+			<phrase name="gwe_race" date="0" username="" version="1.0.0"><![CDATA[Race]]></phrase>
+			<phrase name="gwe_riding" date="0" username="" version="1.0.0"><![CDATA[Riding]]></phrase>
+			<phrase name="gwe_rogue" date="0" username="" version="1.0.0"><![CDATA[Rogue]]></phrase>
+			<phrase name="gwe_shaman" date="0" username="" version="1.0.0"><![CDATA[Shaman]]></phrase>
+			<phrase name="gwe_signedup" date="0" username="" version="1.0.0"><![CDATA[Signed Up]]></phrase>
+			<phrase name="gwe_spec" date="0" username="" version="1.0.0"><![CDATA[Spec]]></phrase>
+			<phrase name="gwe_spirit" date="0" username="" version="1.0.0"><![CDATA[Spirit]]></phrase>
+			<phrase name="gwe_stamina" date="0" username="" version="1.0.0"><![CDATA[Stamina]]></phrase>
+			<phrase name="gwe_strength" date="0" username="" version="1.0.0"><![CDATA[Strength]]></phrase>
+			<phrase name="gwe_time" date="0" username="" version="1.0.0"><![CDATA[Time]]></phrase>
+			<phrase name="gwe_total" date="0" username="" version="1.0.0"><![CDATA[Total]]></phrase>
+			<phrase name="gwe_waiting" date="0" username="" version="1.0.0"><![CDATA[Awaiting Armory data import...]]></phrase>
+			<phrase name="gwe_warlock" date="0" username="" version="1.0.0"><![CDATA[Warlock]]></phrase>
+			<phrase name="gwe_warrior" date="0" username="" version="1.0.0"><![CDATA[Warrior]]></phrase>
+			<phrase name="gwe_who_visited" date="0" username="" version="1.0.0"><![CDATA[Who has viewed this calendar event]]></phrase>
+		</phrasetype>
+		<phrasetype name="Scheduled Tasks" fieldname="cron">
+			<phrase name="task_gwowevents_desc" date="0" username="" version="1.0.0"><![CDATA[Imports Armory data for gWoWEvents attendees.]]></phrase>
+			<phrase name="task_gwowevents_log" date="0" username="" version="1.0.0"><![CDATA[{1}]]></phrase>
+			<phrase name="task_gwowevents_title" date="0" username="" version="1.0.0"><![CDATA[gWoWEvents Armory Import]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gwe_pre_signup_desc" date="0" username="" version="1.0.0"><![CDATA[How many days before an event may a user signup.]]></phrase>
+			<phrase name="setting_gwe_pre_signup_title" date="0" username="" version="1.0.0"><![CDATA[Early Signup]]></phrase>
+			<phrase name="setting_gwe_allowalts_desc" date="0" username="" version="1.0.0"><![CDATA[Allows users to signup with characters that are not listed as their first entry.]]></phrase>
+			<phrase name="setting_gwe_allowalts_title" date="0" username="" version="1.0.0"><![CDATA[Allow Alternates]]></phrase>
+			<phrase name="setting_gwe_allowlate_desc" date="0" username="" version="1.0.0"><![CDATA[Allows users who can make but will be late signup for an event.]]></phrase>
+			<phrase name="setting_gwe_allowlate_title" date="0" username="" version="1.0.0"><![CDATA[Allow Late Signups]]></phrase>
+			<phrase name="setting_gwe_allowmaybe_desc" date="0" username="" version="1.0.0"><![CDATA[Allows users to maybe signup for an event.]]></phrase>
+			<phrase name="setting_gwe_allowmaybe_title" date="0" username="" version="1.0.0"><![CDATA[Allow Maybe Signups]]></phrase>
+			<phrase name="setting_gwe_allowserver_desc" date="0" username="" version="1.0.0"><![CDATA[Comma separated list of servers which are allowed to sign up for events.]]></phrase>
+			<phrase name="setting_gwe_allowserver_title" date="0" username="" version="1.0.0"><![CDATA[Allowed Servers]]></phrase>
+			<phrase name="setting_gwe_alternate_desc" date="0" username="" version="1.0.0"><![CDATA[Yes to enable alternates. No to disable alternates.]]></phrase>
+			<phrase name="setting_gwe_alternate_title" date="0" username="" version="1.0.0"><![CDATA[Alternates]]></phrase>
+			<phrase name="setting_gwe_calendar_desc" date="0" username="" version="1.0.0"><![CDATA[Comma separated list of calendars.]]></phrase>
+			<phrase name="setting_gwe_calendar_title" date="0" username="" version="1.0.0"><![CDATA[Enabled Calendars]]></phrase>
+			<phrase name="setting_gwe_commentenabled_desc" date="0" username="" version="1.0.0"><![CDATA[Allow users to submit comments.]]></phrase>
+			<phrase name="setting_gwe_commentenabled_title" date="0" username="" version="1.0.0"><![CDATA[Enable Comments]]></phrase>
+			<phrase name="setting_gwe_commentmax_desc" date="0" username="" version="1.0.0"><![CDATA[Set this to the maximum character length allowed for signup comments.]]></phrase>
+			<phrase name="setting_gwe_commentmax_title" date="0" username="" version="1.0.0"><![CDATA[Maximum Comment Length]]></phrase>
+			<phrase name="setting_gwe_commentmin_desc" date="0" username="" version="1.0.0"><![CDATA[Set this to the minimum character length allowed for Late and Maybe signup comments.]]></phrase>
+			<phrase name="setting_gwe_commentmin_title" date="0" username="" version="1.0.0"><![CDATA[Minimum Comment Length]]></phrase>
+			<phrase name="setting_gwe_disablesignup_desc" date="0" username="" version="1.0.0"><![CDATA[Choose when signups should be disabled for an event.]]></phrase>
+			<phrase name="setting_gwe_disablesignup_title" date="0" username="" version="1.0.0"><![CDATA[Disable Signup Time]]></phrase>
+			<phrase name="setting_gwe_enabled_desc" date="0" username="" version="1.0.0"><![CDATA[Enable/Disable signups for all events.]]></phrase>
+			<phrase name="setting_gwe_enabled_title" date="0" username="" version="1.0.0"><![CDATA[Signup Enabled]]></phrase>
+			<phrase name="setting_gwe_fieldid_desc" date="0" username="" version="1.0.0"><![CDATA[Enter the field id number associated with the user profile field you created.]]></phrase>
+			<phrase name="setting_gwe_fieldid_title" date="0" username="" version="1.0.0"><![CDATA[Profile field ID]]></phrase>
+			<phrase name="setting_gwe_locale_desc" date="0" username="" version="1.0.0"><![CDATA[Enter US for United States and EU for European]]></phrase>
+			<phrase name="setting_gwe_locale_title" date="0" username="" version="1.0.0"><![CDATA[Enter Your WoW Locale]]></phrase>
+			<phrase name="setting_gwe_localization_desc" date="0" username="" version="1.0.0"><![CDATA[This is the language in which the talent will be displayed.]]></phrase>
+			<phrase name="setting_gwe_localization_title" date="0" username="" version="1.0.0"><![CDATA[Localization]]></phrase>
+			<phrase name="setting_gwe_show_prof_desc" date="0" username="" version="1.0.0"><![CDATA[Enable profession display in main table.]]></phrase>
+			<phrase name="setting_gwe_show_prof_title" date="0" username="" version="1.0.0"><![CDATA[Show professions]]></phrase>
+			<phrase name="setting_gwe_show_skills_desc" date="0" username="" version="1.0.0"><![CDATA[Enable basic skill display in main table.]]></phrase>
+			<phrase name="setting_gwe_show_skills_title" date="0" username="" version="1.0.0"><![CDATA[Show skills]]></phrase>
+			<phrase name="setting_gwe_show_visitors_desc" date="0" username="" version="1.1.0"><![CDATA[Display who has viewed the calendar events.]]></phrase>
+			<phrase name="setting_gwe_show_visitors_title" date="0" username="" version="1.1.0"><![CDATA[Show Visitors]]></phrase>
+			<phrase name="setting_gwe_signup_sort_desc" date="0" username="" version="1.1.0"><![CDATA[This is the field that will be used to sort the member sign ups on the event attendance page.]]></phrase>
+			<phrase name="setting_gwe_signup_sort_title" date="0" username="" version="1.1.0"><![CDATA[What field should signups be sorted on?]]></phrase>
+			<phrase name="setting_gwe_uninstall_history_desc" date="0" username="" version="1.1.0"><![CDATA[Select Yes if you wish to delete signup data when uninstalling.]]></phrase>
+			<phrase name="setting_gwe_uninstall_history_title" date="0" username="" version="1.1.0"><![CDATA[Uninstall History]]></phrase>
+			<phrase name="setting_gwe_usergroup_desc" date="0" username="" version="1.1.0"><![CDATA[Usergroup ID's which can access the sign up form.]]></phrase>
+			<phrase name="setting_gwe_usergroup_title" date="0" username="" version="1.1.0"><![CDATA[Usergroups]]></phrase>
+			<phrase name="setting_gwe_wikienable_desc" date="0" username="" version="1.0.0"><![CDATA[Enable links to skills, talents, etc. to Wiki]]></phrase>
+			<phrase name="setting_gwe_wikienable_title" date="0" username="" version="1.0.0"><![CDATA[Enable Wiki links]]></phrase>
+			<phrase name="setting_gwe_wikilink_desc" date="0" username="" version="1.0.0"><![CDATA[Url to the wiki you wish to use for linking]]></phrase>
+			<phrase name="setting_gwe_wikilink_title" date="0" username="" version="1.0.0"><![CDATA[Wiki link url]]></phrase>
+			<phrase name="setting_gwe_xcopyright_desc" date="0" username="" version="1.0.0"><![CDATA[If you find this mod useful and would like to<br />make a donation, please click the PayPal link. Thank you :)]]></phrase>
+			<phrase name="setting_gwe_xcopyright_title" date="0" username="" version="1.0.0"><![CDATA[<a href="https://github.com/ghryphen" target="_blank">Copyright &copy; Ghryphen</a>]]></phrase>
+			<phrase name="settinggroup_gwe_calendar_settings" date="0" username="" version="1.0.0"><![CDATA[gWoWEvents]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gwe_calendar_settings" displayorder="61400">
+			<setting varname="gwe_enabled" displayorder="0">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_calendar" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwe_usergroup" displayorder="11">
+				<datatype>free</datatype>
+				<defaultvalue>5,6,7</defaultvalue>
+			</setting>
+			<setting varname="gwe_pre_signup" displayorder="12">
+				<datatype>number</datatype>
+				<defaultvalue>7</defaultvalue>
+			</setting>
+			<setting varname="gwe_commentenabled" displayorder="20">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_commentmax" displayorder="30">
+				<datatype>number</datatype>
+				<defaultvalue>150</defaultvalue>
+			</setting>
+			<setting varname="gwe_commentmin" displayorder="35">
+				<datatype>number</datatype>
+				<defaultvalue>10</defaultvalue>
+			</setting>
+			<setting varname="gwe_show_prof" displayorder="40">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_show_skills" displayorder="50">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwe_show_visitors" displayorder="55">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_localization" displayorder="60">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+enGB|English
+deDE|German
+frFR|French
+</optioncode>
+				<defaultvalue>enGB</defaultvalue>
+			</setting>
+			<setting varname="gwe_signup_sort" displayorder="70">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+0|Signup Date
+1|Signup Name
+2|Signup Class
+</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwe_locale" displayorder="80">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+US|US Armory
+EU|EU Armory
+</optioncode>
+				<defaultvalue>US</defaultvalue>
+			</setting>
+			<setting varname="gwe_disablesignup" displayorder="90">
+				<datatype>free</datatype>
+				<optioncode>select:piped
+0|Never
+1|Event Start Time
+2|Event End Time
+</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwe_allowserver" displayorder="100">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gwe_allowmaybe" displayorder="110">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_allowlate" displayorder="111">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_allowalts" displayorder="120">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_fieldid" displayorder="130">
+				<datatype>number</datatype>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwe_wikienable" displayorder="150">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="gwe_wikilink" displayorder="160">
+				<datatype>free</datatype>
+				<defaultvalue>http://www.wowwiki.com/</defaultvalue>
+			</setting>
+			<setting varname="gwe_uninstall_history" displayorder="170">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="gwe_xcopyright" displayorder="9999">
+				<datatype>free</datatype>
+				<optioncode><![CDATA[<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ghryphen%40gmail%2ecom&item_name=gWoWEvents&no_shipping=1&return=https%3a%2f%2fgithub%2ecom%2fghryphen&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8\" target=\"_blank\"><img src=\"https://www.paypal.com/en_US/i/btn/x-click-butcc-donate.gif\" alt=\"PayPal - The safer, easier way to pay online!\" border=\"0\" /></a>]]></optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+		<cron varname="gwowevents" active="1" loglevel="1">
+			<filename>./includes/cron/cron.gwowevents.charinfo.php</filename>
+			<scheduling weekday="-1" day="-1" hour="-1" minute="5,15,25,35,45,55" />
+		</cron>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

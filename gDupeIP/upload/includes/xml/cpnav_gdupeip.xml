@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<navgroups product="gDupeIP">
+	<navgroup phrase="users" permissions="canadminusers" displayorder="110">
+		<navoption displayorder="120">
+			<text>gDupeIP</text>
+			<link>gdupeip.php</link>
+		</navoption>
+	</navgroup>
+</navgroups>

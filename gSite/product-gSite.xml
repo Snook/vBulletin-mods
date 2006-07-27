@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gSite, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gSite, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gSite.xml 947 2008-02-20 23:01:47Z ghryphen $
+	// $Rev: 947 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-02-20 15:01:47 -0800 (Wed, 20 Feb 2008) $
+-->
+
+<product productid="gsite" active="1">
+	<title>gSite</title>
+	<description>gSite</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gsite_evestatus_bit" templatetype="template" date="0" username="" version=""><![CDATA[<tr>
+	<td class="alt1" <if condition="$everealm[m]">rowspan="2"</if> align="center"><img src="$stylevar[imgdir_misc]/grealmstatus/$everealm[s].gif" alt="$everealm[s]" /></td>
+	<td class="alt2">$everealm[n]</td>
+	<td class="alt1">$everealm[u]</td>
+</tr>
+<if condition="$everealm[m]">
+<tr>
+	<td class="alt2 smallfont" colspan="2">$everealm[m]</td>
+</tr>
+</if>]]></template>
+		<template name="gsite_main" templatetype="template" date="0" username="" version=""><![CDATA[$stylevar[htmldoctype]
+<html dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+$headinclude
+<title>$vboptions[bbtitle]</title>
+</head>
+<body>
+
+$header
+
+<br />
+
+<if condition="$show['notices']">
+	<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+	<tr>
+		<td class="thead">$vbphrase[notices]</td>
+	</tr>
+	<tr>
+		<td class="alt1">$notices</td>
+	</tr>
+	</table>
+	<br />
+</if>
+
+<if condition="$show['forumdesc']">
+	<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+	<tr>
+		<td class="alt1" width="100%"><strong>$foruminfo[title]</strong> <span class="smallfont">$foruminfo[description]</span></td>
+	</tr>
+	</table>
+	<br />
+</if>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" align="center">
+<tr>
+<td valign="top">
+  <div style="width: 680px; float: left;">
+
+  	$content
+
+	</div>
+	<div style="width: 250px; float: right;">
+
+$gsite_nav
+
+		<br />
+
+<if condition="$gxfirestatus_total_online">
+		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+		  <td class="tcat">Xfire Status</td>
+		</tr>
+		<tr>
+		  <td class="alt1 smallfont">
+		  <div>$gxfirestatus_activeusers</div>
+		  </td>
+		</tr>
+		</table>
+
+		<br />
+</if>
+
+<if condition="$gxboxstatus_total_online">
+		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+		  <td class="tcat">Xbox Status</td>
+		</tr>
+		<tr>
+		  <td class="alt1 smallfont">
+		  <div>$gxboxstatus_activeusers</div>
+		  </td>
+		</tr>
+		</table>
+
+		<br />
+</if>
+
+<if condition="$realmstatus">
+		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+		  <td colspan="4" class="tcat">WoW Realm Status</td>
+		</tr>
+		<tr>
+		  <td class="thead">Status</td>
+		  <td class="thead">Realm</td>
+		  <td class="thead">Type</td>
+		  <td class="thead">Load</td>
+		</tr>
+
+		  $realmstatus
+
+<if condition="$wowalert">
+		<tr>
+		  <td colspan="4" class="tcat"><img class="inlineimg" src="images/icons/icon4.gif"> WoW Alert</td>
+		</tr>
+		<tr>
+		  <td colspan="4" class="alt1 smallfont">$wowalert</td>
+		</tr>
+</if>
+
+		</table>
+		<br />
+</if>
+
+		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+		  <td colspan="4" class="tcat">EVE Online Server Status</td>
+		</tr>
+		<tr>
+		  <td class="thead">Status</td>
+		  <td class="thead">Server</td>
+		  <td class="thead">Users</td>
+		</tr>
+
+	  	$eveserverstatus
+
+		</table>
+
+		<br />
+
+<script src="http://gmodules.com/ig/ifr?url=http://ghryphen.googlepages.com/wowdb.xml&amp;up_target=0&amp;up_showsubmit=0&amp;up_poweredby=1&amp;up_showabout=0&amp;up_disablenotice=0&amp;up_tabdisplay=icons&amp;up_armorylocale=us&amp;up_armorydefault=default&amp;up_s_0=1&amp;up_s_1=1&amp;up_s_2=1&amp;up_s_3=1&amp;up_s_4=1&amp;up_s_5=1&amp;up_s_6=1&amp;up_s_7=1&amp;up_s_8=1&amp;up_s_9=1&amp;up_s_10=1&amp;up_s_11=1&amp;up_s_12=1&amp;up_s_13=1&amp;up_s_14=1&amp;up_showmsg=1&amp;up_msgversion=0&amp;up_selectedTab=&amp;up_selectedWowDB=&amp;synd=open&amp;w=234&amp;h=60&amp;title=World+of+Warcraft+Database+Search&amp;border=http%3A%2F%2Fgmodules.com%2Fig%2Fimages%2F&amp;output=js"></script>
+
+		<br />
+
+<if condition="!is_member_of($bbuserinfo, 2,5,6,7)">
+<script type="text/javascript"><!--
+google_ad_client = "pub-0748426439798637";
+google_ad_width = 250;
+google_ad_height = 250;
+google_ad_format = "250x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="5773200094";
+google_color_border = "260000";
+google_color_bg = "202020";
+google_color_link = "$gsite[google_color_link]";
+google_color_url = "DAAE52";
+google_color_text = "$gsite[google_color_text]";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script><br /><br />
+</if>
+
+		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<tr>
+		  <td class="tcat smallfont"><a href="gteamspeak.php">TeamSpeak</a></td>
+		</tr>
+		<tr>
+		  <td class="alt1">
+<div style="width:100%; height: 600px; overflow: auto;">
+		  	$tsdisplayout
+</div>
+		  </td>
+		</tr>
+		</table>
+
+	</div>
+
+</td>
+</tr>
+</table>
+
+<br />
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="gsite_nav" templatetype="template" date="0" username="" version=""><![CDATA[		<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		  <tr>
+		    <td class="tcat">Menu</td>
+		  </tr>
+		  <tr>
+		    <td class="alt1">
+		      <div style="font-weight: bold; font: 20px;">
+						<a href="/">Home</a><br />
+						<a href="forum.php">Forum</a><br />
+						<a href="geditorial.php">Editorials</a><br />
+						<a href="group.php">Social Groups</a><br />
+						<a href="gwowroster.php">WoW Roster</a><br />
+						<a href="girchat.php">Chat</a><br />
+						<a href="gteamspeak.php">TeamSpeak</a><br />
+						<a href="gxboxlive.php">Xbox Leaderboard</a><br />
+						<a href="gviptracker.php">VIP Tracker</a><br />
+						<a href="gdownloads.php">Downloads</a><br />
+						<a href="arcade.php">Arcade</a><br />
+						<a href="calendar.php">Calendar</a><br />
+		      </div>
+		    </td>
+		  </tr>
+		</table>]]></template>
+		<template name="gsite_news_bit" templatetype="template" date="0" username="" version=""><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+  <tr>
+    <td class="tcat"><a href="showthread.php?t=$news[threadid]" style="font-weight: bold; font: 20px;">$news[title]</a></td>
+  </tr>
+  <tr>
+    <td class="alt1">$news[news]</td>
+  </tr>
+</table>
+<br />
+]]></template>
+		<template name="gsite_realmstatus_bit" templatetype="template" date="0" username="" version=""><![CDATA[<tr>
+	<td class="alt1" align="center"><img src="$stylevar[imgdir_misc]/grealmstatus/$realm[s].gif" alt="$realm[s]" /></td>
+	<td class="alt2">$realm[n]</td>
+	<td class="alt1" align="center">$realm[t]</td>
+	<td class="alt2" align="center">$realm[l]</td>
+</tr>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gSite: Functions</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[require_once('./includes/functions_gsite.php');
+			$gsite['google_color_link'] = substr(gsite_color_choice('light'), 1);
+			$gsite['google_color_text'] = substr(gsite_color_choice('light'), 1);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gSite: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gsite_'] = 'gSite';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gsitenewsfile_desc" date="0" username="" version=""><![CDATA[Enter the file name for this script.]]></phrase>
+			<phrase name="setting_gsitenewsfile_title" date="0" username="" version=""><![CDATA[File Name for this Script]]></phrase>
+			<phrase name="setting_gsitenewsforum_desc" date="0" username="" version=""><![CDATA[Enter the forum id used for the news.]]></phrase>
+			<phrase name="setting_gsitenewsforum_title" date="0" username="" version=""><![CDATA[News Forum ID]]></phrase>
+			<phrase name="setting_gsitenewsname_desc" date="0" username="" version=""><![CDATA[Enter the name for this script.]]></phrase>
+			<phrase name="setting_gsitenewsname_title" date="0" username="" version=""><![CDATA[Name for this Script]]></phrase>
+			<phrase name="setting_gsitenewsnum_desc" date="0" username="" version=""><![CDATA[Choose how many news items you wish to display on the home page.]]></phrase>
+			<phrase name="setting_gsitenewsnum_title" date="0" username="" version=""><![CDATA[Number of News Items]]></phrase>
+			<phrase name="settinggroup_gsitenews" date="0" username="" version=""><![CDATA[gSite News]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gsitenews" displayorder="60700">
+			<setting varname="gsitenewsname" displayorder="10">
+				<datatype>free</datatype>
+				<defaultvalue>News</defaultvalue>
+			</setting>
+			<setting varname="gsitenewsfile" displayorder="20">
+				<datatype>free</datatype>
+				<defaultvalue>news.php</defaultvalue>
+			</setting>
+			<setting varname="gsitenewsforum" displayorder="30">
+				<datatype>free</datatype>
+				<defaultvalue>10</defaultvalue>
+			</setting>
+			<setting varname="gsitenewsnum" displayorder="40">
+				<datatype>free</datatype>
+				<defaultvalue>10</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gMapLocation, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gMapLocation, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gMapLocation.xml 921 2008-02-07 18:51:28Z ghryphen $
+	// $Rev: 921 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-02-07 10:51:28 -0800 (Thu, 07 Feb 2008) $
+-->
+
+<product productid="gmaplocation" active="1">
+	<title>gMapLocation</title>
+	<description>Display an embedded Google map in place of users location text.</description>
+	<version>1.0.1</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gml_memberinfo" templatetype="template" date="0" username="" version=""><![CDATA[<script type="text/javascript" src="http://www.google.com/jsapi?key=$vboptions[gml_apikey]"></script>
+<script language="Javascript" type="text/javascript">
+	google.load("maps", "2");
+
+	function showAddress()
+	{
+		var address1 = "$profilefield[value]";
+
+		var address2 = "$viewerlocation";
+
+		var viewermark = $vboptions[gml_viewermark];
+
+		if (address2 == "")
+		{
+			address2 = null;
+		}
+
+		if (GBrowserIsCompatible())
+		{
+			geocoder = new GClientGeocoder();
+		}
+
+		if (geocoder)
+		{
+			geocoder.getLatLng
+			(
+				address1,
+				function(point1)
+				{
+					if (point1)
+					{
+						document.getElementById("map_canvas").style.width = "$vboptions[gml_width]";
+						document.getElementById("map_canvas").style.height = "$vboptions[gml_height]";
+
+						map = new GMap2(document.getElementById("map_canvas"));
+						map.addControl(new GSmallMapControl());
+						map.addControl(new GMapTypeControl());
+						map.setCenter(point1, 3);
+
+						var marker = new GMarker(point1);
+						map.addOverlay(marker);
+
+						GEvent.addListener(marker, "click", function()
+						{
+							marker.openInfoWindowHtml("<span style='color:#000000;'>" + address1 + "</span>");
+						});
+
+						marker.openInfoWindowHtml("<span style='color:#000000;'>" + address1 + "</span>");
+
+						if (address2 && viewermark)
+						{
+							geocoder.getLatLng
+							(
+								address2,
+								function(point2)
+								{
+									if (point2)
+									{
+										var marker = new GMarker(point2);
+										map.addOverlay(marker);
+
+										GEvent.addListener(marker, "click", function()
+										{
+											marker.openInfoWindowHtml("<span style='color:#000000;'>You</span>");
+										});
+									}
+								}
+							);
+						}
+
+					}
+				}
+			);
+		}
+	}
+
+	google.setOnLoadCallback(showAddress);
+</script>
+
+<div id="map_canvas">$profilefield[value]</div>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gML: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gml_memberinfo';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gML: Member Custom Field</title>
+			<hookname>member_customfields</hookname>
+			<phpcode><![CDATA[global $vbulletin;
+
+$vbphrase['gllc_x_copy_x'] = construct_phrase('%s, Copyright &copy; 2006 - %s, Ghryphen', 'gMapLocation', date("Y"));
+
+if ($profilefield['profilefieldid'] == $vbulletin->options['gml_userfield'] && $vbulletin->options['gml_apikey'] && $profilefield['value'])
+{
+	$profilefield['title'] = $profilefield['title'] . ' <a href="https://github.com/ghryphen" taget="_blank" title="' . $vbphrase[gllc_x_copy_x] . '" style="text-decoration: none;">&copy;</a>';
+	
+	$viewerlocation = $vbulletin->userinfo["field" . $vbulletin->options['gml_userfield']];
+
+	eval('$profilefield[value] = "' . fetch_template('gml_memberinfo') . '";');
+
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gML: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gml_'] = 'gMapLocation';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gml_apikey_desc" date="0" username="" version="1.00"><![CDATA[Enter your <a href="http://code.google.com/apis/maps/signup.html" target="_blank">API key</a> for Google Maps.]]></phrase>
+			<phrase name="setting_gml_apikey_title" date="0" username="" version="1.00"><![CDATA[Google Maps API Key]]></phrase>
+			<phrase name="setting_gml_height_desc" date="0" username="" version="1.00"><![CDATA[Enter the map height.]]></phrase>
+			<phrase name="setting_gml_height_title" date="0" username="" version="1.00"><![CDATA[Map Height]]></phrase>
+			<phrase name="setting_gml_userfield_desc" date="0" username="" version="1.00"><![CDATA[Enter the profile field id for the users location. Example: field2]]></phrase>
+			<phrase name="setting_gml_userfield_title" date="0" username="" version="1.00"><![CDATA[Userfield ID]]></phrase>
+			<phrase name="setting_gml_viewermark_desc" date="0" username="" version="1.00"><![CDATA[Show the viewers marker on the profile in which they are viewing.]]></phrase>
+			<phrase name="setting_gml_viewermark_title" date="0" username="" version="1.00"><![CDATA[Display Viewer Marker]]></phrase>
+			<phrase name="setting_gml_width_desc" date="0" username="" version="1.00"><![CDATA[Enter the map width.]]></phrase>
+			<phrase name="setting_gml_width_title" date="0" username="" version="1.00"><![CDATA[Map Width]]></phrase>
+			<phrase name="settinggroup_gml_group1" date="0" username="" version="1.00"><![CDATA[gMapLocation]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gml_group1" displayorder="60600">
+			<setting varname="gml_userfield" displayorder="10">
+				<datatype>number</datatype>
+				<defaultvalue>2</defaultvalue>
+			</setting>
+			<setting varname="gml_apikey" displayorder="20">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gml_width" displayorder="30">
+				<datatype>free</datatype>
+				<defaultvalue>100%</defaultvalue>
+			</setting>
+			<setting varname="gml_height" displayorder="40">
+				<datatype>free</datatype>
+				<defaultvalue>300px</defaultvalue>
+			</setting>
+			<setting varname="gml_viewermark" displayorder="50">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

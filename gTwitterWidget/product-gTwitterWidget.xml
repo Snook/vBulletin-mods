@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTwitterWidget, Copyright © 2009, Ghryphen (github.com/ghryphen)
+	//
+	// If you have fixes, improvements or other additions to make to
+	// gMapLocation, please contact me at ghryphen@gmail.com for collaboration.
+	// I appreciate your kind consideration.
+	//
+	// This work is licensed under the Creative Commons
+	// Attribution-Noncommercial-No Derivative Works 3.0 United States License.
+	// To view a copy of this license, visit
+	// http://creativecommons.org/licenses/by-nc-nd/3.0/us/ or send a letter to
+	// Creative Commons, 171 Second Street, Suite 300,
+	// San Francisco, California, 94105, USA.
+	//
+	// ########################### SVN info ###################################
+	// $Id: product-gMapLocation.xml 921 2008-02-07 18:51:28Z ghryphen $
+	// $Rev: 921 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2008-02-07 10:51:28 -0800 (Thu, 07 Feb 2008) $
+-->
+
+<product productid="gtwitterwidget" active="1">
+	<title>gTwitterWidget</title>
+	<description>Display a twitter widget in the users profile.</description>
+	<version>1.0.0</version>
+	<url>https://github.com/ghryphen/vBulletin</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gtw_memberinfo_block_twitter" templatetype="template" date="1216001922" username="Ghryphen" version="1.0.0"><![CDATA[<div class="alt1 smallfont block_row">
+<script src="http://widgets.twimg.com/j/2/widget.js"></script>
+<script>
+new TWTR.Widget({
+  version: 2,
+  type: 'profile',
+  rpp: 30,
+  interval: 2000,
+  width: 'auto',
+  height: 300,
+  theme: {
+    shell: {
+      background: '#400000',
+      color: '#ffffff'
+    },
+    tweets: {
+      background: '#202020',
+      color: '#ffffff',
+      links: '#FF6633'
+    }
+  },
+  features: {
+    scrollbar: true,
+    loop: false,
+    live: true,
+    hashtags: true,
+    timestamp: true,
+    avatars: false,
+    behavior: 'all'
+  }
+}).render().setUser('$block_data[twitterid]').start();
+</script>
+</div>
+
+<div class="alt2 smallfont block_row block_footer">
+	<phrase 1="$block_data[twitterid]">$vbphrase[twitter_reply]</phrase>
+</div>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gML: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[if (THIS_SCRIPT === member)
+{
+	$globaltemplates[] = 'gtw_memberinfo_block_twitter';
+
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gML: Block in Profile</title>
+			<hookname>member_build_blocks_start</hookname>
+			<phpcode><![CDATA[switch ($vbulletin->options['twitterprofilelocation']) {
+	case '0': 
+		$twitter_hook = 'profile_left_first'; 
+		break;
+	case '1': 
+		$twitter_hook = 'profile_left_last'; 
+		break;
+	case '2': 
+		$twitter_hook = 'profile_right_first'; 
+		break;
+	case '3': 
+		$twitter_hook = 'profile_right_mini'; 
+		break;
+	case '4': 
+		$twitter_hook = 'profile_right_album'; 
+		break;
+	case '5': 
+		$twitter_hook = 'profile_right_last';
+		break;
+}	
+
+$blocklist = array_merge($blocklist, array(
+	'twitter_mini' => array(
+		'class' => 'Twitter',
+		'title' => $vbphrase['twitter'],
+		'hook_location' => $twitter_hook,
+		'options' => array(
+			'twitterid' => $userinfo[$vbulletin->options['twitterprofilefield']],
+			'maxtweets' => intval($vbulletin->options['twitternumber']),
+			'linkify' 	=> intval($vbulletin->options['twitterlinks']),
+			'twitterreplies' => intval($vbulletin->options['twitterreplies']),
+		)	
+	)
+));
+
+class vB_ProfileBlock_gTwitterWidget extends vB_ProfileBlock
+{
+	var $template_name = 'gtw_memberinfo_block_twitter';
+
+	function fetch_default_options()
+	{
+		$this->option_defaults = array(
+			'twitterid'	=> $this->profile->userinfo[$this->registry->options['twitterprofilefield']  ]
+		);
+	}
+	
+	function block_is_enabled($id)
+	{
+		return ($this->option_defaults['twitterid'] ? true : false);
+	}
+		
+	function confirm_empty_wrap()
+	{
+		return false;
+	}
+	
+	function prepare_output($id = '', $options = array())
+	{
+		global $vbphrase;
+		$this->block_data['tweets'] = intval($options['maxtweets']);
+		$this->block_data['linkify'] = intval($options['linkify']);
+		$this->block_data['twitterreplies'] = intval($options['twitterreplies']);
+		$this->block_data['twitterid'] = $this->option_defaults['twitterid'];
+	}
+
+	function confirm_display()
+	{
+		return ($this->block_data['twitterid'] != '');
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gML: Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['gtw_'] = 'gTwitterWidget';]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_gml_apikey_desc" date="0" username="" version="1.00"><![CDATA[Enter your <a href="http://code.google.com/apis/maps/signup.html" target="_blank">API key</a> for Google Maps.]]></phrase>
+			<phrase name="setting_gml_apikey_title" date="0" username="" version="1.00"><![CDATA[Google Maps API Key]]></phrase>
+			<phrase name="setting_gml_height_desc" date="0" username="" version="1.00"><![CDATA[Enter the map height.]]></phrase>
+			<phrase name="setting_gml_height_title" date="0" username="" version="1.00"><![CDATA[Map Height]]></phrase>
+			<phrase name="setting_gml_userfield_desc" date="0" username="" version="1.00"><![CDATA[Enter the profile field id for the users location. Example: field2]]></phrase>
+			<phrase name="setting_gml_userfield_title" date="0" username="" version="1.00"><![CDATA[Userfield ID]]></phrase>
+			<phrase name="setting_gml_viewermark_desc" date="0" username="" version="1.00"><![CDATA[Show the viewers marker on the profile in which they are viewing.]]></phrase>
+			<phrase name="setting_gml_viewermark_title" date="0" username="" version="1.00"><![CDATA[Display Viewer Marker]]></phrase>
+			<phrase name="setting_gml_width_desc" date="0" username="" version="1.00"><![CDATA[Enter the map width.]]></phrase>
+			<phrase name="setting_gml_width_title" date="0" username="" version="1.00"><![CDATA[Map Width]]></phrase>
+			<phrase name="settinggroup_gml_group1" date="0" username="" version="1.00"><![CDATA[gMapLocation]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="gml_group1" displayorder="60600">
+			<setting varname="gml_userfield" displayorder="10">
+				<datatype>number</datatype>
+				<defaultvalue>2</defaultvalue>
+			</setting>
+			<setting varname="gml_apikey" displayorder="20">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="gml_width" displayorder="30">
+				<datatype>free</datatype>
+				<defaultvalue>100%</defaultvalue>
+			</setting>
+			<setting varname="gml_height" displayorder="40">
+				<datatype>free</datatype>
+				<defaultvalue>300px</defaultvalue>
+			</setting>
+			<setting varname="gml_viewermark" displayorder="50">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

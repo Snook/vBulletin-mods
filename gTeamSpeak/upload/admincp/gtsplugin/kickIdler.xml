@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	// ########################################################################
+	//
+	// gTeamSpeak, Copyright © 2006, Ghryphen (github.com/ghryphen)
+	//
+	// ########################### SVN info ###################################
+	// $Id: kickIdler.xml 469 2007-03-01 18:45:34Z ghryphen $
+	// $Rev: 469 $
+	// $LastChangedBy: ghryphen $
+	// $Date: 2007-03-01 10:45:34 -0800 (Thu, 01 Mar 2007) $
+-->
+
+<gTeamSpeak>
+	<title>kickIdler</title>
+	<description>Allows you to kick people who have been idle for x minutes.</description>
+	<version>1.00</version>
+	<order>1</order>
+	<reqsa>1</reqsa>
+	<enabled>1</enabled>
+	<menuoption><![CDATA[
+			print_form_header($this_script, 'admin_kickIdler', 0, 1, 'resetForm');
+			print_table_header('Kick Idlers from Server');
+			print_input_row('Idle time in minutes', 'time');
+			print_submit_row('Kick Idlers', 0);
+	]]></menuoption>
+	<phpcode><![CDATA[if ($_REQUEST['do'] == 'admin_kickIdler')
+{
+
+	print_form_header('', '', 0, 1, 'gtskickidler');
+	print_table_header('Kick Idlers from Server');
+
+	$numkicked = $cyts->admin_kickIdler($_REQUEST["time"], 10, 2, "Idle more than " . $_REQUEST["time"] . " minute(s).");
+
+	print_description_row('Kicked '.$numkicked.' user(s) from the Server.');
+
+	print_table_footer(2, construct_button_code($vbphrase['go_back'], 'javascript:history.back(1)'));
+}]]></phpcode>
+	<functions>
+	</functions>
+</gTeamSpeak>

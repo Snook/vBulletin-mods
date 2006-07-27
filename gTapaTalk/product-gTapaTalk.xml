@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="gtapatalk" active="1">
+	<title>gTapaTalk</title>
+	<description>TapaTalk integration</description>
+	<version>1.0.0</version>
+	<url />
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+	</codes>
+	<templates>
+		<template name="gtapatalk_headinclude" templatetype="template" date="0" username="Ghryphen" version="1.0.0"><![CDATA[<script type="text/javascript" src="mobiquo/tapatalkdetect.js"></script>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>gTT: Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$globaltemplates[] = 'gtapatalk_headinclude';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTT: Head Include</title>
+			<hookname>global_start</hookname>
+			<phpcode><![CDATA[$vbulletin->templatecache["headinclude"] = $vbulletin->templatecache["headinclude"] . '\n' . $vbulletin->templatecache["gtapatalk_headinclude"];]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTT: WOL</title>
+			<hookname>online_location_process</hookname>
+			<phpcode><![CDATA[if ($filename == 'mobiquo.php')
+{
+	$userinfo['activity'] = 'gtapatalk';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>gTT: WOL</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if ($userinfo['activity'] == 'gtapatalk')
+{
+	$handled = true;
+	$userinfo['action'] = construct_phrase($vbphrase['viewing_x'], $vbphrase['gtapatalk_title']);
+	$userinfo['where'] = "<a href=\"" . $vbulletin->options[forumhome] . ".php\">" . $vbphrase['gtapatalk_title'] . "</a>";
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="gtapatalk_title" date="0" username="Ghryphen" version="1.0.0"><![CDATA[via TapaTalk]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>
