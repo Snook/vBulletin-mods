@@ -2,11 +2,11 @@
 
 Released mods:
 
-* gTeamSpeak ([vBullet.org release](https://www.vbulletin.org/forum/showthread.php?t=122221)) - Feature, itegrates TeamSpeak user management into forum user management. Ues forum based permissions to allow users to sign up for a TeamSpeak server acount.
-* gXboxLive ([vBullet.org release](https://www.vbulletin.org/forum/showthread.php?t=139958)) - Community Xbox gamerscore leaderboard 
-* gWoWChar ([vBullet.org release](https://www.vbulletin.org/forum/showthread.php?t=141455)) - Adds WoW characters to user information in each post.
-* gWoWRoster ([vBullet.org release](https://www.vbulletin.org/forum/showthread.php?t=170605)) - Lists community World of Warcraft characters and their stats
-* gWoWEvents ([vBullet.org release](https://www.vbulletin.org/forum/showthread.php?t=170592)) - Sign up system to allow the communtiy to sign up for events such as World of Warcraft raids. 
+* gTeamSpeak ([vBulletin.org release](https://www.vbulletin.org/forum/showthread.php?t=122221)) - Feature, itegrates TeamSpeak user management into forum user management. Ues forum based permissions to allow users to sign up for a TeamSpeak server acount.
+* gXboxLive ([vBulletin.org release](https://www.vbulletin.org/forum/showthread.php?t=139958)) - Community Xbox gamerscore leaderboard 
+* gWoWChar ([vBulletin.org release](https://www.vbulletin.org/forum/showthread.php?t=141455)) - Adds WoW characters to user information in each post.
+* gWoWRoster ([vBulletin.org release](https://www.vbulletin.org/forum/showthread.php?t=170605)) - Lists community World of Warcraft characters and their stats
+* gWoWEvents ([vBulletin.org release](https://www.vbulletin.org/forum/showthread.php?t=170592)) - Sign up system to allow the communtiy to sign up for events such as World of Warcraft raids. 
 
 Previously privately used mods:
 
