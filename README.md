@@ -25,7 +25,7 @@ Previously privately used mods:
 * gProfiler - Profile enhancement, linkify's various social profile fields
 * gSite - CMS portal for vBulletin
 * gTapaTalk - Who's online enhancement
-* gThreeWordStory - Community game, point ot a thread that will will compile all the posts into a full story.
+* gThreeWordStory - Community game, point to a thread that will will compile all the posts into a full story.
 * gTwitterWidget - Profile enhancement, show Twitter widget in profiles.
 * gVIPTracker - Feature, assigne usergroups as VIPs and list the posts they participate in.
 * gWebCam - Shows a gallary static images, webcam images uploaded by FTP at intervals.
